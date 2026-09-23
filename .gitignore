@@ -13,3 +13,4 @@ design/recovery-*/
 .DS_Store
 Thumbs.db
 .vscode/
+dist/
