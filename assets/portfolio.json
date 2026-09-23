@@ -1,0 +1,128 @@
+[
+  {
+    "channel": "esquentadinha",
+    "title": "Banner de links e redes sociais",
+    "category": "links",
+    "type": "image",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-banner-links-redes-sociais.png",
+    "poster": "assets/web/portfolio/esquentadinha-banner-links-redes-sociais.webp",
+    "original": "banner.png"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Borda de webcam — gatos",
+    "category": "shapes",
+    "type": "image",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-borda-webcam-gatos.png",
+    "poster": "assets/web/portfolio/esquentadinha-borda-webcam-gatos.webp",
+    "original": "ChatGPT Image 19 de set. de 2026, 04_15_21_upscayl_2x_digital-art-4x.png"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Avatar — atitude",
+    "category": "avatar",
+    "type": "image",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-avatar-gesto-rock.png",
+    "poster": "assets/web/portfolio/esquentadinha-avatar-gesto-rock.webp",
+    "original": "pose 1.png"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Avatar — pose de descanso",
+    "category": "avatar",
+    "type": "image",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-avatar-pose-descanso.png",
+    "poster": "assets/web/portfolio/esquentadinha-avatar-pose-descanso.webp",
+    "original": "pose 2.png"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Avatar — apontando",
+    "category": "avatar",
+    "type": "image",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-avatar-apontando.png",
+    "poster": "assets/web/portfolio/esquentadinha-avatar-apontando.webp",
+    "original": "pose 3.png"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Tela animada — volto já",
+    "category": "animadas",
+    "type": "video",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-tela-animada-volto-ja.mp4",
+    "poster": "assets/web/portfolio/esquentadinha-tela-animada-volto-ja.webp",
+    "original": "tela de aguarde.mp4"
+  },
+  {
+    "channel": "esquentadinha",
+    "title": "Tela animada — fim da live",
+    "category": "animadas",
+    "type": "video",
+    "src": "assets/Trabalhos/Esquentadinha/esquentadinha-tela-animada-fim.mp4",
+    "poster": "assets/web/portfolio/esquentadinha-tela-animada-fim.webp",
+    "original": "tela de fim da live.mp4"
+  },
+  {
+    "channel": "sung",
+    "title": "Tela animada — encerramento",
+    "category": "animadas",
+    "type": "video",
+    "src": "assets/Trabalhos/Sungzeira/sung-tela-animada-encerramento.mp4",
+    "poster": "assets/web/portfolio/sung-tela-animada-encerramento.webp",
+    "original": "Animate_thumbnail_motion_graphic_1080p_20260917020441.mp4"
+  },
+  {
+    "channel": "sung",
+    "title": "Avatar — sung",
+    "category": "avatar",
+    "type": "image",
+    "src": "assets/Trabalhos/Sungzeira/sung-avatar-sung.png",
+    "poster": "assets/web/portfolio/sung-avatar-sung.webp",
+    "original": "ChatGPT Image 16 de set. de 2026, 21_39_28_upscayl_4x_digital-art-4x.png"
+  },
+  {
+    "channel": "sung",
+    "title": "Botão — deixe o like",
+    "category": "botoes",
+    "type": "image",
+    "src": "assets/Trabalhos/Sungzeira/sung-botao-deixe-o-like.png",
+    "poster": "assets/web/portfolio/sung-botao-deixe-o-like.webp",
+    "original": "ChatGPT Image 16 de set. de 2026, 21_58_02 (4).png"
+  },
+  {
+    "channel": "sung",
+    "title": "Amuleto — Sungzeira",
+    "category": "amuletos",
+    "type": "image",
+    "src": "assets/Trabalhos/Sungzeira/sung-amuleto-sungzeira.png",
+    "poster": "assets/web/portfolio/sung-amuleto-sungzeira.webp",
+    "original": "ChatGPT Image 16 de set.png"
+  },
+  {
+    "channel": "sung",
+    "title": "Tela animada — início da live",
+    "category": "animadas",
+    "type": "video",
+    "src": "assets/Trabalhos/Sungzeira/sung-tela-animada-inicio.mp4",
+    "poster": "assets/web/portfolio/sung-tela-animada-inicio.webp",
+    "original": "magnific_animate-this-thumbnail-as_bxyUfOE5Y2.mp4"
+  },
+  {
+    "channel": "sung",
+    "title": "Borda de webcam — roxa",
+    "category": "shapes",
+    "type": "image",
+    "src": "assets/Trabalhos/Sungzeira/sung-borda-webcam-roxa.png",
+    "poster": "assets/web/portfolio/sung-borda-webcam-roxa.webp",
+    "original": "magnific_remover-fundo_LwR47XzswO.png"
+  },
+  {
+    "channel": "sung",
+    "title": "Botão — siga o canal",
+    "category": "botoes",
+    "type": "image",
+    "src": "assets/Trabalhos/Sungzeira/sung-botao-siga-o-canal.jpeg",
+    "poster": "assets/web/portfolio/sung-botao-siga-o-canal.webp",
+    "original": "notificação 2.jpeg"
+  }
+]

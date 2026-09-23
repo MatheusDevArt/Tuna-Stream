@@ -1,0 +1,15 @@
+# Local previews and temporary tooling
+.preview/python/
+.preview/check-script-0.js
+.preview/refine-faq.py
+.preview/silent-video-check.html
+
+# Local recovery copies
+design/checkpoint-*/
+design/recovery-*/
+*.backup
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.vscode/
