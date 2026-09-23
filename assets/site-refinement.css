@@ -306,12 +306,10 @@ main>.screen:not(.hero){clip-path:polygon(0 35px,36% 12px,65% 12px,69% 0,100% 18
 .loadout .rank-plan ul{min-height:66px}
 @media(max-width:760px){.hero-copy::before{display:block;font-size:8px;margin-bottom:12px}.package-filters{gap:6px;margin-bottom:26px}.package-filter{font-size:10px;padding:9px 10px}}
 
-/* Keep every section in normal flow so long FAQ answers and the final form
-   retain their own scroll and hit area on touch devices and in Lovable. */
-main>.screen{position:relative;top:auto;z-index:auto;box-shadow:none}
-main>.screen:not(.hero){clip-path:none}
-.screen>.wrap:not(.hero-bottom):not(.hero-benefits):not(.footer){translate:none}
-.hero-bg{transform:none}
+/* Keep the final form in document flow while the other sections cover one
+   another. Its own z-index still places it over the FAQ on arrival. */
+main>.screen:not(.hero):not(.custom-package){padding-bottom:max(112px,40svh)}
+.screen.is-covered>.wrap{visibility:hidden}
 .nav-links{margin-left:clamp(20px,3vw,52px)}
 @media(max-width:760px){
  .nav-links{margin-left:0}

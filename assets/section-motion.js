@@ -7,6 +7,8 @@
   let armedUntil = 0;
   let cooldownUntil = 0;
   let touchStartY = null;
+  const markerOf = section => section.previousElementSibling?.classList.contains('section-marker')
+    ? section.previousElementSibling : section;
 
   function cancelAdvance() {
     cancelAnimationFrame(animation);
@@ -26,8 +28,8 @@
 
   function nextSectionInRange() {
     for (let i = 1; i < sections.length; i++) {
-      const top = sections[i].getBoundingClientRect().top;
-      if (top > 0 && top <= innerHeight * 0.55) return sections[i];
+      const top = markerOf(sections[i]).getBoundingClientRect().top;
+      if (top > 0 && top <= innerHeight * 0.72) return sections[i];
     }
     return null;
   }
@@ -35,7 +37,7 @@
   function advance(section) {
     const from = scrollY;
     const to = Math.min(
-      section.getBoundingClientRect().top + from,
+      markerOf(section).getBoundingClientRect().top + from,
       document.documentElement.scrollHeight - innerHeight,
     );
     if (to <= from + 2) return;

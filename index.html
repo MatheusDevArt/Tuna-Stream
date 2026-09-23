@@ -174,12 +174,20 @@
     dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()}});
     dialog.addEventListener('close',()=>{const video=dialog.querySelector('video');if(video)video.pause();dialogContent.replaceChildren();document.body.classList.remove('locked');previewTrigger?.focus()});
 
-    // Native document flow keeps FAQ disclosures and the long final form clickable
-    // while moving between sections, including during touch drags in mobile browsers.
     const stackSections=[...document.querySelectorAll('main>.screen')];
+    const stackMarkers=new Map();
+    stackSections.forEach(section=>{
+      const marker=document.createElement('div');
+      marker.className='section-marker';
+      marker.setAttribute('aria-hidden','true');
+      section.before(marker);
+      stackMarkers.set(section.id,marker);
+    });
     function navigateSection(id,behavior){
-      const section=document.getElementById(id==='contato'?'personalizado':id);
-      if(section){document.dispatchEvent(new Event('sectionnavigate'));section.scrollIntoView({behavior:reducedMotion.matches?'instant':behavior,block:'start'})}
+      const marker=stackMarkers.get(id==='contato'?'personalizado':id);
+      if(!marker)return;
+      document.dispatchEvent(new Event('sectionnavigate'));
+      scrollTo({top:marker.getBoundingClientRect().top+scrollY,behavior:reducedMotion.matches?'instant':behavior});
     }
     document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
       const id=link.hash.slice(1);
@@ -189,15 +197,61 @@
       navigateSection(id,'smooth');
     }));
     addEventListener('popstate',()=>navigateSection(location.hash.slice(1)||'inicio','instant'));
-    addEventListener('pageshow',()=>{if(location.hash)navigateSection(location.hash.slice(1),'instant')});
+    history.scrollRestoration='manual';
+    addEventListener('pageshow',()=>requestAnimationFrame(()=>{sizeStack();navigateSection(location.hash.slice(1)||'inicio','instant')}));
+    function sizeStack(){
+      stackSections.forEach((section,index)=>{
+        section.style.setProperty('--stack-order',index+1);
+        section.style.setProperty('--stack-top',Math.min(0,innerHeight-section.offsetHeight)+'px');
+      });
+    }
+    let stackResizeFrame=0;
+    const stackSizer=new ResizeObserver(()=>{
+      cancelAnimationFrame(stackResizeFrame);
+      stackResizeFrame=requestAnimationFrame(sizeStack);
+    });
+    stackSections.forEach(section=>stackSizer.observe(section));
+    addEventListener('resize',sizeStack);
+    sizeStack();
     const decorationObserver=new IntersectionObserver(entries=>entries.forEach(entry=>entry.target.classList.toggle('motion-active',entry.isIntersecting)),{threshold:0});
     stackSections.forEach(section=>decorationObserver.observe(section));
     const sectionLinks=[...document.querySelectorAll('.section-nav a')];
     const pageSections=sectionLinks.map(link=>document.querySelector(link.getAttribute('href')));
     let sectionFrame=0;
-    function updateSection(){sectionFrame=0;const marker=innerHeight*.45;let current=0;pageSections.forEach((section,index)=>{if(section.getBoundingClientRect().top<=marker)current=index});sectionLinks.forEach((link,index)=>{if(index===current)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')})}
+    function updateSection(){
+      sectionFrame=0;
+      stackSections.forEach((section,index)=>{
+        const top=stackMarkers.get(section.id).getBoundingClientRect().top;
+        const next=stackSections[index+1];
+        const nextTop=next?stackMarkers.get(next.id).getBoundingClientRect().top:Infinity;
+        const covered=nextTop<=1;
+        section.classList.toggle('is-covered',covered);
+        if(covered&&section.dataset.wasCovered!=='true')section.querySelectorAll('video').forEach(video=>video.pause());
+        if(!covered&&section.dataset.wasCovered==='true')section.querySelectorAll('video').forEach(video=>{
+          if(video===heroFilm){heroVideoObserver.unobserve(video);heroVideoObserver.observe(video)}
+          else{videoObserver.unobserve(video);videoObserver.observe(video)}
+        });
+        section.dataset.wasCovered=String(covered);
+        if(reducedMotion.matches){
+          section.style.setProperty('--content-parallax','0px');
+          section.style.setProperty('--scene-parallax','0px');
+        }else{
+          const entering=Math.max(0,Math.min(1,top/innerHeight));
+          const leaving=Math.max(0,Math.min(1,1-nextTop/innerHeight));
+          const strength=innerWidth<761?.55:1;
+          section.style.setProperty('--content-parallax',((entering*55-leaving*100)*strength).toFixed(2)+'px');
+          section.style.setProperty('--scene-parallax',((leaving*65-entering*35)*strength).toFixed(2)+'px');
+        }
+      });
+      const marker=innerHeight*.45;
+      let current=0;
+      pageSections.forEach((section,index)=>{if(stackMarkers.get(section.id).getBoundingClientRect().top<=marker)current=index});
+      sectionLinks.forEach((link,index)=>{if(index===current)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')});
+    }
     function scheduleSection(){if(!sectionFrame)sectionFrame=requestAnimationFrame(updateSection)}
-    addEventListener('scroll',scheduleSection,{passive:true});addEventListener('resize',scheduleSection);updateSection();
+    addEventListener('scroll',scheduleSection,{passive:true});addEventListener('resize',scheduleSection);
+    reducedMotion.addEventListener('change',scheduleSection);
+    updateSection();
     document.querySelector('#year').textContent=new Date().getFullYear();
   </script>
   <script src="assets/background-music.js"></script>
