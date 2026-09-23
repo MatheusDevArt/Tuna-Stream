@@ -179,7 +179,7 @@
     const stackSections=[...document.querySelectorAll('main>.screen')];
     function navigateSection(id,behavior){
       const section=document.getElementById(id==='contato'?'personalizado':id);
-      if(section) section.scrollIntoView({behavior:reducedMotion.matches?'instant':behavior,block:'start'});
+      if(section){document.dispatchEvent(new Event('sectionnavigate'));section.scrollIntoView({behavior:reducedMotion.matches?'instant':behavior,block:'start'})}
     }
     document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
       const id=link.hash.slice(1);
@@ -201,6 +201,7 @@
     document.querySelector('#year').textContent=new Date().getFullYear();
   </script>
   <script src="assets/background-music.js"></script>
+  <script src="assets/section-motion.js"></script>
   <script src="assets/custom-package.js"></script>
   <script src="assets/packages.js"></script>
 </body>
