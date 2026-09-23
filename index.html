@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#080809">
   <meta name="description" content="Tuna Stream: configuração de PC e OBS, identidade visual e suporte para a sua criação de conteúdo. Atendimento 100% remoto.">
   <title>Tuna Stream — Sua live no próximo nível!</title>
+  <link rel="icon" href="assets/Logo/SIMBOLO_2x.ico" type="image/x-icon">
   <link rel="preload" href="assets/fonts/evil-empire.woff" as="font" type="font/woff" crossorigin>
   <link rel="preload" href="assets/web/hero-stream-poster.webp" as="image" fetchpriority="high">
   <style>
@@ -173,44 +174,33 @@
     dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()}});
     dialog.addEventListener('close',()=>{const video=dialog.querySelector('video');if(video)video.pause();dialogContent.replaceChildren();document.body.classList.remove('locked');previewTrigger?.focus()});
 
+    // Native document flow keeps FAQ disclosures and the long final form clickable
+    // while moving between sections, including during touch drags in mobile browsers.
     const stackSections=[...document.querySelectorAll('main>.screen')];
-    const stackMarkers=new Map();
-    stackSections.forEach(section=>{const marker=document.createElement('div');marker.className='section-marker';marker.setAttribute('aria-hidden','true');section.before(marker);stackMarkers.set(section.id,marker)});
-    function navigateSection(id,behavior){if(id==='contato')id='personalizado';document.dispatchEvent(new Event('sectionnavigate'));const marker=stackMarkers.get(id);if(!marker)return;scrollTo({top:marker.getBoundingClientRect().top+scrollY,behavior:reducedMotion.matches?'instant':behavior})}
-    document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{const id=link.hash.slice(1);if(!stackMarkers.has(id))return;event.preventDefault();if(location.hash!==link.hash)history.pushState(null,'',link.hash);navigateSection(id,'smooth')}));
+    function navigateSection(id,behavior){
+      const section=document.getElementById(id==='contato'?'personalizado':id);
+      if(section) section.scrollIntoView({behavior:reducedMotion.matches?'instant':behavior,block:'start'});
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
+      const id=link.hash.slice(1);
+      if(!document.getElementById(id))return;
+      event.preventDefault();
+      if(location.hash!==link.hash)history.pushState(null,'',link.hash);
+      navigateSection(id,'smooth');
+    }));
     addEventListener('popstate',()=>navigateSection(location.hash.slice(1)||'inicio','instant'));
-    addEventListener('hashchange',()=>navigateSection(location.hash.slice(1)||'inicio','instant'));
-    history.scrollRestoration='manual';
-    addEventListener('pageshow',()=>requestAnimationFrame(()=>{sizeStack();navigateSection(location.hash.slice(1)||'inicio','instant')}));
-    function sizeStack(){stackSections.forEach((section,i)=>{section.style.setProperty('--stack-order',i+1);section.style.setProperty('--stack-top',Math.min(0,innerHeight-section.offsetHeight)+'px')})}
-    let stackResizeFrame=0;
-    const stackSizer=new ResizeObserver(()=>{cancelAnimationFrame(stackResizeFrame);stackResizeFrame=requestAnimationFrame(sizeStack)});
-    stackSections.forEach(section=>stackSizer.observe(section));
-    addEventListener('resize',sizeStack);sizeStack();
+    addEventListener('pageshow',()=>{if(location.hash)navigateSection(location.hash.slice(1),'instant')});
     const decorationObserver=new IntersectionObserver(entries=>entries.forEach(entry=>entry.target.classList.toggle('motion-active',entry.isIntersecting)),{threshold:0});
     stackSections.forEach(section=>decorationObserver.observe(section));
     const sectionLinks=[...document.querySelectorAll('.section-nav a')];
     const pageSections=sectionLinks.map(link=>document.querySelector(link.getAttribute('href')));
     let sectionFrame=0;
-    function updateDepth(){
-      stackSections.forEach((section,i)=>{
-        if(reducedMotion.matches){section.style.setProperty('--content-parallax','0px');section.style.setProperty('--scene-parallax','0px');return}
-        const r=section.getBoundingClientRect(),next=stackSections[i+1]?.getBoundingClientRect();
-        if(r.bottom<=0||r.top>=innerHeight)return;
-        const entering=Math.max(0,Math.min(1,r.top/innerHeight));
-        const leaving=next?Math.max(0,Math.min(1,1-next.top/Math.min(innerHeight,r.height))):0;
-        const strength=innerWidth<761?.55:1;
-        section.style.setProperty('--content-parallax',((entering*55-leaving*100)*strength).toFixed(2)+'px');
-        section.style.setProperty('--scene-parallax',((leaving*65-entering*35)*strength).toFixed(2)+'px');
-      });
-    };
-    reducedMotion.addEventListener('change',()=>{sizeStack();scheduleSection()});
-    function updateSection(){sectionFrame=0;updateDepth();stackSections.forEach((section,i)=>{const next=stackSections[i+1];const covered=next&&next.getBoundingClientRect().top<=0;section.classList.toggle('is-covered',!!covered);if(covered)section.querySelectorAll('video').forEach(v=>v.pause());else if(section.dataset.wasCovered==='true'){section.querySelectorAll('video').forEach(v=>{if(v===heroFilm){heroVideoObserver.unobserve(v);heroVideoObserver.observe(v)}else{videoObserver.unobserve(v);videoObserver.observe(v)}})}section.dataset.wasCovered=String(!!covered)});const marker=innerHeight*.45;let current=0;pageSections.forEach((section,index)=>{if(section.getBoundingClientRect().top<=marker)current=index});sectionLinks.forEach((link,index)=>{if(index===current)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')})}
+    function updateSection(){sectionFrame=0;const marker=innerHeight*.45;let current=0;pageSections.forEach((section,index)=>{if(section.getBoundingClientRect().top<=marker)current=index});sectionLinks.forEach((link,index)=>{if(index===current)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')})}
     function scheduleSection(){if(!sectionFrame)sectionFrame=requestAnimationFrame(updateSection)}
     addEventListener('scroll',scheduleSection,{passive:true});addEventListener('resize',scheduleSection);updateSection();
     document.querySelector('#year').textContent=new Date().getFullYear();
   </script>
-  <script src="assets/section-motion.js"></script>
+  <script src="assets/background-music.js"></script>
   <script src="assets/custom-package.js"></script>
   <script src="assets/packages.js"></script>
 </body>
