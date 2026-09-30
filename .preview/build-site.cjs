@@ -6,9 +6,9 @@ const output = path.join(root, 'dist');
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
 fs.copyFileSync(path.join(root, 'index.html'), path.join(output, 'index.html'));
-const unusedSourceArt = path.join(root, 'assets', 'Personagem');
+const unusedSourceDirs = ['Personagem', 'referencias'].map(name => path.join(root, 'assets', name));
 fs.cpSync(path.join(root, 'assets'), path.join(output, 'assets'), {
   recursive: true,
-  filter: source => source !== unusedSourceArt && !source.startsWith(unusedSourceArt + path.sep),
+  filter: source => !unusedSourceDirs.some(directory => source === directory || source.startsWith(directory + path.sep)),
 });
 console.log(`Static site ready: ${output}`);
