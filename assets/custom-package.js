@@ -1,55 +1,111 @@
-/* A local form: only its prepared message is passed to WhatsApp on submission. */
-function buildCustomPackageMessage({name,kind,services,details}) {
-  const labels={configuracao:'Configuração',design:'Design',ambos:'Configuração e design'};
-  return [
-    'Olá! Quero um pacote personalizado da Tuna Stream.',
-    '',
-    'Nome: '+name.trim(),
-    'Eu quero: '+labels[kind],
-    '',
-    'Serviços selecionados:',
-    ...services.map(service=>'• '+service),
-    ...(details.trim()?['','Informações adicionais:',details.trim()]:[])
-  ].join('\n');
+/* Native GET prepares the order; only the visitor submits it to WhatsApp. */
+function buildCustomPackageMessage({name, kind, services = [], details = '', mode = 'services', basePlan, configPlan, designPlan}) {
+  const labels = {configuracao: 'Configuração', design: 'Personalização', ambos: 'Configuração e personalização'};
+  const selection = mode === 'mix'
+    ? ['Pacotes escolhidos:', '• Configuração: ' + configPlan, '• Personalização: ' + designPlan, '', 'Quero aproveitar o desconto na combinação de pacotes.']
+    : mode === 'extras'
+      ? ['Pacote escolhido: ' + basePlan + ' — ' + labels[kind], '', 'Itens adicionais:', ...services.map(item => '• ' + item)]
+      : ['Serviços selecionados:', ...services.map(item => '• ' + item)];
+  return ['Olá! Quero um pacote personalizado da Tuna Stream.', '', 'Nome: ' + name.trim(),
+    'Eu quero: ' + labels[kind], '', ...selection,
+    ...(details.trim() ? ['', 'Informações adicionais:', details.trim()] : [])].join('\n');
 }
-
-if (typeof module!=='undefined' && module.exports) module.exports={buildCustomPackageMessage};
-
-if (typeof document!=='undefined') {
-  const form=document.querySelector('#custom-package-form');
-  const nameInput=document.querySelector('#request-name');
-  const kindInput=document.querySelector('#request-kind');
-  const detailsInput=document.querySelector('#request-details');
-  const servicesField=document.querySelector('#request-services');
-  const groups=[...form.querySelectorAll('[data-kind]')];
-  const error=document.querySelector('#services-error');
-  const count=document.querySelector('#service-selection-count');
-  const message=document.querySelector('#whatsapp-message');
-  const checkedServices=()=>[...form.querySelectorAll('input[type=checkbox]:checked:not(:disabled)')].map(input=>input.value);
+if (typeof module !== 'undefined' && module.exports) module.exports = {buildCustomPackageMessage};
+if (typeof document !== 'undefined') (() => {
+  const form = document.querySelector('#custom-package-form');
+  const name = document.querySelector('#request-name');
+  const mode = document.querySelector('#request-mode');
+  const kind = document.querySelector('#request-kind');
+  const base = document.querySelector('#request-base-plan');
+  const config = document.querySelector('#request-config-plan');
+  const design = document.querySelector('#request-design-plan');
+  const details = document.querySelector('#request-details');
+  const field = document.querySelector('#request-services');
+  const options = form.querySelector('.request-service-options');
+  const error = document.querySelector('#services-error');
+  const count = document.querySelector('#service-selection-count');
+  const message = document.querySelector('#whatsapp-message');
+  const pool = ['configuracao', 'personalizacao'].flatMap(category => {
+    const seen = new Set();
+    const items = packageNames.flatMap(plan => packageCatalog[category].plans[plan].items).filter(item => item.id !== 'screens');
+    if (category === 'personalizacao') items.push(feature('screen-offline', 'Tela de offline (animada)', 2));
+    return items.filter(item => {const key = item.id + ':' + item.level; if (seen.has(key)) return false; seen.add(key); return true;})
+      .map(item => ({...item, category}));
+  });
+  const additional = {
+    configuracao: [['audio-output', 'Configuração de saídas de áudio'], ['audio-filters', 'Filtros e melhorias de áudio'],
+      ['vertical', 'Configuração de cena horizontal e vertical'], ['obs-backup', 'Backup das configurações do OBS'],
+      ['capture', 'Configuração de placa de captura'], ['virtual-camera', 'Câmera virtual ou celular como webcam'],
+      ['games', 'Configuração e otimização de jogos'], ['windows', 'Otimização de Windows e placa de vídeo'],
+      ['format', 'Formatação e ativação do Windows (10/11)']],
+    personalizacao: [['avatar', 'Avatar'], ['buttons', 'Botões'], ['other', 'Outros']]
+  };
+  Object.entries(additional).forEach(([category, items]) => items.forEach(([id, label]) => pool.push({...feature(id, label), category})));
+  const selected = () => [...options.querySelectorAll('input:checked:not(:disabled)')].map(input => input.value);
   function updateMessage() {
-    const services=checkedServices();
-    count.textContent=kindInput.value?`${services.length} serviço${services.length===1?'':'s'} selecionado${services.length===1?'':'s'}`:'';
-    if(services.length){error.hidden=true;servicesField.removeAttribute('aria-invalid')}
-    message.value=kindInput.value?buildCustomPackageMessage({name:nameInput.value,kind:kindInput.value,services,details:detailsInput.value}):'';
-    document.querySelector('#request-message-preview').textContent=message.value||'Preencha o formulário para preparar sua mensagem.';
+    const services = selected();
+    const noun = mode.value === 'extras'
+      ? (services.length === 1 ? 'item adicional' : 'itens adicionais')
+      : (services.length === 1 ? 'serviço' : 'serviços');
+    count.textContent = mode.value === 'mix' || !kind.value ? ''
+      : `${services.length} ${noun} ${services.length === 1 ? 'selecionado' : 'selecionados'}`;
+    if (services.length || mode.value === 'mix') {error.hidden = true; field.removeAttribute('aria-invalid');}
+    message.value = kind.value ? buildCustomPackageMessage({name: name.value, kind: kind.value, mode: mode.value,
+      services, basePlan: base.value, configPlan: config.value, designPlan: design.value, details: details.value}) : '';
+    document.querySelector('#request-message-preview').textContent = message.value || 'Preencha o formulário para preparar sua mensagem.';
   }
   function updateChoices() {
-    groups.forEach(group=>{
-      const shown=kindInput.value==='ambos'||kindInput.value===group.dataset.kind;
-      group.hidden=!shown;
-      group.querySelectorAll('input').forEach(input=>{input.disabled=!shown;if(!shown)input.checked=false});
+    const mixing = mode.value === 'mix';
+    kind.disabled = mixing;
+    if (mixing) kind.value = 'ambos';
+    form.querySelectorAll('[data-order-mode]').forEach(group => {
+      const shown = group.dataset.orderMode === mode.value;
+      group.hidden = !shown;
+      group.querySelectorAll('select').forEach(select => {select.disabled = !shown; select.required = shown;});
     });
-    document.querySelector('#services-help').textContent=kindInput.value?'Selecione um ou mais serviços.':'Escolha acima o que você procura para ver os serviços.';
-    error.hidden=true;servicesField.removeAttribute('aria-invalid');updateMessage();
+    field.hidden = mixing;
+    options.replaceChildren();
+    const category = kind.value === 'design' ? 'personalizacao' : kind.value;
+    const included = mode.value === 'extras' && base.value && category ? packageFeatures(category, base.value) : [];
+    const ready = !mixing && !!kind.value && (mode.value !== 'extras' || !!base.value);
+    ['configuracao', 'personalizacao'].forEach(group => {
+      if (!ready || (mode.value === 'services' && category !== 'ambos' && category !== group)) return;
+      const choices = pool.filter(item => item.category === group && !included.some(current => current.id === item.id && current.level >= item.level));
+      const container = document.createElement('div'); container.className = 'request-service-group';
+      const heading = document.createElement('h4'); heading.textContent = packageCatalog[group].label; container.append(heading);
+      choices.forEach(item => {
+        const label = document.createElement('label'); const input = document.createElement('input'); input.type = 'checkbox';
+        input.value = item.label; input.dataset.feature = item.id;
+        const span = document.createElement('span'); span.textContent = item.label; label.append(input, span); container.append(label);
+      });
+      options.append(container);
+    });
+    field.querySelector('legend').textContent = mode.value === 'extras' ? 'Itens adicionais' : 'Tipos de serviço';
+    document.querySelector('#services-help').textContent = !kind.value ? 'Escolha o que você procura para ver os serviços.'
+      : mode.value === 'extras' ? (base.value ? 'Selecione os extras. Os itens já incluídos no pacote não aparecem aqui.' : 'Escolha um pacote para ver os itens adicionais.')
+      : 'Selecione um ou mais serviços.';
+    const discountNote = document.querySelector('#custom-discount-note');
+    discountNote.hidden = mode.value === 'services';
+    discountNote.textContent = mixing
+      ? 'Combine configuração e personalização e aproveite um desconto no seu pedido.'
+      : 'Monte seu pacote com adicionais e aproveite um desconto no pedido.';
+    error.hidden = true; field.removeAttribute('aria-invalid'); updateMessage();
   }
-  kindInput.addEventListener('change',updateChoices);
-  form.addEventListener('input',updateMessage);
-  form.addEventListener('submit',event=>{
-    nameInput.value=nameInput.value.trim();
-    if(!form.checkValidity()){event.preventDefault();form.reportValidity();return}
-    if(!checkedServices().length){event.preventDefault();error.hidden=false;servicesField.setAttribute('aria-invalid','true');servicesField.focus();return}
+  [mode, kind, base].forEach(input => input.addEventListener('change', updateChoices));
+  options.addEventListener('change', event => {
+    const input = event.target;
+    if (input.checked) options.querySelectorAll('input').forEach(other => {if (other !== input && other.dataset.feature === input.dataset.feature) other.checked = false;});
     updateMessage();
-    // Native GET submission opens the official WhatsApp link with one text parameter.
+  });
+  form.addEventListener('input', updateMessage);
+  form.addEventListener('submit', event => {
+    name.value = name.value.trim();
+    if (!form.checkValidity()) {event.preventDefault(); form.reportValidity(); return;}
+    if (mode.value !== 'mix' && !selected().length) {
+      event.preventDefault(); error.textContent = mode.value === 'extras' ? 'Selecione pelo menos um item adicional.' : 'Selecione pelo menos um serviço.';
+      error.hidden = false; field.setAttribute('aria-invalid', 'true'); field.focus(); return;
+    }
+    updateMessage();
   });
   updateChoices();
-}
+})();

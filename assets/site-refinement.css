@@ -333,3 +333,28 @@ main>.screen:not(.hero):not(.custom-package){padding-bottom:max(112px,40svh)}
 .loadout .rank-plan li::before{flex-shrink:0}
 .loadout .rank-plan .btn{margin-top:auto;font-size:10px}
 @media(max-width:760px){.loadout .plans{grid-template-columns:1fr}.loadout .rank-plan h3{font-size:48px}.loadout .rank-plan ul{font-size:13px}}
+
+/* Small perimeter lights; the LIVE card remains the main focus. */
+@property --light-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes package-light-orbit{to{--light-angle:360deg}}
+.loadout .rank-plan .plan-light{position:absolute;inset:0;pointer-events:none;z-index:1;padding:2px;background:conic-gradient(from var(--light-angle),transparent 0 68%,#bb8fff99 78%,transparent 86%);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;animation:package-light-orbit 12s linear infinite;opacity:.55}
+.loadout .live .plan-light{opacity:.85;animation-duration:10s}
+.loadout .streamer .plan-light{animation-delay:-6s}
+.loadout.is-covered .plan-light{animation-play-state:paused}
+.loadout .rank-plan ul{gap:9px}
+.loadout .rank-plan li{align-items:flex-start;padding:3px 8px;line-height:1.65}
+.loadout .rank-plan li::before{margin-top:6px}
+.loadout .rank-plan li.plan-upgrade{color:#f0e6ff;font-weight:500;background:#7227dc14;border-left:2px solid #9460e5}
+.loadout .rank-plan li.plan-upgrade::before{background:#9b6de54d;border-color:#b78be9}
+.loadout .rank-plan li.plan-group-label{padding:12px 8px 3px;font:600 10px/1.5 var(--body);letter-spacing:1.3px;text-transform:uppercase;color:#c7b9da;border-bottom:1px solid #ffffff12}
+.loadout .rank-plan li.plan-group-label::before,.loadout .rank-plan li.plan-inherited::before{display:none}
+.loadout .rank-plan li.plan-inherited{font-weight:600;color:#fff;border-bottom:1px solid #ffffff18;padding-bottom:10px}
+.package-pricing{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.loadout .rank-plan .package-pricing .plan-price{margin:0;width:100%;font-size:28px}
+.plan-original-price{color:#b7a7c7;font:400 12px/1.5 var(--body)}
+.plan-discount{font:600 9px/1.6 var(--body);padding:3px 8px;color:#eee0ff;background:#7227dc30;border:1px solid #9460e544}
+.package-pricing>[hidden],.custom-form [hidden]{display:none!important}
+.package-filter[data-package-kind=ambos]{font-weight:600;border-color:#9b6de5;background:#7227dc22;box-shadow:0 0 20px #7227dc18}
+.package-filter[data-package-kind=ambos][aria-pressed=true]{background:var(--purple);box-shadow:0 0 24px #7227dc40;border-color:#b78be9}
+.custom-discount-note{font:500 11px/1.7 var(--body);color:#d5beef;border-left:2px solid var(--purple);padding:10px 14px;background:#7227dc12}
+@media(prefers-reduced-motion:reduce){.loadout .rank-plan .plan-light{animation:none}}

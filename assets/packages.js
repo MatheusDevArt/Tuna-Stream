@@ -1,57 +1,88 @@
-// Shared plan names; independent services and prices for each category.
+/* One catalog powers package cards, comparisons and the custom order form. */
+const feature = (id, label, level = 1) => ({id, label, level});
+const packageNames = ['START', 'LIVE', 'STREAMER'];
 const packageCatalog = {
-  configuracao: { label: 'Configuração', plans: {
-    START: {price: 'R$ 99,90', description: 'O essencial para começar com tudo configurado', benefits: [
-      'Configuração do OBS do zero para lives e gravações',
-      'Configuração para 1 plataforma — Twitch, YouTube, Kick, TikTok ou outra compatível',
-      'Configuração de áudio e microfone', 'Configuração de webcam/câmera',
-      'Configuração de 2 cenas principais', 'Configuração de teclas de atalho',
-      'Ajustes básicos de qualidade e desempenho', 'Teste final de transmissão'
+  configuracao: {label: 'Configuração', plans: {
+    START: {cents: 9990, description: 'O essencial para começar com tudo configurado', items: [
+      feature('obs', 'OBS configurado do zero'), feature('platforms', 'Configuração de 1 plataforma', 1),
+      feature('audio', 'Áudio e microfone'), feature('camera', 'Webcam ou câmera'),
+      feature('scenes', '2 cenas principais', 2), feature('hotkeys', 'Teclas de atalho'),
+      feature('quality', 'Ajustes básicos de qualidade', 1), feature('test', 'Teste final da transmissão')
     ]},
-    LIVE: {price: 'R$ 249,90', description: 'Sua live preparada para várias plataformas + interação com o público', benefits: [
-      'Configuração do OBS do zero para lives e gravações',
-      'Configuração para até 3 plataformas — Twitch, YouTube, Kick, TikTok ou outras compatíveis',
-      'Otimização do OBS para multistream', 'Configuração de áudio e microfone',
-      'Configuração de webcam/câmera', 'Configuração de 3 cenas principais',
-      'Configuração de teclas de atalho', 'Configuração de alertas', 'Configuração do LivePix',
-      'Configuração de bot de chat', 'Ajustes de qualidade, desempenho e transmissão',
-      'Teste final de transmissão'
+    LIVE: {cents: 24990, description: 'Sua live em várias plataformas, com interação', items: [
+      feature('obs', 'OBS configurado do zero'), feature('platforms', 'Configuração de 3 plataformas', 3),
+      feature('optimization', 'OBS otimizado para multistream', 1), feature('audio', 'Áudio e microfone'),
+      feature('camera', 'Webcam ou câmera'), feature('scenes', '3 cenas principais', 3),
+      feature('hotkeys', 'Teclas de atalho'), feature('alerts', 'Alertas'), feature('livepix', 'LivePix'),
+      feature('bot', 'Bot de chat'), feature('quality', 'Ajustes de qualidade e desempenho', 2),
+      feature('test', 'Teste final da transmissão')
     ]},
-    STREAMER: {price: 'R$ 499,90', description: 'A estrutura completa para profissionalizar sua live', benefits: [
-      'Configuração do OBS do zero para lives e gravações',
-      'Configuração para até 4 plataformas — Twitch, YouTube, Kick, TikTok ou outras compatíveis',
-      'Otimização completa do OBS', 'Configuração de áudio e microfone',
-      'Configuração de webcam/câmera', 'Configuração de 5 cenas principais',
-      'Configuração de teclas de atalho', 'Configuração de alertas', 'Configuração do LivePix',
-      'Configuração de bot de chat', 'Configuração completa do StreamElements',
-      'Configuração de overlay padrão do StreamElements',
-      'Configuração de widgets, alertas e elementos da transmissão',
-      'Configuração de comandos e timers', 'Configuração completa do canal da Twitch',
-      'Configuração dos recursos de monetização disponíveis no canal',
-      'Ajustes finais e integração de todos os recursos',
-      'Teste completo de toda a estrutura de transmissão'
+    STREAMER: {cents: 49990, description: 'A estrutura completa para profissionalizar sua live', items: [
+      feature('obs', 'OBS configurado do zero'), feature('platforms', 'Configuração de 4 plataformas', 4),
+      feature('optimization', 'Otimização completa do OBS', 2), feature('audio', 'Áudio e microfone'),
+      feature('camera', 'Webcam ou câmera'), feature('scenes', '5 cenas principais', 5),
+      feature('hotkeys', 'Teclas de atalho'), feature('alerts', 'Alertas'), feature('livepix', 'LivePix'),
+      feature('bot', 'Bot de chat'), feature('streamelements', 'StreamElements completo'),
+      feature('overlay', 'Overlay padrão do StreamElements'), feature('widgets', 'Widgets e elementos da live'),
+      feature('commands', 'Comandos e timers'), feature('twitch', 'Canal da Twitch completo'),
+      feature('monetization', 'Recursos de monetização'), feature('integration', 'Integração final de tudo'),
+      feature('test', 'Teste final da transmissão')
     ]}
   }},
   personalizacao: {label: 'Personalização', plans: {
-    START: {price: 'R$ 200,00', benefits: ['Tela de início', 'Tela de fim', 'Tela de chat', 'Webcam', 'Banner']},
-    LIVE: {price: 'R$ 500,00', benefits: [
-      'Tela de início (animada)', 'Tela de fim (animada)', 'Tela de chat (animada)',
-      'Tela de offline (animada)', 'Tela de volto já (animada)', 'Webcam', 'Banner',
-      'Painéis (4)', 'Alertas (3)', 'Transição de cena', 'Identidade visual (lite)'
+    START: {cents: 20000, description: 'O visual essencial para dar identidade ao seu canal', items: [
+      feature('screen-start', 'Tela de início'), feature('screen-end', 'Tela de fim'), feature('screen-chat', 'Tela de chat'),
+      feature('webcam-art', 'Webcam'), feature('banner', 'Banner')
     ]},
-    STREAMER: {price: 'R$ 900,00', benefits: [
-      '5 telas animadas', 'Webcam', 'Banner', 'Painéis (6)', 'Alertas (5)',
-      'Transição de cena', 'Identidade visual (PRO)', 'Distintivos (5)', 'Emotes (5)',
-      'Amuleto', 'Versão para TikTok', 'Chat personalizado'
+    LIVE: {cents: 50000, description: 'Sua identidade em movimento, com mais presença na live', items: [
+      feature('screen-start', 'Tela de início (animada)', 2), feature('screen-end', 'Tela de fim (animada)', 2),
+      feature('screen-chat', 'Tela de chat (animada)', 2), feature('screen-brb', 'Tela de volto já (animada)', 2),
+      feature('webcam-art', 'Webcam'), feature('banner', 'Banner'), feature('panels', 'Painéis (4)', 4),
+      feature('alert-art', 'Alertas (3)', 3), feature('transition', 'Transição de cena'),
+      feature('branding', 'Identidade visual (lite)', 1)
+    ]},
+    STREAMER: {cents: 90000, description: 'Uma identidade completa para uma experiência marcante', items: [
+      feature('screens', '5 telas animadas (início, fim, chat, offline e volto já)', 5),
+      feature('webcam-art', 'Webcam'), feature('banner', 'Banner'), feature('panels', 'Painéis (6)', 6),
+      feature('alert-art', 'Alertas (5)', 5), feature('transition', 'Transição de cena'),
+      feature('branding', 'Identidade visual (PRO)', 2), feature('badges', 'Distintivos (5)', 5),
+      feature('emotes', 'Emotes (5)', 5), feature('charm', 'Amuleto'),
+      feature('tiktok-art', 'Versão para TikTok'), feature('chat-art', 'Chat personalizado')
     ]}
-  }},
-  ambos: {label: 'Configuração e personalização', plans: {
-    START: {price: null, benefits: []}, LIVE: {price: null, benefits: []}, STREAMER: {price: null, benefits: []}
   }}
 };
-(() => {
+const formatPackagePrice = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+function packageFeatures(kind, name) {
+  if (kind === 'ambos') return ['configuracao', 'personalizacao'].flatMap(category => packageFeatures(category, name));
+  const items = packageCatalog[kind].plans[name].items;
+  if (kind !== 'personalizacao' || name !== 'STREAMER') return items;
+  // Expand the grouped screen line for accurate comparisons and form exclusions.
+  return items.flatMap(item => item.id === 'screens'
+    ? ['start', 'end', 'chat', 'offline', 'brb'].map(id => feature('screen-' + id, '', 2)) : item);
+}
+function isPackageUpgrade(kind, name, item) {
+  const index = packageNames.indexOf(name);
+  if (!index) return false;
+  if (item.id === 'screens') return true;
+  const previous = packageFeatures(kind, packageNames[index - 1]).find(entry => entry.id === item.id);
+  return !previous || item.level > previous.level;
+}
+packageCatalog.ambos = {label: 'Configuração e personalização', plans: Object.fromEntries(packageNames.map(name => {
+  const originalCents = packageCatalog.configuracao.plans[name].cents + packageCatalog.personalizacao.plans[name].cents;
+  return [name, {originalCents, cents: Math.round(originalCents * 85 / 100), description: {
+    START: 'Seu primeiro setup pronto, com a identidade do seu canal',
+    LIVE: 'Mais plataformas e uma identidade animada para sua live',
+    STREAMER: 'Configuração completa e identidade visual profissional'
+  }[name]}];
+}))};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = {packageCatalog, packageNames, packageFeatures, isPackageUpgrade, formatPackagePrice};
+if (typeof document !== 'undefined') (() => {
   const buttons = [...document.querySelectorAll('[data-package-kind]')];
   const cards = [...document.querySelectorAll('#pacotes .rank-plan')];
+  const makeItem = (text, className = '') => {
+    const li = document.createElement('li'); li.textContent = text; li.className = className; return li;
+  };
   function selectPackages(kind) {
     const category = packageCatalog[kind];
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.packageKind === kind)));
@@ -59,42 +90,57 @@ const packageCatalog = {
       const name = card.querySelector('h3').textContent.trim();
       const plan = category.plans[name];
       card.querySelector('.plan-note').textContent = category.label;
-      let price = card.querySelector('.plan-price');
-      if (!price) {
-        price = document.createElement('p'); price.className = 'plan-price';
-        card.querySelector('.plan-note').after(price);
+      let pricing = card.querySelector('.package-pricing');
+      if (!pricing) {
+        pricing = document.createElement('div'); pricing.className = 'package-pricing';
+        card.querySelector('.plan-note').after(pricing);
+        const original = document.createElement('del'); original.className = 'plan-original-price'; pricing.append(original);
+        const price = document.createElement('p'); price.className = 'plan-price'; pricing.append(price);
+        const discount = document.createElement('span'); discount.className = 'plan-discount'; pricing.append(discount);
+        const description = document.createElement('p'); description.className = 'plan-description'; pricing.after(description);
       }
-      price.textContent = plan.price ?? 'Valores em breve';
-      price.classList.toggle('pending', !plan.price);
-      let description = card.querySelector('.plan-description');
-      if (!description) {
-        description = document.createElement('p'); description.className = 'plan-description'; price.after(description);
+      pricing.querySelector('.plan-price').textContent = formatPackagePrice(plan.cents);
+      pricing.querySelector('del').textContent = plan.originalCents ? formatPackagePrice(plan.originalCents) : '';
+      pricing.querySelector('del').hidden = !plan.originalCents;
+      const discount = pricing.querySelector('.plan-discount');
+      discount.hidden = !plan.originalCents;
+      discount.textContent = plan.originalCents ? 'Economize ' + formatPackagePrice(plan.originalCents - plan.cents) : '';
+      card.querySelector('.plan-description').textContent = plan.description;
+      const list = card.querySelector('ul');
+      const items = [];
+      if (kind === 'ambos') {
+        const index = packageNames.indexOf(name);
+        if (index) items.push(makeItem('Tudo do plano ' + packageNames[index - 1], 'plan-inherited'));
+        ['configuracao', 'personalizacao'].forEach(group => {
+          items.push(makeItem(packageCatalog[group].label, 'plan-group-label'));
+          if (group === 'personalizacao' && name === 'LIVE') {
+            items.push(makeItem('4 telas animadas (início, fim, volto já e chat)', 'plan-upgrade'));
+          }
+          packageCatalog[group].plans[name].items.forEach(item => {
+            if (group === 'personalizacao' && name === 'LIVE' && item.id.startsWith('screen-')) return;
+            const upgrade = isPackageUpgrade(group, name, item);
+            if (!index || upgrade) items.push(makeItem(item.label, upgrade ? 'plan-upgrade' : ''));
+          });
+        });
+      } else {
+        category.plans[name].items.forEach(item => items.push(makeItem(item.label, isPackageUpgrade(kind, name, item) ? 'plan-upgrade' : '')));
       }
-      description.textContent = plan.description ?? '';
-      description.hidden = !plan.description;
-      const items = plan.benefits.length ? plan.benefits : ['Itens do pacote em definição.'];
-      card.querySelector('ul').replaceChildren(...items.map(text => {
-        const li = document.createElement('li'); li.textContent = text; return li;
-      }));
+      list.replaceChildren(...items);
       card.querySelector('a.btn').href = 'https://wa.me/5521979978671?text=' + encodeURIComponent(
         'Olá! Quero contratar o pacote ' + name + ' de ' + category.label.toLowerCase() +
-        (plan.price ? ' (' + plan.price + ')' : '') + '.'
-      );
+        ' (' + formatPackagePrice(plan.cents) + (plan.originalCents ? ', com desconto' : '') + ').');
     });
     document.querySelector('#pacotes .pricing-footnote').textContent = kind === 'ambos'
-      ? 'Configuração e personalização: os itens e valores dos pacotes serão anunciados em breve.'
+      ? 'Configuração e personalização juntas, com desconto no pacote completo.'
       : 'Escolha seu pacote de ' + category.label.toLowerCase() + ' e fale com a gente pelo WhatsApp.';
   }
   buttons.forEach(button => button.addEventListener('click', () => {
-    document.dispatchEvent(new Event('sectionnavigate'));
-    selectPackages(button.dataset.packageKind);
-    // Keep the category controls in place when shorter lists resize a sticky section.
+    document.dispatchEvent(new Event('sectionnavigate')); selectPackages(button.dataset.packageKind);
     requestAnimationFrame(() => {
-      const section = document.querySelector('#pacotes');
-      const marker = section.previousElementSibling;
+      const section = document.querySelector('#pacotes'); const marker = section.previousElementSibling;
       const target = marker?.classList.contains('section-marker') ? marker : section;
       window.scrollTo({top: target.getBoundingClientRect().top + window.scrollY, behavior: 'instant'});
     });
   }));
-  selectPackages('configuracao');
+  selectPackages('ambos');
 })();
