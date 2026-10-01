@@ -53,7 +53,8 @@ const packageCatalog = {
 };
 const formatPackagePrice = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 function packageFeatures(kind, name) {
-  if (kind === 'ambos') return ['configuracao', 'personalizacao'].flatMap(category => packageFeatures(category, name));
+  if (kind === 'ambos') return ['configuracao', 'personalizacao'].flatMap(category => packageFeatures(category, name))
+    .map(item => item.id === 'scenes' ? {...item, level: {START: 3, LIVE: 4, STREAMER: 5}[name]} : item);
   const items = packageCatalog[kind].plans[name].items;
   if (kind !== 'personalizacao' || name !== 'STREAMER') return items;
   // Expand the grouped screen line for accurate comparisons and form exclusions.
@@ -76,7 +77,24 @@ packageCatalog.ambos = {label: 'Configuração e personalização', plans: Objec
   }[name]}];
 }))};
 
-if (typeof module !== 'undefined' && module.exports) module.exports = {packageCatalog, packageNames, packageFeatures, isPackageUpgrade, formatPackagePrice};
+// Combined plans create the artwork and install it in OBS: show each deliverable once.
+function combinedPackageGroups(name) {
+  const scenes = {
+    START: 'Configuração e criação de 3 cenas (início, fim e chat)',
+    LIVE: 'Configuração e criação de 4 cenas animadas (início, fim, chat e já volto)',
+    STREAMER: 'Configuração e criação de 5 cenas animadas (início, fim, chat, offline e já volto)'
+  };
+  const configuration = packageCatalog.configuracao.plans[name].items.map(item => {
+    if (item.id === 'scenes') return feature('scenes', scenes[name], {START: 3, LIVE: 4, STREAMER: 5}[name]);
+    if (item.id === 'camera') return feature('camera', 'Webcam ou câmera configurada com borda personalizada');
+    if (item.id === 'alerts') return feature('alert-art', 'Criação e configuração de ' + (name === 'LIVE' ? 3 : 5) + ' alertas', name === 'LIVE' ? 3 : 5);
+    return item;
+  });
+  const design = packageCatalog.personalizacao.plans[name].items.filter(item =>
+    !item.id.startsWith('screen') && !['webcam-art', 'alert-art'].includes(item.id));
+  return [{label: 'Setup e elementos da live', items: configuration}, {label: 'Identidade visual', items: design}];
+}
+if (typeof module !== 'undefined' && module.exports) module.exports = {packageCatalog, packageNames, packageFeatures, isPackageUpgrade, formatPackagePrice, combinedPackageGroups};
 if (typeof document !== 'undefined') (() => {
   const buttons = [...document.querySelectorAll('[data-package-kind]')];
   const cards = [...document.querySelectorAll('#pacotes .rank-plan')];
@@ -110,15 +128,11 @@ if (typeof document !== 'undefined') (() => {
       const items = [];
       if (kind === 'ambos') {
         const index = packageNames.indexOf(name);
-        if (index) items.push(makeItem('Tudo do plano ' + packageNames[index - 1], 'plan-inherited'));
-        ['configuracao', 'personalizacao'].forEach(group => {
-          items.push(makeItem(packageCatalog[group].label, 'plan-group-label'));
-          if (group === 'personalizacao' && name === 'LIVE') {
-            items.push(makeItem('4 telas animadas (início, fim, volto já e chat)', 'plan-upgrade'));
-          }
-          packageCatalog[group].plans[name].items.forEach(item => {
-            if (group === 'personalizacao' && name === 'LIVE' && item.id.startsWith('screen-')) return;
-            const upgrade = isPackageUpgrade(group, name, item);
+        if (index) items.push(makeItem('Tudo do plano ' + packageNames[index - 1] + ' incluído', 'plan-inherited'));
+        combinedPackageGroups(name).forEach(group => {
+          items.push(makeItem(group.label, 'plan-group-label'));
+          group.items.forEach(item => {
+            const upgrade = isPackageUpgrade('ambos', name, item);
             if (!index || upgrade) items.push(makeItem(item.label, upgrade ? 'plan-upgrade' : ''));
           });
         });

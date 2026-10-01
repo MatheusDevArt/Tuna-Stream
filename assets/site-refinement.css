@@ -422,3 +422,77 @@ main>.screen:not(.hero):not(.custom-package){padding-bottom:max(112px,40svh)}
 @media(max-width:760px){.order-mode-picker .order-mode-choice>span{font-size:11px}}
 .package-filter[data-package-kind=ambos]{margin-left:0;margin-right:8px}
 @media(max-width:760px){.package-filter[data-package-kind=ambos]{margin-right:0}}
+/* Portraits share the full height of the service heading and console. */
+@media(min-width:761px){
+ .performance-arena{grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr);grid-template-rows:auto auto;align-items:stretch;gap:28px 42px}
+ .performance-heading{grid-column:2;grid-row:1;display:block;margin:0}
+ .performance-heading p{max-width:none;padding:0;margin-top:20px}
+ .performance-heading h2,.identity-heading h2{font-size:clamp(38px,4.25vw,66px)}
+ .performance-arena>.team-portrait{grid-column:1;grid-row:1/3}
+ .performance-arena>.setup-console{grid-column:2;grid-row:2;align-self:end}
+ .performance-arena .setup-art.team-portrait{height:100%;min-height:580px;max-width:none;width:100%;margin:0}
+ .performance-arena .setup-art.team-portrait>img{position:absolute;inset:0;object-position:center 28%;height:100%;width:100%}
+ .identity-arena{grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr)}
+ .identity-heading{grid-column:1;grid-row:1;margin:0}
+ .identity-heading p{margin-top:20px}
+ .identity-arena>.identity-portrait-stage{grid-column:2;grid-row:1/3;max-width:none;align-self:stretch}
+ .identity-arena>.design-console{grid-column:1;grid-row:2}
+ .custom-grid{align-items:start;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+ .custom-intro{align-self:start}
+ .custom-art{animation:none;translate:none;rotate:none;transform:none}
+ .custom-art img{aspect-ratio:4/5;object-fit:cover;object-position:50% 45%}
+ .hero{min-height:100svh;padding-top:130px;padding-bottom:64px;display:flex;flex-direction:column;justify-content:space-between;gap:38px}
+ .hero-grid{min-height:0;flex:1;display:flex;align-items:center;width:100%}
+ .hero-benefits{position:relative;inset:auto;width:100%;margin:0 auto}
+ .hero h1{font-size:clamp(76px,min(8vw,12svh),128px)}
+}
+.benefit-bar{border:0;background:rgba(8,8,9,.9)}
+.hero-actions .instagram-link{background:#100b1899;border:1px solid #a99abc60;color:#fff;padding-inline:22px}
+.instagram-link .icon{flex:none}
+.hero-actions .instagram-link:hover{background:#7227dc55;border-color:#a878ef}
+.footer .instagram-link{font:600 11px var(--body);color:#fff;min-height:42px;padding:10px 16px;border:1px solid #7227dc70;background:#7227dc16}
+/* Compact insignia, with the plan name leading the card. */
+.plan-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 4px;min-width:0}
+.loadout .plan-heading h3{font-size:clamp(32px,3.1vw,50px);letter-spacing:1px;margin:0}
+.loadout .live .plan-heading h3{font-size:clamp(40px,3.9vw,60px)}
+.plan-heading .rank-art{width:64px;height:70px;margin:0;flex:none}
+.plan-heading .rank-emblem{width:64px;height:64px}
+.plan-heading .rank-ghost,.rank-plan .rank-meter,.loadout .rank-plan .plan-note{display:none}
+.rank-plan.live .recommended{top:13px;right:22px;padding:5px 12px;font-size:8px;letter-spacing:1px}
+.rank-plan.live .plan-topline span:last-child{visibility:hidden}
+.loadout .rank-plan li.plan-inherited{display:flex;align-items:center;gap:10px;padding:12px 0 12px 10px;margin-bottom:4px;border-left:3px solid #ba86ff;border-bottom:1px solid #ba86ff45;font-size:13px;line-height:1.5;color:#fff}
+.loadout .rank-plan li.plan-inherited::before{display:block;content:'✓';width:20px;height:20px;flex:none;border:0;transform:none;border-radius:50%;margin:0;background:#ba86ff;color:#231033;text-align:center;font:700 13px/20px var(--body)}
+/* FAQ: a quiet illuminated signal and an aligned, readable question list. */
+.faq-intro{padding-top:0;position:relative;isolation:isolate}
+.faq h2{margin:0 0 26px;line-height:1}
+.faq-intro .faq-glyph{position:absolute;right:0;top:5px;width:88px;height:98px;font-size:72px;opacity:.55;z-index:-1;filter:drop-shadow(0 0 20px #7227dc66)}
+.faq-intro::before{content:'';position:absolute;inset:-30px -30px 0 -40px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 32% 28%,#7227dc24,transparent 65%)}
+.faq-intro h3{margin-top:0}
+.faq-list{border-top:2px solid #7227dc;box-shadow:0 -8px 30px -18px #aa74ff;counter-reset:faq}
+.faq-item{counter-increment:faq;position:relative}
+.faq-item summary{gap:16px}
+.faq-item summary .faq-index{color:#8f6bb7}
+.faq-item[open]{box-shadow:inset 3px 0 #8f4be9;background:linear-gradient(110deg,#7227dc22,transparent 85%)}
+.faq-item[open] summary>span:first-child{color:#ceb0f7}
+@media(max-width:1100px) and (min-width:761px){
+ .performance-arena{gap:24px}.loadout .rank-plan{padding-inline:20px}
+ .plan-heading .rank-art,.plan-heading .rank-emblem{width:50px;height:56px}
+}
+@media(max-width:760px){
+ .performance-arena,.identity-arena{display:flex;flex-direction:column;gap:28px}
+ .performance-heading,.identity-heading{order:0;margin:0}
+ .performance-arena>.team-portrait,.identity-arena>.identity-portrait-stage{order:1;width:100%;max-width:440px;align-self:center}
+ .performance-arena>.setup-console,.identity-arena>.design-console{order:2;width:100%}
+ .performance-arena .setup-art.team-portrait{height:auto;aspect-ratio:4/5;max-width:none;width:100%}
+ .performance-arena .setup-art.team-portrait>img{height:100%;object-position:center 25%}
+ .custom-art{animation:none;translate:none;rotate:none}
+ .custom-art img{aspect-ratio:4/3;object-position:center 35%}
+ .hero-actions .instagram-link{padding-inline:15px}
+ .hero-actions{flex-wrap:nowrap;gap:10px}
+ .plan-heading .rank-art,.plan-heading .rank-emblem{width:64px;height:64px}
+ .loadout .plan-heading h3{font-size:46px}.loadout .live .plan-heading h3{font-size:54px}
+ .faq h2{margin-bottom:24px}.faq-intro .faq-glyph{right:15px}
+ .footer{gap:14px}.footer small{order:3}
+}
+
+@media(max-width:760px){.faq-intro{display:block}.faq-intro h3{margin-bottom:12px}.faq-intro .eyebrow{max-width:220px}.faq-intro .faq-glyph{top:30px}}
