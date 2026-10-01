@@ -71,11 +71,11 @@ function isPackageUpgrade(kind, name, item) {
   return !previous || item.level > previous.level;
 }
 packageCatalog.ambos = {label: 'Configuração e personalização', plans: Object.fromEntries(packageNames.map(name => {
-  const originalCents = name === 'STREAMER' ? 114999 : packageCatalog.configuracao.plans[name].cents + packageCatalog.personalizacao.plans[name].cents;
-  return [name, {originalCents, cents: name === 'STREAMER' ? 99999 : Math.round(originalCents * 85 / 100), description: {
-    START: 'Para começar em uma plataforma com OBS pronto e três cenas com visual próprio',
-    LIVE: 'Para transmitir em até três plataformas com quatro cenas animadas e interação com o público',
-    STREAMER: 'Para quem precisa de até quatro plataformas, Twitch completa e cinco cenas animadas integradas ao OBS'
+  const originalCents = name === 'STREAMER' ? 124999 : packageCatalog.configuracao.plans[name].cents + packageCatalog.personalizacao.plans[name].cents;
+  return [name, {originalCents, cents: Math.round(originalCents * 85 / 100), description: {
+    START: 'Para quem está começando e quer ir ao ar sem dor de cabeça.',
+    LIVE: 'Para quem já está no ar e quer levar o canal para o próximo nível.',
+    STREAMER: 'Para aqueles que querem se diferenciar do restante, e buscam o profissional!'
   }[name]}];
 }))};
 
@@ -123,6 +123,10 @@ if (typeof document !== 'undefined') (() => {
       pricing.querySelector('del').textContent = plan.originalCents ? formatPackagePrice(plan.originalCents) : '';
       pricing.querySelector('del').hidden = !plan.originalCents;
       pricing.querySelector('.plan-discount')?.remove();
+      if (plan.originalCents) {
+        const discount = document.createElement('span'); discount.className = 'plan-discount';
+        discount.textContent = '15% OFF'; pricing.append(discount);
+      }
       card.querySelector('.plan-description').textContent = plan.description;
       const list = card.querySelector('ul');
       const items = [];

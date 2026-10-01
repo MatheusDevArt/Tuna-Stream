@@ -3,6 +3,8 @@
   const carousel = document.querySelector('.plan-carousel');
   const cards = [...carousel.querySelectorAll('.rank-plan')];
   const mobile = matchMedia('(max-width: 760px)');
+  const previous = carousel.querySelector('.plan-previous');
+  const next = carousel.querySelector('.plan-next');
   let current = 0;
   let start = null;
   function select(index) {
@@ -14,11 +16,15 @@
     cards.forEach((card, i) => card.classList.toggle('is-current', i === current));
     carousel.querySelector('.plan-position').innerHTML = cards[current].querySelector('h3').textContent +
       ' <small>' + (current + 1) + ' / ' + cards.length + '</small>';
+    previous.hidden = current === 0;
+    next.hidden = current === cards.length - 1;
     document.dispatchEvent(new Event('sectionnavigate'));
     if (mobile.matches && wasVisible) requestAnimationFrame(() => {
       scrollTo({top: marker.getBoundingClientRect().top + scrollY + Math.min(progress, section.offsetHeight - innerHeight), behavior: 'instant'});
     });
   }
+  previous.addEventListener('click', () => select(current - 1));
+  next.addEventListener('click', () => select(current + 1));
   carousel.addEventListener('pointerdown', event => {
     if (!mobile.matches || event.target.closest('a,button,input,select')) return;
     start = {x: event.clientX, y: event.clientY};
