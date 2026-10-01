@@ -3,6 +3,8 @@
 .preview/check-script-0.js
 .preview/refine-faq.py
 .preview/silent-video-check.html
+.preview/lovable-export/
+.preview/lovable-preview.html
 
 # Local recovery copies
 design/checkpoint-*/

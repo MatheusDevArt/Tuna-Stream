@@ -7,6 +7,7 @@
   let armedUntil = 0;
   let cooldownUntil = 0;
   let touchStartY = null;
+  let touchStartX = null;
   const markerOf = section => section.previousElementSibling?.classList.contains('section-marker')
     ? section.previousElementSibling : section;
 
@@ -29,7 +30,11 @@
   function nextSectionInRange() {
     for (let i = 1; i < sections.length; i++) {
       const top = markerOf(sections[i]).getBoundingClientRect().top;
-      if (top > 0 && top <= innerHeight * 0.72) return sections[i];
+      const previous = sections[i - 1];
+      const contentBottom = previous.querySelector(':scope > .wrap')?.getBoundingClientRect().bottom
+        ?? previous.getBoundingClientRect().bottom;
+      // A tall section must finish revealing its content before guided advance.
+      if (top > 0 && top <= innerHeight * 0.42 && contentBottom <= innerHeight + 2) return sections[i];
     }
     return null;
   }
@@ -94,9 +99,12 @@
   addEventListener('touchstart', event => {
     cancelAdvance();
     touchStartY = scrollInside(event.target) ? null : event.touches[0]?.clientY;
+    touchStartX = event.touches[0]?.clientX;
   }, { passive: true });
   addEventListener('touchend', event => {
-    if (touchStartY != null && touchStartY - event.changedTouches[0].clientY > 35) {
+    const dy = touchStartY - event.changedTouches[0].clientY;
+    const dx = Math.abs((touchStartX ?? 0) - event.changedTouches[0].clientX);
+    if (touchStartY != null && dy > 35 && dy > dx) {
       armedUntil = performance.now() + 1800;
       settle();
     }

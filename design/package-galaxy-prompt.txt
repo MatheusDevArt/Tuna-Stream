@@ -1,0 +1,4 @@
+Generated with the built-in image_gen tool on 2026-10-01.
+Final asset: assets/web/package-galaxy.png
+
+Use case: stylized-concept. Asset type: wide background image for a dark gamer streaming-service pricing section. Create a cinematic deep-space galaxy in purple tones, violet nebula clouds, fine distant stars and two beautifully lit planets at the outer edges. Dark near-black negative space across the central 65 percent where pricing cards will overlay. Rich realistic planetary textures, soft violet rim lights, restrained dramatic atmosphere, wide landscape 16:9. Main purple #7227dc, subtle burgundy accents. No text, logos, UI, people or spacecraft. Background must look polished at low opacity, not busy.

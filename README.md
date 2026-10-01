@@ -21,4 +21,6 @@ Abra `http://127.0.0.1:4173/` no navegador. Não há etapa de instalação ou co
 - `assets/Trabalhos/`: imagens e vídeos do portfólio.
 - `design/`: referências e registro de validação visual.
 
-Os preços e benefícios dos pacotes ainda estão marcados como “em breve” em `assets/packages.js`, aguardando os dados definitivos.
+Os preços, benefícios e regras dos pacotes ficam em `assets/packages.js`.
+
+A integração para Lovable está documentada em `lovable/README.md`. O backup anterior à revisão fica em `design/checkpoint-2026-10-01/`, associado ao commit `edaf6de4674c7f6060e4e72d28f1158790c35125`.

@@ -70,6 +70,9 @@ if (typeof document !== 'undefined') (() => {
   }
   function updateChoices() {
     const mixing = orderMode() === 'mix';
+    const bothOption = kind.querySelector('option[value="ambos"]');
+    bothOption.disabled = orderMode() === 'extras';
+    if (bothOption.disabled && kind.value === 'ambos') kind.value = 'configuracao';
     kind.disabled = mixing;
     kind.closest('.form-field').hidden = mixing;
     if (mixing) kind.value = 'ambos';

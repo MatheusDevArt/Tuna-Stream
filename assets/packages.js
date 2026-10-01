@@ -30,18 +30,18 @@ const packageCatalog = {
     ]}
   }},
   personalizacao: {label: 'Personalização', plans: {
-    START: {cents: 20000, description: 'O visual essencial para dar identidade ao seu canal', items: [
+    START: {cents: 20000, description: 'Para quem está começando e precisa de telas estáticas, borda de webcam e banner com a cara do canal', items: [
       feature('screen-start', 'Tela de início'), feature('screen-end', 'Tela de fim'), feature('screen-chat', 'Tela de chat'),
       feature('webcam-art', 'Webcam'), feature('banner', 'Banner')
     ]},
-    LIVE: {cents: 50000, description: 'Sua identidade em movimento, com mais presença na live', items: [
+    LIVE: {cents: 50000, description: 'Para quem quer renovar a live com telas animadas, alertas e uma identidade visual consistente', items: [
       feature('screen-start', 'Tela de início (animada)', 2), feature('screen-end', 'Tela de fim (animada)', 2),
       feature('screen-chat', 'Tela de chat (animada)', 2), feature('screen-brb', 'Tela de volto já (animada)', 2),
       feature('webcam-art', 'Webcam'), feature('banner', 'Banner'), feature('panels', 'Painéis (4)', 4),
       feature('alert-art', 'Alertas (3)', 3), feature('transition', 'Transição de cena'),
       feature('branding', 'Identidade visual (lite)', 1)
     ]},
-    STREAMER: {cents: 90000, description: 'Uma identidade completa para uma experiência marcante', items: [
+    STREAMER: {cents: 90000, description: 'Para quem busca uma identidade completa, com emotes, distintivos e versões para outras plataformas', items: [
       feature('screens', '5 telas animadas (início, fim, chat, offline e volto já)', 5),
       feature('webcam-art', 'Webcam'), feature('banner', 'Banner'), feature('panels', 'Painéis (6)', 6),
       feature('alert-art', 'Alertas (5)', 5), feature('transition', 'Transição de cena'),
@@ -54,6 +54,8 @@ const packageCatalog = {
 const formatPackagePrice = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 function packageFeatures(kind, name) {
   if (kind === 'ambos') return ['configuracao', 'personalizacao'].flatMap(category => packageFeatures(category, name))
+    .filter(item => name !== 'STREAMER' || !['emotes', 'badges', 'chat-art'].includes(item.id))
+    .map(item => name === 'STREAMER' && ['panels', 'branding'].includes(item.id) ? {...item, level: item.id === 'panels' ? 4 : 1} : item)
     .map(item => item.id === 'scenes' ? {...item, level: {START: 3, LIVE: 4, STREAMER: 5}[name]} : item);
   const items = packageCatalog[kind].plans[name].items;
   if (kind !== 'personalizacao' || name !== 'STREAMER') return items;
@@ -69,30 +71,31 @@ function isPackageUpgrade(kind, name, item) {
   return !previous || item.level > previous.level;
 }
 packageCatalog.ambos = {label: 'Configuração e personalização', plans: Object.fromEntries(packageNames.map(name => {
-  const originalCents = packageCatalog.configuracao.plans[name].cents + packageCatalog.personalizacao.plans[name].cents;
-  return [name, {originalCents, cents: Math.round(originalCents * 85 / 100), description: {
-    START: 'Seu primeiro setup pronto, com a identidade do seu canal',
-    LIVE: 'Mais plataformas e uma identidade animada para sua live',
-    STREAMER: 'Configuração completa e identidade visual profissional'
+  const originalCents = name === 'STREAMER' ? 114999 : packageCatalog.configuracao.plans[name].cents + packageCatalog.personalizacao.plans[name].cents;
+  return [name, {originalCents, cents: name === 'STREAMER' ? 99999 : Math.round(originalCents * 85 / 100), description: {
+    START: 'Para começar em uma plataforma com OBS pronto e três cenas com visual próprio',
+    LIVE: 'Para transmitir em até três plataformas com quatro cenas animadas e interação com o público',
+    STREAMER: 'Para quem precisa de até quatro plataformas, Twitch completa e cinco cenas animadas integradas ao OBS'
   }[name]}];
 }))};
 
-// Combined plans create the artwork and install it in OBS: show each deliverable once.
+// Combined plans list configuration and artwork as separate deliverables.
 function combinedPackageGroups(name) {
-  const scenes = {
-    START: 'Configuração e criação de 3 cenas (início, fim e chat)',
-    LIVE: 'Configuração e criação de 4 cenas animadas (início, fim, chat e já volto)',
-    STREAMER: 'Configuração e criação de 5 cenas animadas (início, fim, chat, offline e já volto)'
-  };
+  const count = {START: 3, LIVE: 4, STREAMER: 5}[name];
   const configuration = packageCatalog.configuracao.plans[name].items.map(item => {
-    if (item.id === 'scenes') return feature('scenes', scenes[name], {START: 3, LIVE: 4, STREAMER: 5}[name]);
-    if (item.id === 'camera') return feature('camera', 'Webcam ou câmera configurada com borda personalizada');
-    if (item.id === 'alerts') return feature('alert-art', 'Criação e configuração de ' + (name === 'LIVE' ? 3 : 5) + ' alertas', name === 'LIVE' ? 3 : 5);
+    if (item.id === 'scenes') return feature('scenes', `Configuração de ${count} cenas no OBS`, count);
+    if (item.id === 'camera') return feature('camera', 'Configuração de webcam ou câmera');
+    if (item.id === 'alerts') return feature('alerts', `Configuração de ${name === 'LIVE' ? 3 : 5} alertas`, name === 'LIVE' ? 3 : 5);
     return item;
   });
   const design = packageCatalog.personalizacao.plans[name].items.filter(item =>
-    !item.id.startsWith('screen') && !['webcam-art', 'alert-art'].includes(item.id));
-  return [{label: 'Setup e elementos da live', items: configuration}, {label: 'Identidade visual', items: design}];
+    !item.id.startsWith('screen') && item.id !== 'screens' &&
+    (name !== 'STREAMER' || !['panels', 'branding', 'emotes', 'badges', 'chat-art'].includes(item.id)))
+    .map(item => item.id === 'alert-art' ? {...item, label: `Criação de ${item.level} alertas`} : item);
+  design.unshift(feature('screens', name === 'START'
+    ? 'Criação de 3 cenas (início, fim e chat)'
+    : `Criação de ${count} cenas animadas (${name === 'LIVE' ? 'início, fim, chat e já volto' : 'início, fim, chat, offline e já volto'})`, count));
+  return [{label: 'Configuração', items: configuration}, {label: 'Personalização', items: design}];
 }
 if (typeof module !== 'undefined' && module.exports) module.exports = {packageCatalog, packageNames, packageFeatures, isPackageUpgrade, formatPackagePrice, combinedPackageGroups};
 if (typeof document !== 'undefined') (() => {
@@ -114,26 +117,21 @@ if (typeof document !== 'undefined') (() => {
         card.querySelector('.plan-note').after(pricing);
         const original = document.createElement('del'); original.className = 'plan-original-price'; pricing.append(original);
         const price = document.createElement('p'); price.className = 'plan-price'; pricing.append(price);
-        const discount = document.createElement('span'); discount.className = 'plan-discount'; pricing.append(discount);
         const description = document.createElement('p'); description.className = 'plan-description'; pricing.after(description);
       }
       pricing.querySelector('.plan-price').textContent = formatPackagePrice(plan.cents);
       pricing.querySelector('del').textContent = plan.originalCents ? formatPackagePrice(plan.originalCents) : '';
       pricing.querySelector('del').hidden = !plan.originalCents;
-      const discount = pricing.querySelector('.plan-discount');
-      discount.hidden = !plan.originalCents;
-      discount.textContent = plan.originalCents ? 'Economize ' + formatPackagePrice(plan.originalCents - plan.cents) : '';
+      pricing.querySelector('.plan-discount')?.remove();
       card.querySelector('.plan-description').textContent = plan.description;
       const list = card.querySelector('ul');
       const items = [];
       if (kind === 'ambos') {
-        const index = packageNames.indexOf(name);
-        if (index) items.push(makeItem('Tudo do plano ' + packageNames[index - 1] + ' incluído', 'plan-inherited'));
         combinedPackageGroups(name).forEach(group => {
           items.push(makeItem(group.label, 'plan-group-label'));
           group.items.forEach(item => {
             const upgrade = isPackageUpgrade('ambos', name, item);
-            if (!index || upgrade) items.push(makeItem(item.label, upgrade ? 'plan-upgrade' : ''));
+            items.push(makeItem(item.label, upgrade ? 'plan-upgrade' : ''));
           });
         });
       } else {

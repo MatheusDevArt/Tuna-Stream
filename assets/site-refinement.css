@@ -496,3 +496,138 @@ main>.screen:not(.hero):not(.custom-package){padding-bottom:max(112px,40svh)}
 }
 
 @media(max-width:760px){.faq-intro{display:block}.faq-intro h3{margin-bottom:12px}.faq-intro .eyebrow{max-width:220px}.faq-intro .faq-glyph{top:30px}}
+/* October review: wider layout, readable ranks and complete section scrolling. */
+main>.screen{position:relative;clip-path:none!important}
+.motion-ready main>.screen{position:sticky;top:var(--stack-top,0px)}
+.section-nav a[aria-current=location] span{opacity:1;visibility:visible;transform:translateX(0)}
+.section-nav a[aria-current=location]::before{opacity:1}
+.plan-pager,.plan-swipe-hint{display:none}
+.loadout{background-color:#090710;background-image:linear-gradient(#090710b8,#090710e0),url('web/package-galaxy.png');background-size:cover;background-position:center}
+.loadout::before{opacity:.35}
+.loadout .plan-heading{min-height:118px;margin-top:18px}
+.plan-heading .rank-art,.plan-heading .rank-emblem{width:112px;height:112px}
+.loadout .rank-plan .package-pricing .plan-price{font-size:clamp(34px,2.6vw,48px);letter-spacing:-1px}
+.loadout .rank-plan .plan-description{font-size:13px;line-height:1.7;max-width:42ch;color:#e4dcea}
+.loadout .rank-plan li.plan-upgrade::before{border-radius:0;transform:rotate(45deg);width:7px;height:7px;background:#c49bff;border:1px solid #e0c8ff;box-shadow:0 0 10px #a969ff88}
+.loadout .streamer li.plan-upgrade::before{background:#d68ac6;border-color:#f4b9e6}
+.loadout .rank-plan li.plan-inherited{border-left:0;border-bottom:1px solid #c697ff55;padding:12px 0;gap:14px;font-size:14px}
+.loadout .rank-plan li.plan-inherited::before{content:'';width:10px;height:10px;transform:rotate(45deg);border-radius:0;border:2px solid #e0c8ff;background:#a965ff;box-shadow:0 0 12px #a969ff88}
+.loadout .rank-plan li.plan-upgrade-intro{color:#c2b1d6;font-size:11px;padding:0;letter-spacing:.3px}
+.loadout .rank-plan li.plan-upgrade-intro::before{display:none}
+.loadout .rank-plan li.plan-group-label{color:#d6c5e8;font-size:11px;padding-top:10px;letter-spacing:1px}
+.loadout .rank-plan ul{margin-top:22px}
+/* FAQ as a support console, with room for every number and a stable left panel. */
+.faq-layout{grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);gap:clamp(36px,5vw,90px);align-items:start}
+.faq-intro{padding:32px 0 0;min-width:0}
+.faq-intro::before{inset:0;background:radial-gradient(ellipse at 20% 45%,#7227dc26,transparent 70%)}
+.faq h2{font-size:clamp(96px,9vw,156px);line-height:.9;margin-bottom:32px}
+.faq-intro h3{font-size:clamp(22px,2vw,30px);max-width:20ch}
+.faq-intro p{font-size:15px;max-width:38ch;margin:18px 0 30px}
+.faq-signal{position:absolute;right:5%;top:45px;width:150px;height:150px;display:grid;place-items:center;pointer-events:none;opacity:.8}
+.faq-signal span{font:96px/1 var(--display);color:#a36bef;text-shadow:0 0 40px #7227dc70}
+.faq-signal i{position:absolute;inset:0;border:1px solid #7227dc70;clip-path:polygon(0 0,100% 0,100% 40%,65% 40%,65% 100%,0 100%);rotate:45deg}
+.faq-signal i:last-child{inset:12px;border-color:#ba8fffa0;rotate:110deg;animation:faq-orbit 22s linear infinite}
+@keyframes faq-orbit{to{rotate:470deg}}
+.faq-list{border:0;box-shadow:none;display:grid;gap:10px;padding:8px 0}
+.faq-item{border:1px solid #a281c326;background:linear-gradient(110deg,#191320e8,#0f0c15e8);border-radius:0;box-shadow:none;overflow:visible}
+.faq-item summary{grid-template-columns:36px minmax(0,1fr) 20px;gap:18px;padding:22px 24px;font-size:15px;line-height:1.65}
+.faq-index{display:grid;place-items:center;align-self:center;padding:0;width:30px;height:30px;font-size:11px;color:#c49ce9;background:#7227dc18;border:1px solid #7227dc50}
+.faq-item[open]{border-color:#9e63e88a;box-shadow:inset 3px 0 #7227dc,0 8px 28px #0003;background:linear-gradient(110deg,#29183ce8,#100c18f2)}
+.faq-answer{padding:0 58px 26px 78px}
+.faq-answer p{font-size:14px;line-height:1.85}
+.faq-item:hover{translate:0 -3px;border-color:#9e63e88a}
+@media(min-width:761px){
+ :root{--gutter:clamp(38px,4.5vw,92px)}
+ .wrap{max-width:1920px}
+ .performance,.identity{padding-block:clamp(140px,16vh,220px) 100px;align-items:center}
+ .performance-arena{grid-template-columns:minmax(0,.85fr) minmax(0,1.3fr);gap:30px clamp(35px,4.5vw,85px)}
+ .identity-arena{grid-template-columns:minmax(0,1.3fr) minmax(0,.85fr)}
+ .performance-arena .setup-art.team-portrait{min-height:clamp(610px,65vh,770px)}
+ .performance-heading h2,.identity-heading h2{font-size:clamp(46px,4.5vw,78px)}
+ .performance-heading p,.identity-heading p{font-size:15px}
+ .performance .console-body,.performance .service-panels{height:365px}
+ .service-tabs button{font-size:13px;padding:14px 18px}
+ .service-panels ul{font-size:13px}
+ .service-panels h3{font-size:34px}
+ .loadout .plans{gap:26px;grid-template-columns:1fr 1.09fr 1fr}
+ .loadout .rank-plan{padding:26px 32px 32px}
+ .loadout .plan-heading h3{font-size:clamp(38px,3.35vw,60px)}
+ .loadout .live .plan-heading h3{font-size:clamp(48px,4vw,72px)}
+ .loadout .rank-plan ul{font-size:13px;gap:8px}
+}
+@media(min-width:761px) and (max-width:1200px){
+ .plan-heading .rank-art,.plan-heading .rank-emblem{width:86px;height:96px}
+ .loadout .rank-plan{padding-inline:20px}.loadout .plan-heading h3{font-size:38px}
+ .faq-signal{width:95px;height:95px;right:0;top:80px}.faq-signal span{font-size:68px}
+}
+@media(max-width:760px){
+ .section-nav{right:5px}.section-nav a[aria-current=location] span{font-size:9px;padding:5px 8px;background:#100b18ed}
+ .loadout .plans{display:block;min-width:0}
+ .loadout .rank-plan{min-height:0;margin:0;translate:none!important;animation:plan-arrive .35s ease-out}
+ .loadout .rank-plan:not(.is-current){display:none}
+ .plan-carousel{touch-action:pan-y;position:relative}
+ .plan-pager{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;gap:18px}
+ .plan-pager button{width:44px;height:44px;background:#241434;border:1px solid #9d66dc70;font-size:22px;color:#e5cafa}
+ .plan-pager button:disabled{opacity:.3;cursor:default}
+ .plan-position{font:28px/1 var(--display);display:flex;align-items:center;gap:14px}.plan-position small{font:11px var(--body);color:#a696b7}
+ .plan-swipe-hint{display:block;font:9px/1.7 var(--body);color:#b3a1c4;margin-bottom:22px}
+ .loadout .plan-heading{gap:8px;min-height:110px;margin-top:16px}
+ .plan-heading .rank-art,.plan-heading .rank-emblem{width:94px;height:104px}
+ .loadout .plan-heading h3{font-size:44px;letter-spacing:0}.loadout .live .plan-heading h3{font-size:54px}
+ .loadout .rank-plan .package-pricing .plan-price{font-size:38px}
+ .loadout .rank-plan ul{font-size:12px}
+ .faq-layout{grid-template-columns:1fr;gap:32px}
+ .faq-intro{padding:0}.faq h2{font-size:94px;margin-bottom:20px}
+ .faq-signal{width:105px;height:105px;right:15px;top:38px}.faq-signal span{font-size:72px}
+ .faq-intro h3{font-size:23px}.faq-intro p{font-size:13px;max-width:30ch}
+ .faq-item summary{grid-template-columns:27px minmax(0,1fr) 15px;gap:10px;padding:18px 12px;font-size:12px}
+ .faq-index{width:25px;height:25px;font-size:9px}.faq-answer{padding:0 20px 22px 49px}.faq-answer p{font-size:12px;line-height:1.9}
+}
+@keyframes plan-arrive{from{opacity:.3;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.faq-signal i:last-child,.loadout .rank-plan{animation:none}}
+main>.screen:not(.hero):not(.custom-package){padding-bottom:clamp(70px,8svh,110px)}
+@media(min-width:761px){.performance,.identity{min-height:100svh}}
+.loadout{background-size:cover,100% auto;background-repeat:no-repeat;background-position:center,center top}
+@media(max-width:760px){.loadout{background-size:cover,auto 900px;background-position:center,55% top}}
+.loadout>.section-number{display:none}
+@media(max-width:760px){.loadout .rank-plan{padding-inline:24px}.loadout .plan-heading h3{font-size:46px}.loadout .live .plan-heading h3{font-size:54px}}
+html,body,main{overflow-anchor:none}
+.section-nav::before{content:attr(data-current-label);position:absolute;right:4px;bottom:calc(100% + 16px);writing-mode:vertical-rl;transform:rotate(180deg);font:500 10px/1.2 var(--body);letter-spacing:1.2px;color:#d9c5f2;white-space:nowrap;pointer-events:none}
+.section-nav a[aria-current=location] span{opacity:0;visibility:hidden}
+.section-nav a:focus-visible span{opacity:1;visibility:visible}
+@media(hover:hover){.section-nav a:hover span{opacity:1;visibility:visible}}
+@media(max-width:760px){.section-nav::before{font-size:9px;letter-spacing:.7px;right:6px}}
+@media(min-width:761px){.performance-arena{grid-template-columns:minmax(0,.75fr) minmax(0,1.4fr)}.identity-arena{grid-template-columns:minmax(0,1.4fr) minmax(0,.75fr)}}
+
+/* Navigation labels stay horizontal and visible beside the section markers. */
+.section-nav::before{display:none}
+.section-nav{top:170px;transform:none}
+.section-nav a[aria-current=location] span{opacity:1;visibility:visible;right:34px;transform:translateY(-50%);background:#100b18ee;border:1px solid #9d66dc80;font-size:11px;padding:8px 11px}
+.header .nav{gap:24px}
+.nav-links{gap:clamp(12px,1.5vw,26px);margin-left:auto}
+.nav-links>a{font-size:11px;white-space:nowrap}
+.loadout .rank-plan .plan-heading h3{font-size:clamp(44px,3.9vw,68px)}
+.loadout .rank-plan.live .plan-heading h3{font-size:clamp(52px,4.6vw,78px)}
+.order-mode-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+.order-mode-picker legend{grid-column:1/-1}
+.order-mode-picker .order-mode-choice{border:1px solid #ffffff20;padding:12px;align-items:flex-start;min-height:72px}
+.order-mode-choice em{white-space:normal}
+.request-service-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
+.request-service-group h4{grid-column:1/-1}
+@media(min-width:761px){
+ .performance,.identity,.faq{min-height:calc(100svh + 100px);padding-block:clamp(160px,19vh,240px) 140px}
+}
+@media(max-width:760px){
+ .header{display:none}
+ .section-nav{right:7px;top:50%;transform:translateY(-50%);gap:7px}
+ .section-nav a{width:32px;height:34px}
+ .section-nav a[aria-current=location] span{right:38px;font-size:10px;padding:7px 9px;max-width:150px}
+ main>.screen:not(.hero):not(.custom-package){padding-block:110px 125px}
+ main>.custom-package{padding-block:110px 125px}
+ .faq{padding-top:120px}
+ .order-mode-picker{grid-template-columns:1fr;gap:8px}
+ .order-mode-picker .order-mode-choice{min-height:0}
+ .request-service-group{grid-template-columns:1fr}
+ .plan-pager{justify-content:center}
+ .plan-swipe-hint{text-align:center;font-size:11px;color:#e1cef7;margin-bottom:24px}
+}

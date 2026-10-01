@@ -1,0 +1,11 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const {execFileSync} = require('node:child_process');
+const root = path.resolve(__dirname, '..');
+execFileSync(process.execPath, [path.join(root, '.preview/build-site.cjs')], {stdio: 'inherit'});
+const output = path.join(root, '.preview/lovable-export');
+fs.mkdirSync(path.join(output, 'public'), {recursive: true});
+fs.cpSync(path.join(root, 'dist'), path.join(output, 'public/tuna-stream'), {recursive: true});
+fs.copyFileSync(path.join(__dirname, 'TunaStreamPage.tsx'), path.join(output, 'TunaStreamPage.tsx'));
+fs.writeFileSync(path.join(root, '.preview/lovable-preview.html'), '<!doctype html><html lang="pt-BR"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tuna Stream — integração local</title><body style="margin:0;background:#080809"><iframe src="lovable-export/public/tuna-stream/index.html" title="Tuna Stream" allow="autoplay" style="position:fixed;inset:0;width:100%;height:100dvh;border:0"></iframe></body></html>');
+console.log('Lovable package prepared locally: ' + output);
