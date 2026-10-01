@@ -604,7 +604,7 @@ html,body,main{overflow-anchor:none}
 .section-nav{top:170px;transform:none}
 .section-nav a[aria-current=location] span{opacity:1;visibility:visible;right:34px;transform:translateY(-50%);background:#100b18ee;border:1px solid #9d66dc80;font-size:11px;padding:8px 11px}
 .header .nav{gap:24px}
-.nav-links{gap:clamp(12px,1.5vw,26px);margin-left:auto}
+.nav-links{gap:clamp(12px,1.5vw,26px);margin-left:0}
 .nav-links>a{font-size:11px;white-space:nowrap}
 .loadout .rank-plan .plan-heading h3{font-size:clamp(44px,3.9vw,68px)}
 .loadout .rank-plan.live .plan-heading h3{font-size:clamp(52px,4.6vw,78px)}
@@ -612,6 +612,8 @@ html,body,main{overflow-anchor:none}
 .order-mode-picker legend{grid-column:1/-1}
 .order-mode-picker .order-mode-choice{border:1px solid #ffffff20;padding:12px;align-items:flex-start;min-height:72px}
 .order-mode-choice em{white-space:normal}
+.order-mode-picker .order-mode-choice:has(input[value="mix"]){background:linear-gradient(135deg,#55218e,#301149);border-color:#a96ef0;color:#fff}
+.order-mode-picker .order-mode-choice:has(input[value="mix"]:checked){background:linear-gradient(135deg,#782ce1,#472079);box-shadow:0 0 22px #7227dc55;border-color:#d4aaff}
 .request-service-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
 .request-service-group h4{grid-column:1/-1}
 @media(min-width:761px){
@@ -619,9 +621,9 @@ html,body,main{overflow-anchor:none}
 }
 @media(max-width:760px){
  .header{display:none}
- .section-nav{right:7px;top:16px;transform:none;gap:3px}
+ .section-nav{right:7px;top:calc(50% - 96px);transform:none;gap:3px}
  .section-nav a{width:32px;height:25px}
- .section-nav a[aria-current=location] span{right:38px;font-size:10px;padding:7px 9px;max-width:150px}
+ .section-nav span{display:none}
  main>.screen:not(.hero):not(.custom-package){padding-block:110px 125px}
  main>.custom-package{padding-block:110px 125px}
  .faq{padding-top:120px}
@@ -630,4 +632,11 @@ html,body,main{overflow-anchor:none}
  .request-service-group{grid-template-columns:1fr}
  .plan-pager{justify-content:center}
  .plan-swipe-hint{text-align:center;font-size:11px;color:#e1cef7;margin-bottom:24px}
+}
+
+/* Extra reading space before the following sticky section arrives. */
+main>.screen:is(#desempenho,#identidade,#trabalhos,#pacotes,#perguntas){padding-bottom:clamp(250px,30svh,360px)}
+.section-nav a:not([aria-current=location]) span{opacity:0!important;visibility:hidden!important}
+@media(max-width:760px){
+ main>.screen:is(#desempenho,#identidade,#trabalhos,#pacotes,#perguntas){padding-bottom:clamp(220px,28svh,280px)}
 }

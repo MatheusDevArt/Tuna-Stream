@@ -127,9 +127,13 @@ if (typeof document !== 'undefined') (() => {
       const list = card.querySelector('ul');
       const items = [];
       if (kind === 'ambos') {
+        const index = packageNames.indexOf(name);
+        if (index) items.push(makeItem('Tudo do pacote ' + packageNames[index - 1] + ' incluído', 'plan-inherited'));
         combinedPackageGroups(name).forEach(group => {
+          const visibleItems = index ? group.items.filter(item => isPackageUpgrade('ambos', name, item)) : group.items;
+          if (!visibleItems.length) return;
           items.push(makeItem(group.label, 'plan-group-label'));
-          group.items.forEach(item => {
+          visibleItems.forEach(item => {
             const upgrade = isPackageUpgrade('ambos', name, item);
             items.push(makeItem(item.label, upgrade ? 'plan-upgrade' : ''));
           });
