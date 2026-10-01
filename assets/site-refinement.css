@@ -619,8 +619,8 @@ html,body,main{overflow-anchor:none}
 }
 @media(max-width:760px){
  .header{display:none}
- .section-nav{right:7px;top:50%;transform:translateY(-50%);gap:7px}
- .section-nav a{width:32px;height:34px}
+ .section-nav{right:7px;top:16px;transform:none;gap:3px}
+ .section-nav a{width:32px;height:25px}
  .section-nav a[aria-current=location] span{right:38px;font-size:10px;padding:7px 9px;max-width:150px}
  main>.screen:not(.hero):not(.custom-package){padding-block:110px 125px}
  main>.custom-package{padding-block:110px 125px}
