@@ -15,7 +15,8 @@ export function formatDuration(seconds) {
   if (seconds == null) return 'Não disponível';
   const rounded = Math.round(seconds);
   const minutes = Math.floor(rounded / 60);
-  return minutes ? minutes + 'min ' + (rounded % 60) + 's' : rounded + 's';
+  if(rounded>=3600)return Math.floor(rounded/3600)+' h'+(Math.floor(rounded%3600/60)?' '+Math.floor(rounded%3600/60)+' min':'');
+  return minutes ? minutes + ' min'+(rounded%60?' '+(rounded%60)+' s':'') : rounded + ' s';
 }
 
 export function getPreviousCompleteWeek(localDate) {

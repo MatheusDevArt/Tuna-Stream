@@ -5,6 +5,11 @@ export function metricValue(response,name){
  return count(metric?.total_value?.value??(metric?.values?.length===1?metric.values[0].value:null));
 }
 export function totalMetricValue(response,name){return count(response?.data?.find(item=>item.name===name)?.total_value?.value);}
+export function metricBreakdown(response,name,dimension){
+ const metric=response?.data?.find(item=>item.name===name),out=[];
+ for(const breakdown of metric?.total_value?.breakdowns||[]){const index=breakdown.dimension_keys?.indexOf(dimension);if(index==null||index<0)continue;for(const row of breakdown.results||[]){const value=count(row.value),label=row.dimension_values?.[index];if(value!==null&&typeof label==='string')out.push([label,value]);}}
+ return out;
+}
 export function followerChanges(response){
  const metric=response?.data?.find(item=>item.name==='follows_and_unfollows');
  const buckets=(metric?.total_value?.breakdowns||[]).flatMap(item=>item.results||[]);
@@ -22,7 +27,7 @@ export function providerFailure(status,error={}){
  if(error.code===100&&/metric/i.test(error.message||'')&&/(valid|support|available)/i.test(error.message||''))return 'provider_unsupported_metric';
  return 'provider_error';
 }
-export const instagramPeriodKeys=['instagramReach','instagramViews','profileVisits','bioClicks','profileContactTaps','netFollowers','followersGained','followersLost','followersTotal'];
+export const instagramPeriodKeys=['instagramReach','instagramViews','profileVisits','bioClicks','profileContactTaps','netFollowers','followersGained','followersLost','followersTotal','viewsFollowers','viewsNonFollowers','viewsAudienceTotal','accountsEngaged','totalInteractions','instagramLikes','instagramComments','instagramShares','instagramSaves','instagramReplies'];
 export function comparableInstagram(current,previous){
  const a=current.instagramSource,b=previous.instagramSource;
  return Boolean(a&&b&&a.provider===b.provider&&a.coverage==='complete'&&b.coverage==='complete'&&a.contentScope===b.contentScope);

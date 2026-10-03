@@ -1,0 +1,11 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+const [snapshotPath,imagesPath,outputPath]=process.argv.slice(2);
+if(!snapshotPath||!imagesPath||!outputPath)throw new Error('Provide snapshot, image directory and private output path.');
+const snapshot=JSON.parse(await readFile(snapshotPath,'utf8'));
+const day=s=>s.split('-').reverse().join('/');
+const start=snapshot.period.start,end=snapshot.period.end;
+const imageParts=await Promise.all([['website','site'],['instagram','instagram']].map(async([type,cid])=>({mime_type:'image/png',content_id:'tunastream-'+cid,content_disposition:'inline',filename:`tunastream-${type}-${start}.png`,body:{base64_url_content:(await readFile(resolve(imagesPath,`tunastream-${type}-${start}.png`))).toString('base64url')}})));
+const messages=[['Matheus','henriquestreaming2022@gmail.com'],['Adriana','adriana_lemos90@hotmail.com']].map(([name,to])=>({to,subject:`TunaStream · Relatório semanal · ${day(start)} a ${day(end)}`,payload:{mime_type:'multipart/related',parts:[{mime_type:'text/html',charset:'UTF-8',body:{content:`<p>Seu relatório semanal ${name} de ${day(start)} até ${day(end)}</p><div><img src="cid:tunastream-site" alt="" style="display:block;max-width:100%;height:auto"/><img src="cid:tunastream-instagram" alt="" style="display:block;max-width:100%;height:auto"/></div>`}},...imageParts]}}));
+await writeFile(outputPath,JSON.stringify(messages));
+console.log('Prepared two individual emails with inline images.');

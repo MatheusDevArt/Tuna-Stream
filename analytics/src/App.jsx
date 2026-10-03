@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Website from './pages/Website.jsx';
 import InstagramPage from './pages/Instagram.jsx';
 import WhatsAppPage from './pages/WhatsApp.jsx';
+import Clients from './pages/Clients.jsx';
 import TeamAccess from './pages/TeamAccess.jsx';
 import Reports from './pages/Reports.jsx';
 import Integrations from './pages/Integrations.jsx';
@@ -57,13 +58,20 @@ function Workspace({session,demo}){
  async function saveClient(id,details){
   if(!demo){await operations.saveClient(id,details);await remote.refresh();return;}
   // Demonstration has no phone hash, persistence or real client identity.
-  setLeadPeriods(current=>({...current,[periodId]:(current[periodId]||initialLeads).map(lead=>lead.id===id?{...lead,client_id:lead.client_id||(details.phone?'demo-'+id:null),client_label:details.clientLabel,service_category:details.service,selected_package:details.package,custom_package_name:details.package==='CUSTOM'?details.customPackageName:null,customer_state:details.state,customer_city:details.city}:lead)}));
+  setLeadPeriods(current=>({...current,[periodId]:(current[periodId]||initialLeads).map(lead=>lead.id===id?{...lead,client_id:lead.client_id||(details.phone?'demo-'+id:null),client_label:details.clientLabel,service_category:details.service,selected_package:details.package,custom_package_name:['CUSTOM','AVULSO'].includes(details.package)?details.customPackageName:null,customer_state:details.state,customer_city:details.city,sale_amount:details.saleAmount}:lead)}));
  }
+ async function archiveClient(id,restore=false){
+  if(!demo){await operations.archiveClient(id,restore);await remote.refresh();return;}
+  const selected=leads.find(lead=>lead.id===id);
+  setLeadPeriods(current=>({...current,[periodId]:(current[periodId]||initialLeads).map(lead=>lead.client_id===selected?.client_id?{...lead,archived_at:restore?null:new Date().toISOString()}:lead)}));
+ }
+ const activeLeads=(demo?leads:operations.leads).filter(lead=>!lead.archived_at);
  const pages={
  overview:snapshot&&<Dashboard snapshot={snapshot} onInsights={()=>navigate('reports')}/>,
  website:snapshot&&<Website snapshot={snapshot}/>,
  instagram:snapshot&&<InstagramPage snapshot={snapshot}/>,
- whatsapp:snapshot&&<WhatsAppPage snapshot={snapshot} leads={demo?leads:operations.leads} onStageChange={changeStage} onConfirm={async input=>{await operations.confirmContact(input);await remote.refresh();}} busy={operations.busy} reference={launch.reference} onConfirmLink={confirmLink} onPackageChange={changePackage} onClientSave={saveClient} readOnly={readOnly} crmAvailable={demo||operations.crmAvailable}/>,
+ whatsapp:snapshot&&<WhatsAppPage snapshot={snapshot} leads={activeLeads.filter(l=>l.origin!=='manual')} onStageChange={changeStage} onConfirm={async input=>{await operations.confirmContact(input);await remote.refresh();}} busy={operations.busy} reference={launch.reference} onConfirmLink={confirmLink} onPackageChange={changePackage} onClientSave={saveClient} readOnly={readOnly} crmAvailable={demo||operations.crmAvailable}/>,
+ clients:snapshot&&<Clients snapshot={snapshot} leads={demo?leads:operations.leads} onCreate={async(id,details)=>{if(demo)throw new Error('O cadastro direto precisa de uma conta conectada.');await operations.createClient(id,details);await remote.refresh();}} onClientSave={saveClient} onArchive={archiveClient} busy={operations.busy} readOnly={readOnly}/>,
  reports:snapshot&&<Reports snapshot={snapshot} operations={operations} onReportOpen={()=>setReportOpen(true)}/>,
  integrations:<Integrations operations={operations} demo={demo} instagramSource={snapshot?.current.instagramSource}/>,
  access:<TeamAccess session={session} demo={demo} account={account}/>,
@@ -71,6 +79,7 @@ function Workspace({session,demo}){
  return <>
  <Shell profiles={account.profiles} userId={session?.user.id} page={page} onPageChange={navigate} periodId={periodId} periods={options} onPeriodChange={setPeriodId} onReportOpen={()=>setReportOpen(true)} reportAvailable={Boolean(snapshot)} demo={demo} readOnly={readOnly} updatedAt={remote.updatedAt} sourceUpdatedAt={snapshot&&!demo?(snapshot.current.sourceUpdatedAt||{}):null} sourceHealth={snapshot?.current.sourceHealth} instagramSource={snapshot?.current.instagramSource} onRefresh={remote.refresh}>
  {pages[page]||<Panel title={remote.loading?'Carregando métricas':'Dados da equipe'}><p className="empty-explanation" role={remote.error?'alert':'status'}>{remote.error||(remote.loading?'Buscando as informações autorizadas para sua conta…':'O acesso foi verificado. Ainda não há coleta publicada para este período.')}</p><div className="button-row overview-packages"><button className="button secondary" onClick={remote.refresh}>Tentar atualizar</button><button className="button secondary" onClick={()=>navigate('access')}>Ver meu acesso</button></div></Panel>}
+ {!demo&&snapshot&&<p className="panel-note comparison-note">{periodId==='current-week'?'Comparações semanais aparecem após o fechamento do período. Os números acima são os dados atuais disponíveis.':'A variação percentual aparece somente com dados comparáveis nas duas semanas. Quando a semana anterior tem zero, uma variação percentual de crescimento não pode ser calculada.'}</p>}
  {!demo&&snapshot?.current.sourceCoverage?.website==='partial'&&<p className="panel-note">Coleta parcial do site: este período está em andamento ou começou antes da instalação. Os números representam somente as visitas medidas.</p>}
  {operationError&&<p className="auth-error" role="alert">{operationError}</p>}
  {!demo&&operations.deliveries.some(r=>['failed','uncertain'].includes(r.status))&&<div className="demo-banner" role="alert"><p>Há um envio de relatório que precisa de atenção. <button onClick={()=>navigate('reports')}>Ver histórico de entrega</button></p></div>}

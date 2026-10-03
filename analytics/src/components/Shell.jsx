@@ -9,6 +9,7 @@ const navigation = [
   { id: 'website', label: 'Site', icon: Monitor },
   { id: 'instagram', label: 'Instagram', icon: Instagram },
   { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
+  { id: 'clients', label: 'Clientes', icon: Users },
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
   { id: 'integrations', label: 'Integrações', icon: Link2 },
   { id: 'access', label: 'Acesso da equipe', icon: Users },
@@ -24,6 +25,7 @@ export default function Shell({ profiles=[],userId, page, onPageChange, periodId
     website: 'Veja como as pessoas chegam e navegam pelo seu site.',
     instagram: 'Descubra os conteúdos que aproximam sua audiência.',
     whatsapp: 'Acompanhe quem chegou, pediu orçamento e avançou.',
+    clients: 'Cadastre contratações e acompanhe os pacotes vendidos.',
     reports: 'Seu desempenho da semana, pronto para acompanhar.',
     integrations: 'Conecte as fontes para começar a medir de verdade.',
     access: 'O mesmo painel para vocês, com acessos individuais.',
@@ -53,7 +55,7 @@ export default function Shell({ profiles=[],userId, page, onPageChange, periodId
             {!demo&&<button className="icon-button" aria-label="Atualizar métricas" onClick={onRefresh}><RefreshCw size={17}/></button>}
           </div>
         </header>
-        {!demo&&sourceUpdatedAt&&<div className="source-freshness" aria-label="Última coleta por fonte">{[['website','Site'],['instagram','Instagram'],['whatsapp','WhatsApp']].map(([id,label])=>{const date=sourceUpdatedAt[id]?new Date(sourceUpdatedAt[id]):new Date(NaN);return <span key={id}><Clock3 size={13}/><strong>{label}:</strong>{Number.isFinite(date.getTime())?date.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}):'Aguardando coleta'}</span>;})}</div>}
+        {!demo&&sourceUpdatedAt&&<div className="source-freshness" aria-label="Última coleta por fonte">{[['website','Site'],['instagram','Instagram']].map(([id,label])=>{const date=sourceUpdatedAt[id]?new Date(sourceUpdatedAt[id]):new Date(NaN);return <span key={id}><Clock3 size={13}/><strong>{label}:</strong>{Number.isFinite(date.getTime())?date.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}):'Aguardando coleta'}</span>;})}</div>}
         {demo&&<div className="demo-banner"><Info size={24} className="demo-info" /><p><strong>Modo demonstração</strong><span className="banner-dot"> · </span>Os números abaixo são exemplos. <button onClick={() => navigate('integrations')}>Conecte suas contas</button> para ver dados reais.</p></div>}
         {health&&<div className="connection-notice" role={health.tone==='error'?'alert':'status'}><strong>{health.headline}</strong><p>{health.detail}</p><button className="button secondary" onClick={()=>navigate('integrations')}>Ver integração</button></div>}
         {readOnly&&<div className="connection-notice" role="status"><strong>Histórico do site publicado · consulta protegida</strong><p>Os números vêm do banco do site publicado. <a href="/">Abrir o novo painel para cadastros e vendas</a></p></div>}

@@ -1,7 +1,7 @@
 import {body,check,cors,digest,endpoint,env,graph,json,member,rate} from '../_shared/server.ts';
 import {seal} from '../_shared/instagram-auth.ts';
 import {panelUrl} from '../_shared/account-mail.ts';
-endpoint(async req=>{
+export default endpoint(async req=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  const {db,user,teamId}=await member(req),input=await body(req,4000);
  if(input.action==='status'){

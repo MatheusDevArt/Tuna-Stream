@@ -1,7 +1,7 @@
 import {admin,check,graph as providerGraph,team} from './server.ts';
 import {loadInstagram} from './instagram-auth.ts';
 import {addDays,bounds,localDay,windows} from './aggregation.js';
-import {count,metricValue,totalMetricValue,followerChanges} from './instagram-quality.js';
+import {count,metricValue,totalMetricValue,followerChanges,metricBreakdown} from './instagram-quality.js';
 
 export async function collectInstagram(runId:string){
  const credential=await loadInstagram(),token=credential.token,account=credential.account;
@@ -33,9 +33,21 @@ export async function collectInstagram(runId:string){
   const params={period:'day',metric_type:'total_value',since:String(Math.floor(new Date(window.start).getTime()/1000)),until:String(until)};
   if(Number(params.since)>=Number(params.until))continue;
   const response:Record<string,any>={};
-  for(const name of ['reach','profile_links_taps','views',...(followers!==null&&followers>=100?['follows_and_unfollows']:[])])response[name]=await insight(account+'/insights',name,{...params,...(name==='follows_and_unfollows'?{breakdown:'follow_type'}:{})});
+  const accountMetrics=['reach','profile_links_taps','views','accounts_engaged','total_interactions','likes','comments','shares','saves','replies'];
+  const combined=await insight(account+'/insights',accountMetrics.join(','),params);
+  for(const name of accountMetrics)response[name]=combined.unavailable?await insight(account+'/insights',name,params):combined;
+  response.viewsByFollower=await insight(account+'/insights','views',{...params,breakdown:'follow_type'});
+  response.viewsByFormat=await insight(account+'/insights','views',{...params,breakdown:'media_product_type'});
+  if(followers!==null&&followers>=100)response.follows_and_unfollows=await insight(account+'/insights','follows_and_unfollows',{...params,breakdown:'follow_type'});
   // profile_links_taps measures contact buttons, not clicks on the bio website link.
   const metrics:Record<string,any>={instagramReach:totalMetricValue(response.reach,'reach'),instagramViews:totalMetricValue(response.views,'views'),profileVisits:null,bioClicks:null,profileContactTaps:totalMetricValue(response.profile_links_taps,'profile_links_taps'),...followerChanges(response.follows_and_unfollows),followersTotal:period.end>=today?followers:null,followersAsOf:period.end>=today?collectedAt:null,audience,audienceAsOf:collectedAt,audienceTimeframe:'this_month'};
+  const followerViews=metricBreakdown(response.viewsByFollower,'views','follow_type');
+  metrics.viewsFollowers=followerViews.find(([name]:any)=>name==='FOLLOWER')?.[1]??null;
+  metrics.viewsNonFollowers=followerViews.find(([name]:any)=>name==='NON_FOLLOWER')?.[1]??null;
+  metrics.viewsUnknownAudience=followerViews.length?followerViews.find(([name]:any)=>name==='UNKNOWN')?.[1]??0:null;
+  metrics.viewsAudienceTotal=totalMetricValue(response.viewsByFollower,'views');
+  metrics.viewsByFormat=metricBreakdown(response.viewsByFormat,'views','media_product_type');
+  for(const [key,name]of Object.entries({accountsEngaged:'accounts_engaged',totalInteractions:'total_interactions',instagramLikes:'likes',instagramComments:'comments',instagramShares:'shares',instagramSaves:'saves',instagramReplies:'replies'}))metrics[key]=totalMetricValue(response[name],name);
   const available=['instagramReach','instagramViews','profileContactTaps'].filter(key=>metrics[key]!==null);
   if(period.end>=today&&!available.length)throw new Error('metrics_unavailable');
   const coverage=!available.length?'unavailable':complete?'complete':'partial';
@@ -62,7 +74,7 @@ export async function collectInstagram(runId:string){
   const requested=channel==='stories'?'reach,views,replies,shares,link_clicks':'reach,views,saved,shares';
   let response=await insight(post.id+'/insights',requested,{},channel==='stories'),unavailableReason=response.reason||null;
   if(response.unavailable){const parts:any[]=[];for(const name of requested.split(',')){const item=await insight(post.id+'/insights',name,{},channel==='stories');parts.push(...item.data);if(item.reason)unavailableReason=item.reason;}response={data:parts};}
-  const metrics={id:post.id,title:(post.caption||'Conteúdo do Instagram').split('\n')[0].slice(0,120),channel,media_product_type:post.media_product_type,media_type:post.media_type,format:channel==='reels'?'Reel':channel==='stories'?'Story':post.media_type==='CAROUSEL_ALBUM'?'Carrossel':post.media_type==='VIDEO'?'Vídeo':'Estático',thumbnail:post.thumbnail_url||(post.media_type!=='VIDEO'?post.media_url:null),permalink:post.permalink||null,reach:metricValue(response,'reach'),views:metricValue(response,'views'),likes:count(post.like_count),comments:count(post.comments_count),saves:metricValue(response,'saved'),shares:metricValue(response,'shares'),replies:metricValue(response,'replies'),linkTaps:metricValue(response,'link_clicks'),unavailableReason,expired:channel==='stories'&&new Date(post.timestamp).getTime()+86400000<started.getTime(),provider:'meta',collectedAt,measurementScope:'cumulative'};
+  const metrics={id:post.id,publishedAt:post.timestamp,title:(post.caption||'Conteúdo do Instagram').split('\n')[0].slice(0,120),channel,media_product_type:post.media_product_type,media_type:post.media_type,format:channel==='reels'?'Reel':channel==='stories'?'Story':post.media_type==='CAROUSEL_ALBUM'?'Carrossel':post.media_type==='VIDEO'?'Vídeo':'Estático',thumbnail:post.thumbnail_url||(post.media_type!=='VIDEO'?post.media_url:null),permalink:post.permalink||null,reach:metricValue(response,'reach'),views:metricValue(response,'views'),likes:count(post.like_count),comments:count(post.comments_count),saves:metricValue(response,'saved'),shares:metricValue(response,'shares'),replies:metricValue(response,'replies'),linkTaps:metricValue(response,'link_clicks'),unavailableReason,expired:channel==='stories'&&new Date(post.timestamp).getTime()+86400000<started.getTime(),provider:'meta',collectedAt,measurementScope:'cumulative'};
   // Do not relabel a previous provider's unavailable metric as a fresh measurement.
   media.push({id:post.id,published_at:post.timestamp,metrics});
  }

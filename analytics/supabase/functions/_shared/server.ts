@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
 import {providerFailure} from './instagram-quality.js';
 const privateRuntime:Record<string,string>={};
 export const configureRuntime=(values:Record<string,string>)=>Object.assign(privateRuntime,values);
-export const env=(name:string,required=true)=>{const value=privateRuntime[name]||Deno.env.get(name)||'';if(required&&!value)throw new Error('configuration_missing');return value;};
+export const env=(name:string,required=true)=>{const value=privateRuntime[name]||(typeof Deno!=='undefined'?Deno.env.get(name):'')||'';if(required&&!value)throw new Error('configuration_missing');return value;};
 export const admin=()=>createClient(env('SUPABASE_URL'),env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
 export const team=()=>env('TUNA_TEAM_ID');
 export const uuid=(value:unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -35,7 +35,7 @@ export async function member(req:Request){
  const row=check(await db.from('team_members').select('team_id').eq('user_id',data.user.id).eq('team_id',team()).maybeSingle());
  if(!row)throw new Error('access_denied');return {db,user:data.user,teamId:row.team_id};
 }
-export function endpoint(handler:(req:Request)=>Promise<Response>){Deno.serve(async req=>{
+export function endpoint(handler:(req:Request)=>Promise<Response>){const wrapped=async(req:Request)=>{
  try{return await handler(req);}catch(error){
   const code=error instanceof Error?error.message:'internal_error';
   const known=['configuration_missing','origin_denied','method_denied','body_too_large','invalid_body','rate_limited','access_denied','invalid_signature','invalid_input'];
@@ -44,7 +44,7 @@ export function endpoint(handler:(req:Request)=>Promise<Response>){Deno.serve(as
   let headers={};try{headers=cors(req);}catch{/* Never echo a denied origin. */}
   return json({error:safe},status,headers);
  }
-});}
+};if(typeof Deno!=='undefined'&&typeof Deno.serve==='function')Deno.serve(wrapped);return wrapped;}
 export async function graph(path:string,params:Record<string,string>,token:string,instagram=false,loginMode=env('INSTAGRAM_LOGIN_MODE',false)){
  const version=env('META_GRAPH_VERSION');if(!/^v\d+\.\d+$/.test(version))throw new Error('configuration_missing');
  const host=instagram&&loginMode!=='facebook'?'graph.instagram.com':'graph.facebook.com';

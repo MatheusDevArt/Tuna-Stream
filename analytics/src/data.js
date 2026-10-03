@@ -1,6 +1,7 @@
 export const business = {
   name: 'TunaStream',
-  website: 'https://tunastream-ofc.lovable.app',
+  website: 'https://tuna-stream-esquenta.matheusdevart.chatgpt.site',
+  bioUrl: 'https://tuna-stream-esquenta.matheusdevart.chatgpt.site/?utm_source=instagram&utm_medium=bio',
   instagram: 'https://www.instagram.com/tuna.stream/',
   handle: '@tuna.stream',
   accountType: 'Criador de conteúdo',

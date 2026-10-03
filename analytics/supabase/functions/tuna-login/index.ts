@@ -1,6 +1,6 @@
 import {admin,body,check,cors,digest,endpoint,env,json,rate,username} from '../_shared/server.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2.117.2';
-endpoint(async req=>{
+export default endpoint(async req=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  await rate(req,'login',8,900);const input=await body(req,1000),nick=username(input.username);
  if(nick.length>80||typeof input.password!=='string'||input.password.length>200)throw new Error('invalid_input');

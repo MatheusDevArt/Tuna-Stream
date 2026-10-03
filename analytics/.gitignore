@@ -7,3 +7,8 @@ dist/
 server/.generated/
 .cloud-dist/
 supabase/.temp/
+
+.sites-checkout/
+.sites-runtime/
+dist-client-staged/
+*.tar.gz

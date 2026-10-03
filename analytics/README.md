@@ -1,5 +1,18 @@
 # TunaStream — painel de métricas
 
+## Produção · 03/10/2026
+
+Painel: https://tunastream-painel.matheusdevart.chatgpt.site. Hospedagem restrita aos e-mails autorizados de Matheus e Adriana; o aplicativo também exige login individual e associação à equipe no Supabase. Nenhum segredo de servidor é incluído no navegador.
+
+- Foto da dupla recriada em 16:9, em faixa horizontal compacta.
+- Aba **Clientes**: registrar contratações reais, pacote ou personalizado, configuração/personalização/ambos, estado/cidade e data do fechamento. Telefone armazenado somente como identificador HMAC. Cadastro direto não conta como mensagem do site.
+- Instagram conectado à API oficial. Coleta aproximadamente a cada 30 minutos, com pausa de 01h a 05h em Brasília e recuo adicional quando a Meta limita as chamadas.
+- Relatórios por Gmail: teste com dois anexos PNG aceito pelo provedor em 03/10. Agenda de nuvem ativa para segunda-feira às 08h, última semana completa. Ver docs/weekly-email-reports.md. Não comprova entrega ou leitura; execuções futuras ainda não ocorreram.
+- Coletor de visitas consentidas publicado no Supabase independente e conectado ao site público https://tuna-stream-esquenta.matheusdevart.chatgpt.site. Uma visita técnica real foi registrada e apareceu na visão geral; não representa cliente nem venda. Seções atuais e antigas usam os mesmos rótulos de métricas. O endereço tunastream-ofc.lovable.app ainda precisa receber a configuração atualizada. Registros antigos continuam separados.
+- Fotos de perfil, cadastro de clientes e dados compartilhados ficam no banco online. Recuperação e alteração de usuário por e-mail ainda precisam do remetente transacional configurado; o conector Gmail dos relatórios não fornece credenciais ao servidor.
+
+As seções abaixo documentam etapas anteriores e não representam o estado atual de produção.
+
 Programa em português brasileiro, com identidade gamer da TunaStream, foto original, mapa dos 27 estados e versões para celular e computador.
 
 ## Revisão local atual · aguardando aprovação

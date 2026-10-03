@@ -4,7 +4,7 @@ export const leadStages = [
  {id:'quote_sent',label:'Orçamento enviado'},{id:'won',label:'Fechado'},{id:'lost',label:'Perdido'},
 ];
 export function trackingReference(text) {
- return typeof text==='string' ? (text.match(/\bTS-(START|LIVE|STREAMER|COMBOS)-([A-Z0-9]{8,24})\b/)?.[0]||null) : null;
+ if(typeof text!=='string')return null;const value=text.trim().toUpperCase();return value.match(/\bTS-(?:START|LIVE|STREAMER|COMBOS|CUSTOM|AVULSO|GENERAL)-[A-Z0-9]{8,32}\b/)?.[0]||(/^[A-HJ-NP-Z2-9]{5}$/.test(value)?value:value.match(/\bTICKET\s*:\s*([A-HJ-NP-Z2-9]{5})\b/)?.[1]||null);
 }
 export function summarizeInbound(messages) {
  const supportedTypes=new Set(['text','image','video','audio','document','sticker','contacts','location','interactive','button','order','unsupported']);

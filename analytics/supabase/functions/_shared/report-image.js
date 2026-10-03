@@ -17,9 +17,10 @@ function delta(a,b,inverse=false){
 }
 function metric(label,a,b,x,y,unit='',inverse=false){
  const d=delta(a,b,inverse),number=val(a)+(Number.isFinite(a)?unit:'');
- return rect(x,y,456,184)+t(label,x+24,y+38,25,'#c3b7d3')+t(number,x+24,y+99,52,'#fff',600)+t(d.label,x+24,y+147,25,d.color,600)+t('antes: '+val(b)+(Number.isFinite(b)?unit:''),x+432,y+147,20,'#a99eb9',400,'end');
+ const tone=/Vendas|compraram|Recebimentos/.test(label)?['#102820','#72f5b7']:/Visualizações|Não seguidores/.test(label)?['#29142b','#ff9ddd']:/Visitas|Visitantes|Interações/.test(label)?['#102332','#78d9ff']:['#201330','#c79aff'];
+ return rect(x,y,456,184,tone[0])+rect(x,y,6,184,tone[1],3)+t(label,x+24,y+38,label.length>25?21:25,tone[1],500)+t(number,x+24,y+99,52,'#fff',600)+t(d.label,x+24,y+147,25,d.color,600)+t('antes: '+val(b)+(Number.isFinite(b)?unit:''),x+432,y+147,20,'#bfb6cc',400,'end');
 }
-const heading=(label,y,detail='')=>t(label,64,y,32,'#fff',600)+(detail?t(detail,64,y+39,22,'#a99eb9'):'');
+const heading=(label,y,detail='')=>rect(64,y-29,5,34,'#78d9ff',2)+t(label,80,y,32,'#d7c6ff',600)+(detail?t(detail,80,y+39,22,'#bbb2c6'):'');
 function daily(values,y){
  const days=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],rows=values||[],max=Math.max(1,...rows.filter(Number.isFinite));
  let out='';
@@ -57,8 +58,8 @@ export function renderReportSvg(snapshot,type='website'){
    body+=metric(dated('Alcance diário',c.instagramReachAsOf),c.instagramLastDailyReach,null,64,310)+metric(c.instagramViewsDays?.length===1?dated('Visualizações',c.instagramViewsDays[0]):'Visualizações informadas',c.instagramViewsObserved,null,560,310)+metric(dated('Seguidores',c.followersAsOf),c.followersTotal,null,64,518)+metric('Posts importados',imported.length||null,null,560,518)+metric('Interações nos posts',interactions,null,64,726)+metric('Visualizações dos posts',sum('views'),null,560,726);
    body+=heading('DETALHES DOS POSTS',994)+rect(64,1030,952,140)+t('Curtidas',90,1077,25,'#b7a9c9')+t(val(sum('likes')),90,1138,45,'#6bf2b2',600)+t('Comentários',420,1077,25,'#b7a9c9')+t(val(sum('comments')),420,1138,45,'#f3a0bf',600)+t('Salvos',740,1077,25,'#b7a9c9')+t(val(sum('saves')),740,1138,45,'#fff',600);
   }else{
-   body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visitas ao perfil',c.profileVisits,before.profileVisits,560,310)+metric(dated('Seguidores informados',c.followersAsOf),c.followersTotal,null,64,518)+metric('Saldo de seguidores',c.netFollowers,before.netFollowers,560,518)+metric(c.instagramSource?.provider==='meta'?'Toques nos contatos':'Cliques na bio',c.instagramSource?.provider==='meta'?c.profileContactTaps:c.bioClicks,c.instagramSource?.provider==='meta'?before.profileContactTaps:before.bioClicks,64,726)+metric('Visualizações',c.instagramViews,before.instagramViews,560,726);
-   body+=heading('SEGUIDORES NO PERÍODO',994)+rect(64,1030,952,140)+t('Ganhos',90,1077,25,'#b7a9c9')+t(val(c.followersGained),90,1138,45,'#6bf2b2',600)+t('Perdidos',420,1077,25,'#b7a9c9')+t(val(c.followersLost),420,1138,45,'#f3a0bf',600)+t('Saldo',740,1077,25,'#b7a9c9')+t(val(c.netFollowers),740,1138,45,'#fff',600);
+   body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visualizações',c.instagramViews,before.instagramViews,560,310)+metric(dated('Seguidores atuais',c.followersAsOf),c.followersTotal,null,64,518)+metric('Interações no conteúdo',c.totalInteractions,before.totalInteractions,560,518)+metric('Visualizações · seguidores',c.viewsFollowers,before.viewsFollowers,64,726)+metric('Não seguidores · visualizações',c.viewsNonFollowers,before.viewsNonFollowers,560,726);
+   body+=heading('INTERAÇÕES NO PERÍODO',994)+rect(64,1030,952,140,'#142032')+t('Curtidas',90,1077,25,'#b8d7ed')+t(val(c.instagramLikes),90,1138,45,'#78d9ff',600)+t('Compartilhamentos',395,1077,25,'#c6b5e4')+t(val(c.instagramShares),420,1138,45,'#d2a5ff',600)+t('Salvos',780,1077,25,'#e6bad7')+t(val(c.instagramSaves),780,1138,45,'#ff9ddd',600);
   }
   body+=heading('CONTEÚDOS DE MAIOR ALCANCE',1270,'Posts do período · métricas acumuladas até a consulta');
   const posts=[...(c.media||c.posts||[])].filter(post=>Number.isFinite(post.reach)).sort((a,b)=>b.reach-a.reach).slice(0,3);

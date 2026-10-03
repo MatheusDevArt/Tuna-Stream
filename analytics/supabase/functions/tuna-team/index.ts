@@ -2,16 +2,27 @@ import {body,check,cors,digest,endpoint,json,member,uuid} from '../_shared/serve
 import {extractReference} from '../_shared/whatsapp.js';
 import {publishSnapshots} from '../_shared/snapshots.ts';
 import {packageLabels,serviceLabels,stateLabels} from '../../../src/sales.js';
-endpoint(async req=>{
+export default endpoint(async req=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  const {db,user,teamId}=await member(req),input=await body(req,4000);
- if(input.action==='client'){
+ if(['client','create-client'].includes(input.action)){
   const details=input.details;
-  if(!uuid(input.id)||!details||!Object.hasOwn(packageLabels,details.package)||!Object.hasOwn(serviceLabels,details.service)||typeof details.state!=='string'||details.state!==''&&!Object.hasOwn(stateLabels,details.state)||!['clientLabel','customPackageName','city'].every(key=>typeof details[key]==='string'&&details[key].length<=80)||details.package==='CUSTOM'&&!details.customPackageName.trim())throw new Error('invalid_input');
+  if(!uuid(input.id)||!details||!Object.hasOwn(packageLabels,details.package)||!Object.hasOwn(serviceLabels,details.service)||typeof details.state!=='string'||details.state!==''&&!Object.hasOwn(stateLabels,details.state)||!['clientLabel','customPackageName','city'].every(key=>typeof details[key]==='string'&&details[key].length<=80)||['CUSTOM','AVULSO'].includes(details.package)&&!details.customPackageName.trim())throw new Error('invalid_input');
+  if(details.saleAmount!=null&&(!Number.isFinite(details.saleAmount)||details.saleAmount<0||details.saleAmount>9999999999.99||Math.abs(details.saleAmount*100-Math.round(details.saleAmount*100))>.001))throw new Error('invalid_input');
   let contact=null;
   if(details.phone){const digits=String(details.phone).replace(/\D/g,''),phone=!String(details.phone).trim().startsWith('+')&&[10,11].includes(digits.length)?'55'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(phone))throw new Error('invalid_input');contact=await digest(teamId+':contact:'+phone);}
   const {phone:discarded,...safe}=details;
-  check(await db.rpc('analytics_save_client',{opportunity:input.id,tenant:teamId,actor:user.id,details:safe,contact_digest:contact}));
+  safe.saleAmount=details.saleAmount??null;
+  if(input.action==='create-client'){
+   if(!contact||!details.clientLabel.trim()||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(details.closedAt||''))throw new Error('invalid_input');
+   const closing=new Date(details.closedAt+'-03:00');if(!Number.isFinite(closing.getTime())||closing.getTime()>Date.now()+300000)throw new Error('invalid_input');
+   check(await db.rpc('analytics_create_client_sale',{sale_id:input.id,tenant:teamId,actor:user.id,details:safe,contact_digest:contact,closing_time:closing.toISOString()}));
+  }else check(await db.rpc('analytics_save_client',{opportunity:input.id,tenant:teamId,actor:user.id,details:safe,contact_digest:contact}));
+  await publishSnapshots();return json({saved:true},200,headers);
+ }
+ if(input.action==='archive-client'){
+  if(!uuid(input.id)||typeof input.restore!=='boolean')throw new Error('invalid_input');
+  check(await db.rpc('analytics_archive_client',{opportunity:input.id,tenant:teamId,actor:user.id,restore:input.restore}));
   await publishSnapshots();return json({saved:true},200,headers);
  }
  if(input.action==='confirm-link'){
@@ -21,8 +32,8 @@ endpoint(async req=>{
   await publishSnapshots();return json({saved:true,id},200,headers);
  }
  if(input.action==='package'){
-  if(!uuid(input.id)||!['START','LIVE','STREAMER','COMBOS','CUSTOM','GENERAL'].includes(input.package))throw new Error('invalid_input');
-  const opportunity=check(await db.from('site_opportunities').select('id').eq('id',input.id).eq('team_id',teamId).eq('attributed',true).maybeSingle());
+  if(!uuid(input.id)||!Object.hasOwn(packageLabels,input.package))throw new Error('invalid_input');
+  const opportunity=check(await db.from('site_opportunities').select('id').eq('id',input.id).eq('team_id',teamId).eq('attributed',true).is('archived_at',null).maybeSingle());
   if(!opportunity)throw new Error('access_denied');
   check(await db.from('site_opportunities').update({selected_package:input.package}).eq('id',input.id).eq('team_id',teamId));
   await publishSnapshots();

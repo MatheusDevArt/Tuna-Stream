@@ -1,13 +1,14 @@
-/* Native GET prepares the order; only the visitor submits it to WhatsApp. */
+/* Prepare the order and use the shared ticket flow when opening WhatsApp. */
 function buildCustomPackageMessage({name, kind, services = [], details = '', mode = 'services', basePlan, configPlan, designPlan}) {
   const labels = {configuracao: 'Configuração', design: 'Personalização', ambos: 'Configuração e personalização'};
   const selection = mode === 'mix'
-    ? ['Pacotes escolhidos:', '• Configuração: ' + configPlan, '• Personalização: ' + designPlan, '', 'Quero aproveitar o desconto na combinação de pacotes.']
+    ? ['• Configuração: ' + configPlan, '• Personalização: ' + designPlan]
     : mode === 'extras'
       ? ['Pacote escolhido: ' + basePlan + ' — ' + labels[kind], '', 'Itens adicionais:', ...services.map(item => '• ' + item)]
       : ['Serviços selecionados:', ...services.map(item => '• ' + item)];
-  return ['Olá! Quero um pacote personalizado da Tuna Stream.', '', 'Nome: ' + name.trim(),
-    'Eu quero: ' + labels[kind], '', ...selection,
+  const packageName = mode === 'mix' || mode === 'services'&&kind === 'ambos' ? 'Combo Personalizado' : mode === 'extras' ? basePlan + ' + itens adicionais' : 'Personalizado';
+  return ['Olá , gostaria de contratar o pacote "' + packageName + '"', '', ...selection,
+    ...(name.trim() ? ['', 'Nome: ' + name.trim()] : []),
     ...(details.trim() ? ['', 'Informações adicionais:', details.trim()] : [])].join('\n');
 }
 if (typeof module !== 'undefined' && module.exports) module.exports = {buildCustomPackageMessage};
@@ -64,18 +65,20 @@ if (typeof document !== 'undefined') (() => {
     count.textContent = orderMode() === 'mix' || !kind.value ? ''
       : `${services.length} ${noun} ${services.length === 1 ? 'selecionado' : 'selecionados'}`;
     if (services.length || orderMode() === 'mix') {error.hidden = true; field.removeAttribute('aria-invalid');}
-    message.value = kind.value ? buildCustomPackageMessage({name: name.value, kind: kind.value, mode: orderMode(),
+    const selectedGroups = new Set([...options.querySelectorAll('input:checked:not(:disabled)')].map(input=>input.closest('.request-service-group')?.querySelector('h4')?.textContent));
+    const messageKind = orderMode()==='services' ? selectedGroups.size>1?'ambos':selectedGroups.has('Configuração')?'configuracao':'design' : kind.value;
+    message.value = kind.value ? buildCustomPackageMessage({name: name.value, kind: messageKind, mode: orderMode(),
       services, basePlan: base.value, configPlan: config.value, designPlan: design.value, details: details.value}) : '';
     document.querySelector('#request-message-preview').textContent = message.value || 'Preencha o formulário para preparar sua mensagem.';
   }
   function updateChoices() {
-    const mixing = orderMode() === 'mix';
+    const mixing = orderMode() === 'mix', servicesOnly = orderMode() === 'services';
     const bothOption = kind.querySelector('option[value="ambos"]');
     bothOption.disabled = orderMode() === 'extras';
     if (bothOption.disabled && kind.value === 'ambos') kind.value = 'configuracao';
-    kind.disabled = mixing;
-    kind.closest('.form-field').hidden = mixing;
-    if (mixing) kind.value = 'ambos';
+    kind.disabled = mixing || servicesOnly;
+    kind.closest('.form-field').hidden = mixing || servicesOnly;
+    if (mixing || servicesOnly) kind.value = 'ambos';
     form.querySelectorAll('[data-order-mode]').forEach(group => {
       const shown = group.dataset.orderMode === orderMode();
       group.hidden = !shown;
@@ -127,6 +130,13 @@ if (typeof document !== 'undefined') (() => {
       error.hidden = false; field.setAttribute('aria-invalid', 'true'); field.focus(); return;
     }
     updateMessage();
+    if (window.TunaAnalytics?.openWhatsApp) {
+      event.preventDefault();
+      const groups = new Set([...options.querySelectorAll('input:checked:not(:disabled)')].map(input=>input.closest('.request-service-group')?.querySelector('h4')?.textContent));
+      const service = orderMode()==='mix' || orderMode()==='services'&&groups.size>1 ? 'both' : orderMode()==='services' ? groups.has('Configuração')?'configuration':'personalization' : kind.value==='configuracao'?'configuration':'personalization';
+      const url = new URL(form.action); url.searchParams.set('text',message.value);
+      window.TunaAnalytics.openWhatsApp(url.href,'CUSTOM',service);
+    }
   });
   function updateSelectAlternatives() {
     form.querySelectorAll('select').forEach(select => {

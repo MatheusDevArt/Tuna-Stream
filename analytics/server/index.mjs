@@ -1,6 +1,7 @@
 // Local/standalone Node host. Original endpoints keep their Request/Response contract.
 import {createServer} from 'node:http';
 import {readFile,stat} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 import {resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadEnvFile} from 'node:process';
@@ -39,7 +40,7 @@ createServer(async (req,res)=>{
    const response=process.env.TUNA_REMOTE_READ_ONLY_ORIGIN||url.pathname.startsWith('/api/old/')?await bridge(request,name):await handlers.get(name)(request);const payload=Buffer.from(await response.arrayBuffer());res.writeHead(response.status,Object.fromEntries(response.headers));res.end(payload);return;
   }
   if(url.pathname.startsWith('/api/')){res.writeHead(404);res.end();return;}
-  const historical=url.pathname.startsWith('/historico/'),relative=decodeURIComponent(url.pathname).replace(historical?/^\/historico\//:/^\/painel(?:\/|$)/,'/').replace(/^\/+/,''),dist=resolve(root,historical?'.cloud-dist':'dist');
+  const historical=url.pathname.startsWith('/historico/'),relative=decodeURIComponent(url.pathname).replace(historical?/^\/historico\//:/^\/painel(?:\/|$)/,'/').replace(/^\/+/,''),dist=resolve(root,historical?'.cloud-dist':existsSync(resolve(root,'dist/client/index.html'))?'dist/client':'dist');
   let path=resolve(dist,relative||'index.html');
   if(path!==dist&&!path.startsWith(dist+sep)){res.writeHead(403);res.end();return;}
   if(relative.startsWith('.')||relative.includes('/.')){res.writeHead(404);res.end();return;}

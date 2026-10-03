@@ -9,7 +9,7 @@ async function verifyPassword(user:any,password:unknown){
  if(result.error||result.data.user?.id!==user.id)throw new Error('access_denied');
  await client.auth.signOut({scope:'local'});
 }
-endpoint(async req=>{
+export default endpoint(async req=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  await rate(req,'account',120,60);const input=await body(req,4400000),db=admin();
  if(input.action!=='profile')await rate(req,'account-change',10,900);

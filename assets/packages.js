@@ -147,8 +147,7 @@ if (typeof document !== 'undefined') (() => {
       }
       list.replaceChildren(...items);
       card.querySelector('a.btn').href = 'https://wa.me/5521979978671?text=' + encodeURIComponent(
-        'Olá! Quero contratar o pacote ' + name + ' de ' + category.label.toLowerCase() +
-        ' (' + formatPackagePrice(plan.cents) + (plan.originalCents ? ', com desconto' : '') + ').');
+        'Olá , gostaria de contratar o pacote "' + (kind === 'ambos' ? 'Combo ' : '') + name + '"');
     });
     document.querySelector('#pacotes .pricing-footnote').textContent = kind === 'ambos'
       ? 'Configuração e personalização juntas, com desconto no pacote completo.'

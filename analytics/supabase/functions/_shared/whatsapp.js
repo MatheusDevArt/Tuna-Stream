@@ -1,4 +1,4 @@
-export function extractReference(text){return typeof text==='string'?(text.match(/\bTS-(?:START|LIVE|STREAMER|COMBOS|CUSTOM|GENERAL)-[A-F0-9]{32}\b/)?.[0]||null):null;}
+export function extractReference(text){if(typeof text!=='string')return null;const value=text.trim().toUpperCase();return value.match(/\bTS-(?:START|LIVE|STREAMER|COMBOS|CUSTOM|AVULSO|GENERAL)-[A-F0-9]{32}\b/)?.[0]||(/^[A-HJ-NP-Z2-9]{5}$/.test(value)?value:value.match(/\bTICKET\s*:\s*([A-HJ-NP-Z2-9]{5})\b/)?.[1]||null);}
 export function inboundMessages(payload,phoneId){
  const messages=[];
  const supported=new Set(['text','image','video','audio','document','sticker','contacts','location','interactive','button','order','unsupported']);
