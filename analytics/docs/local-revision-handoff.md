@@ -13,7 +13,7 @@ Trabalho local na branch `codex/tunastream-analytics`. Sem uso do Lovable, push 
 - Oportunidades: quadro/lista de todo o histórico, confirmação privada, cliente identificado, serviço (configuração, personalização ou ambos), pacote negociado, personalizado com nome, estado e cidade. Pacote de origem permanece preservado.
 - Vendas: negócios fechados, compradores únicos, pacotes, serviços e mapa de compras. Estado é informado no atendimento; o mapa de compradores é separado do mapa de visitantes.
 - Perfil: fotos iniciais, troca de foto, e-mail verificado, confirmação de usuário por e-mail, recuperação/troca de senha.
-- Instagram: três posts reais importados manualmente do Metricool em 03/10/2026 às 00:57 (Brasília), com histórico parcial. Coletor oficial da Meta implantado no novo Supabase, configuração privada salva e convite de testador aceito pelo usuário. Autorização OAuth e primeira coleta válida ainda pendentes; veja [estado e limites da coleta](../README.md). Atualizar o painel relê o banco. Métricas acumuladas, fonte e datas ficam visíveis.
+- Instagram: autorização oficial de tuna.stream concluída pelo usuário. Primeira coleta no Supabase concluída em 03/10/2026 às 02:06 (Brasília), sem erro: três posts de Feed e cinco Stories; semana em andamento com 1.150 visualizações, alcance de 169 contas e 21 seguidores na consulta de 02:05:57. O painel e o banco mostram a fonte Meta. O cron está ativo; coleta aproximadamente a cada hora sem depender do computador. A importação anterior do Metricool permanece no histórico de commit/exportação; atualizar o painel relê o banco. Veja [estado e limites da coleta](../README.md).
 
 ## WhatsApp e contagem
 
@@ -49,13 +49,13 @@ Não pedir senha do Instagram no painel e não abrir o console de desenvolvedor 
 
 Configurar no servidor `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `INSTAGRAM_TOKEN_ENCRYPTION_KEY` (32 bytes aleatórios em hexadecimal), `META_GRAPH_VERSION`, `INSTAGRAM_REDIRECT_URI` e `TUNA_PANEL_URL`. Cadastrar a URI exata no aplicativo oficial. A conta deve ser profissional (Criador/Empresa); não é necessária uma página Facebook nessa modalidade. Verificar permissões/acesso do aplicativo e autorizar `tuna.stream`. A existência de e-mail/senha no Instagram não substitui OAuth nem habilita métricas de uma conta pessoal.
 
-Tokens são cifrados em AES-GCM com associação à equipe e conta; clientes não consultam a tabela de credenciais. Nenhuma autorização real foi realizada nesta revisão. Os dados e a disponibilidade dos campos precisam ser conferidos com a conta conectada.
+Tokens são cifrados em AES-GCM com associação à equipe e conta; clientes não consultam a tabela de credenciais. A autorização real, o retorno ao painel e a primeira coleta oficial foram confirmados. Saldo de seguidores e dados demográficos permanecem indisponíveis para esta conta pequena; visitas ao perfil e cliques na bio não são preenchidos com outras métricas.
 
 ## Publicação após aprovação
 
 O Lovable documenta que a conexão de um projeto cria um novo repositório GitHub. Não prometer importar diretamente o repositório atual. Após aprovação: criar o projeto mínimo, conectar o GitHub e transferir o código preparado para o repositório criado pela conexão, mantendo histórico/backups e separando o site público. Verificar o runtime: Vite é o frontend; o servidor tem Request/Response originais Deno e um host Node. Para TanStack, adaptar o registro das rotas sem pedir ao agente para refazer o produto.
 
-Escolher explicitamente o banco de destino antes da publicação; não substituir o banco antigo nem migrar seus contatos com um novo segredo HMAC sem uma estratégia de migração. No novo banco, as migrações de dados já estão instaladas; falta hospedar os oito endpoints, configurar provedores e agendamento. No banco antigo, perfis e clientes ainda não foram aplicados. Incluir o bundle atualizado de `assets/tuna-analytics.js` no site público com o endpoint HTTPS de destino e `panelUrl` real. Publicar com `VITE_REQUIRE_AUTH=true` e `VITE_ALLOW_LOCAL_DEMO=false`.
+Escolher explicitamente o banco de destino antes da publicação; não substituir o banco antigo nem migrar seus contatos com um novo segredo HMAC sem uma estratégia de migração. No novo banco, as migrações de dados estão instaladas e o coletor/callback do Instagram estão hospedados com cron ativo. Ainda falta hospedar o frontend, os endpoints protegidos da aplicação e a coleta pública do site; Google Analytics, recuperação por e-mail e envio de relatórios também dependem de configuração. No banco antigo, perfis e clientes ainda não foram aplicados. Incluir o bundle atualizado de `assets/tuna-analytics.js` no site público com o endpoint HTTPS de destino e `panelUrl` real. Publicar com `VITE_REQUIRE_AUTH=true` e `VITE_ALLOW_LOCAL_DEMO=false` somente após aprovação.
 
 ## Evidências e limites
 
@@ -64,7 +64,9 @@ Escolher explicitamente o banco de destino antes da publicação; não substitui
 - 40 verificações PostgreSQL local: migrações, confirmação idempotente, referência inválida/expirada, isolamento, HMAC posterior, dois pedidos para o mesmo cliente, pacote personalizado, estado válido e tokens de uso único.
 - Compilação do frontend e dos oito endpoints Node aprovada; host local respondeu HTTP 200 e negou o arquivo privado com HTTP 404.
 - Verificações reais: dois logins, dois perfis na mesma equipe, três snapshots iniciais, tabelas de clientes e oportunidades vazias, anonimato negado e histórico consultado sem alteração.
-- A atualização da coleta oficial passou em 27 testes de regras/renderização e 38 verificações isoladas de banco/controles do agendamento. O novo Supabase contém as funções, o Vault e os controles do cron; ativação exige autorização e primeira coleta válida. O cron do banco antigo foi preservado. Windsor não é usado nesta integração.
-- Essas verificações não comprovam entrega de e-mail, autorização OAuth, upload hospedado ou publicação desta revisão.
+- A atualização da coleta oficial passou em 27 testes de regras/renderização e 38 verificações isoladas de banco/controles do agendamento. A coleta real da Meta gravou oito conteúdos e três períodos em uma transação, sem erro. O cron está ativo no novo Supabase; o cron do banco antigo foi preservado. Windsor não é usado nesta integração.
+- Essas verificações não comprovam entrega de e-mail, upload de fotos hospedado ou publicação do frontend desta revisão.
+- Rotas hospedadas verificadas: callback sem estado e coletor sem segredo retornam HTTP403. O carregamento do Vault usa memória do módulo, pois o runtime Edge recusou alterar as variáveis de ambiente. Nenhuma chave privada foi detectada no conteúdo do commit local.
+- Caminho do agendamento verificado: chamada pela mesma função SQL do cron retornou HTTP200, sem timeout, com `not_due` e `schedulerConfigured=true`. Isso confirma a conexão independente; não força uma nova consulta à Meta antes do intervalo. A próxima execução periódica ainda não foi observada nesta entrega.
 
 Fontes: [Instagram Login — Meta](https://www.postman.com/meta/instagram/folder/6raa77c/instagram-api-with-instagram-login), [GitHub — Lovable](https://docs.lovable.dev/integrations/github), [PGlite](https://pglite.dev/docs/api).
