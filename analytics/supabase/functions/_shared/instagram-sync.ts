@@ -3,11 +3,14 @@ import {collectInstagram} from './instagram.ts';
 import {safeCollectionError} from './instagram-quality.js';
 
 export async function syncInstagram(){
+ const now=Date.now();
+ const hour=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',hour:'numeric',hourCycle:'h23'}).format(now));
+ if(hour>=1&&hour<5)return {status:'skipped',reason:'quiet_hours'};
  const db=admin(),tenant=team();
  const credential=check(await db.from('provider_credentials').select('account_id').eq('team_id',tenant).eq('provider','instagram').maybeSingle());
  if(!credential&&!env('INSTAGRAM_ACCESS_TOKEN',false))return {status:'pending',reason:'authorization_required'};
  const integration=check(await db.from('analytics_integrations').select('mode,last_success_at,last_error_at,error_code').eq('team_id',tenant).eq('source','instagram').maybeSingle());
- const now=Date.now(),lastSuccess=new Date(integration?.last_success_at||0).getTime(),lastError=new Date(integration?.last_error_at||0).getTime();
+ const lastSuccess=new Date(integration?.last_success_at||0).getTime(),lastError=new Date(integration?.last_error_at||0).getTime();
  // The 15-minute scheduler checks a 25-minute gate: successful runs settle around 30 minutes apart.
  if(integration?.mode==='api'&&integration.last_success_at&&now-lastSuccess<25*60000)return {status:'skipped',reason:'not_due'};
  // Avoid retrying every scheduler tick after Meta explicitly limits the account.
