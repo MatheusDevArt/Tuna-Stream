@@ -45,6 +45,6 @@ export function aggregate({sessions=[],events=[],opportunities=[],receipts=[],in
   media:media.map(r=>({...r.metrics,expired:r.metrics.channel==='stories'&&new Date(r.published_at).getTime()+86400000<Date.now()})),posts:media.map(r=>r.metrics),
   sourceUpdatedAt:Object.fromEntries(integrations.map(i=>[i.source,i.last_success_at])),
   sourceCoverage:Object.fromEntries(integrations.map(i=>[i.source,i.source==='whatsapp'&&i.mode==='manual'?'manual':i.source==='instagram'&&instagram?'api':!i.first_success_at?'unavailable':localDay(i.first_success_at)>period.end?'unavailable':new Date(i.first_success_at)>new Date(bounds(period).start)||period.end>=localDay(new Date())?'partial':'complete'])),
-  measurementNotes:{contacts:'Contatos distintos que enviaram uma referência válida do site neste período.',quotes:'Contatos atribuídos recebidos no período, com solicitação confirmada no histórico.',geography:'Localização aproximada; visitantes sem estado identificado não são distribuídos no mapa.'}
+  measurementNotes:{contacts:'Recebimentos confirmados. Com telefone, deduplicação por identificador protegido; sem telefone, deduplicação por referência. A mesma pessoa pode ter várias referências.',quotes:'Contatos atribuídos recebidos no período, com solicitação confirmada no histórico.',geography:'Localização aproximada; visitantes sem estado identificado não são distribuídos no mapa.'}
  };
 }

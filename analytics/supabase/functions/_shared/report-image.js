@@ -1,61 +1,61 @@
-// Shared deterministic renderer: the browser export and scheduled sender use the same data.
+// The same controlled SVG is used by browser download and the server PNG renderer.
 import {fontBase64} from './font-data.js';
-import {recommendations} from './recommendations.js';
-const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
-const val = n => Number.isFinite(n) ? fmt.format(n) : 'Não disponível';
-const escape = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
-const text = (s,x,y,size=26,color='#f7f0ff',weight=400,anchor='start') => `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" font-weight="${weight}" text-anchor="${anchor}">${escape(s)}</text>`;
-function lines(s,x,y,width=60,size=24,color='#bbb3c9') {
-  const words=String(s||'').split(/\s+/);let line='',out='',row=0;
-  for(const word of words){if((line+' '+word).length>width&&line){out+=text(line,x,y+row++*(size+12),size,color);line=word;}else line+=(line?' ':'')+word;}
-  return out+text(line,x,y+row*(size+12),size,color);
+const fmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1});
+const val=n=>Number.isFinite(n)?fmt.format(n):'—';
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const t=(s,x,y,size=26,color='#f7f0ff',weight=400,anchor='start')=>`<text x="${x}" y="${y}" font-size="${size}" fill="${color}" font-weight="${weight}" text-anchor="${anchor}">${escape(s)}</text>`;
+const rect=(x,y,w,h,fill='#16111f',rx=12)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
+const rule=y=>`<path d="M64 ${y}H1016" stroke="#392c46" fill="none"/>`;
+const short=(s,n=42)=>String(s||'Não disponível').length>n?String(s).slice(0,n-1)+'…':String(s||'Não disponível');
+function delta(a,b,inverse=false){
+ if(!Number.isFinite(a)||!Number.isFinite(b))return {label:'Sem comparação',color:'#a99eb9'};
+ if(b===0&&a!==0)return {label:'Antes: 0 · sem %',color:'#a99eb9'};
+ const d=b===0?0:(a-b)/Math.abs(b)*100;
+ return {label:d===0?'Estável':(d>0?'+':'')+val(d)+'%',color:d===0?'#a99eb9':(inverse?d<0:d>0)?'#6bf2b2':'#f3a0bf'};
 }
-const box=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="15" fill="#141019" stroke="#39224d"/>`;
-function change(a,b){return Number.isFinite(a)&&Number.isFinite(b)&&b>0?`${a>=b?'+':''}${val((a-b)/b*100)}% vs. semana anterior`:'Sem comparação disponível';}
-function kpi(label,a,b,x,y){return box(x,y,450,160)+text(label,x+24,y+39,24,'#c3b6d5')+text(val(a),x+24,y+91,Number.isFinite(a)?44:28,'#fff',700)+text(change(a,b),x+24,y+133,20,'#b983ff');}
-function bars(items,x,y,width=870,maxRows=4){
- const rows=(items||[]).filter(r=>Number.isFinite(r[1])).slice(0,maxRows),max=Math.max(1,...rows.map(r=>r[1]));
- if(!rows.length)return text('Aguardando dados desta fonte.',x,y+25,24,'#a99fb9');
- return rows.map(([label,n],i)=>text(label,x,y+i*67,24)+text(val(n),x+width+52,y+i*67,24,'#ddd',400,'end')+`<rect x="${x}" y="${y+12+i*67}" width="${width}" height="12" rx="6" fill="#2a2134"/><rect x="${x}" y="${y+12+i*67}" width="${Math.max(2,width*n/max)}" height="12" rx="6" fill="url(#violet)"/>`).join('');
+function metric(label,a,b,x,y,unit='',inverse=false){
+ const d=delta(a,b,inverse),number=val(a)+(Number.isFinite(a)?unit:'');
+ return rect(x,y,456,184)+t(label,x+24,y+38,25,'#c3b7d3')+t(number,x+24,y+99,52,'#fff',600)+t(d.label,x+24,y+147,25,d.color,600)+t('antes: '+val(b)+(Number.isFinite(b)?unit:''),x+432,y+147,20,'#a99eb9',400,'end');
 }
-function lineChart(current,previous){
- if(!Array.isArray(current)||!current.every(Number.isFinite))return text('Aguardando coleta diária.',84,681,26,'#bbb3c9');
- const max=Math.max(1,...current,...(previous||[]).filter(Number.isFinite));
- const points=rows=>rows.map((n,i)=>`${90+i*149},${760-n/max*168}`).join(' ');
- return `<path d="M90 770H984" stroke="#39224d"/><polyline points="${points(current)}" fill="none" stroke="#bd78ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+(Array.isArray(previous)&&previous.every(Number.isFinite)?`<polyline points="${points(previous)}" fill="none" stroke="#695876" stroke-width="3" stroke-dasharray="8 8"/>`:'')+['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map((d,i)=>text(d,73+i*149,811,21,'#aaa')).join('');
+const heading=(label,y,detail='')=>t(label,64,y,32,'#fff',600)+(detail?t(detail,64,y+39,22,'#a99eb9'):'');
+function daily(values,y){
+ const days=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],rows=values||[],max=Math.max(1,...rows.filter(Number.isFinite));
+ let out='';
+ for(let i=0;i<7;i++){const x=88+i*136,v=rows[i],h=Number.isFinite(v)?v/max*170:0;out+=rect(x,y+35,88,170,'#ffffff',6).replace('fill="#ffffff"','fill="#20182c"');if(h>0)out+=rect(x,y+205-h,88,h,'#bb6cff',6);out+=t(val(v),x+44,y+23,23,'#f7f0ff',400,'end')+t(days[i],x+44,y+245,22,'#b7a9c9',400,'end');}
+ return out;
 }
-function heading(label,y){return text(label,72,y,30,'#fff',700)+`<path d="M72 ${y+17}H1008" stroke="#39224d"/>`;}
-export function renderReportSvg(snapshot,type='website',options={}){
+function tableRows(rows,labels,y){
+ let out=t(labels[0],80,y,22,'#a99eb9')+t(labels[1],720,y,22,'#a99eb9',400,'end')+t(labels[2],992,y,22,'#a99eb9',400,'end')+rule(y+20);
+ if(!rows.length)return out+t('Aguardando dados desta fonte.',80,y+75,27,'#a99eb9');
+ rows.slice(0,4).forEach((row,i)=>{const ry=y+77+i*77;out+=t(short(row[0],35),80,ry,26)+t(val(row[1]),720,ry,31,'#fff',600,'end')+t(val(row[2]),992,ry,31,'#bb6cff',600,'end')+rule(ry+25);});return out;
+}
+export function renderReportSvg(snapshot,type='website'){
  if(!['website','instagram'].includes(type))throw new Error('Invalid report type');
  const c=snapshot.current||{},p=snapshot.previous||{},period=snapshot.period||{};
- const label=type==='website'?'SITE + CONTATOS':'INSTAGRAM';
- let body=text('TUNA',72,89,45,'#fff',800)+text('STREAM',215,89,45,'#bd78ff',800)+text('RELATÓRIO DA SEMANA',72,139,22,'#bbaace',600)+text(label,72,211,44,'#fff',700)+text(period.label||`${period.start} a ${period.end}`,72,254,26,'#bbaace');
+ const partial=type==='website'&&c.sourceCoverage?.website==='partial';
+ const before=partial?{}:p;
+ let body=t('TUNA',64,90,46,'#fff',600)+t('STREAM',215,90,46,'#bb6cff',600)+t('DESEMPENHO DA SEMANA',64,142,22,'#b7a9c9')+t(type==='website'?'SITE & VENDAS':'INSTAGRAM',64,215,54,'#fff',600)+t(period.label||`${period.start} a ${period.end}`,64,263,26,'#c3b7d3');
  if(type==='website'){
-  body+=kpi('Visitas no site',c.visits,p.visits,72,298)+kpi('Visitantes únicos',c.uniqueVisitors,p.uniqueVisitors,558,298)+kpi('Contatos vindos do site',c.websiteReceivedContacts,p.websiteReceivedContacts,72,478)+kpi('Orçamentos vindos do site',c.websiteQuoteRequests,p.websiteQuoteRequests,558,478);
-  body+=heading('O caminho até a conversa',705)+bars([['Visitas',c.visits],['Chegaram aos pacotes',c.packagesReached],['Clicaram no WhatsApp',c.whatsappClicks],['Enviaram mensagem com referência',c.websiteReceivedContacts]],86,759,870);
-  body+=text('Cliques indicam intenção. Contatos exigem mensagem recebida.',72,1050,22,'#9e94ac');
-  body+=heading('Pacotes que despertaram interesse',1123)+bars((c.packages||[]).map(r=>[r.name,r.clicks]),86,1170,870);
-  body+=text('Principal origem: '+(c.topSource||'Não disponível'),72,1490,25)+text('Principal estado: '+(c.topRegion||'Não disponível'),72,1535,25);
-  body+=text('Tempo médio ativo: '+(Number.isFinite(c.averageDuration)?val(Math.round(c.averageDuration))+' segundos':'Não disponível'),72,1585,25)+text('Seção em destaque: '+(c.topSection||'Não disponível'),72,1630,25)+text('Pacote mais clicado: '+(c.topPackage||'Não disponível'),72,1675,25);
-  body+=text('Cliques no WhatsApp / visitas: '+(Number.isFinite(c.whatsappClicks)&&c.visits>0?val(c.whatsappClicks/c.visits*100)+'%':'Não disponível'),72,1720,25);
+  body+=metric('Visitas',c.visits,before.visits,64,310)+metric('Visitantes únicos',c.uniqueVisitors,before.uniqueVisitors,560,310)+metric('Recebimentos do site',c.websiteReceivedContacts,before.websiteReceivedContacts,64,518)+metric('Pediram orçamento',c.websiteQuoteRequests,before.websiteQuoteRequests,560,518)+metric('Orçamentos enviados',c.quoteSent,before.quoteSent,64,726)+metric('Vendas fechadas',c.closed,before.closed,560,726);
+  body+=heading('MOVIMENTO POR DIA',990)+daily(c.dailyVisits,1025);
+  body+=heading('INTERESSE POR PACOTE',1380,'Pacote de origem dos cliques no site');
+  body+=tableRows((c.packages||[]).map(row=>[row.name,row.clicks,row.whatsapp]),['Pacote','Cliques','WhatsApp'],1470);
+  body+=heading('QUALIDADE DAS VISITAS',1900);
+  const d=delta(c.averageDuration,before.averageDuration),e=delta(c.engagementRate,before.engagementRate);
+  body+=t('Tempo médio ativo',80,1963,25,'#b7a9c9')+t(val(c.averageDuration)+' s',440,1963,32,'#fff',600,'end')+t(d.label,440,2006,22,d.color,400,'end')+t('Engajamento',585,1963,25,'#b7a9c9')+t(val(c.engagementRate)+'%',990,1963,32,'#fff',600,'end')+t(e.label,990,2006,22,e.color,400,'end');
  }else{
-  body+=kpi('Alcance da conta',c.instagramReach,p.instagramReach,72,298)+kpi('Visitas ao perfil',c.profileVisits,p.profileVisits,558,298)+kpi('Seguidores atuais',c.followersTotal,p.followersTotal,72,478)+kpi('Saldo de seguidores',c.netFollowers,p.netFollowers,558,478);
-  body+=heading('Conteúdos em destaque por alcance',712);
-  const posts=[...(c.media||c.posts||[])].filter(r=>Number.isFinite(r.reach)).sort((a,b)=>b.reach-a.reach).slice(0,3);
-  if(!posts.length)body+=text('Aguardando conexão e métricas do Instagram.',86,770,26,'#bbb3c9');
-  posts.forEach((post,i)=>{
-   const y=755+i*204,thumbnail=options.thumbnails?.[post.id];
-   body+=box(72,y,936,184);
-   body+=thumbnail&&/^data:image\/(png|jpeg|webp);base64,/.test(thumbnail)?`<image href="${escape(thumbnail)}" x="88" y="${y+16}" width="132" height="152" preserveAspectRatio="xMidYMid slice"/>`:`<rect x="88" y="${y+16}" width="132" height="152" rx="9" fill="#28113f"/>`+text(String(i+1).padStart(2,'0'),112,y+106,52,'#b983ff',700);
-   body+=lines(post.title||'Conteúdo do Instagram',245,y+43,45,25,'#fff')+text((post.format||post.channel||'Feed')+' · '+val(post.reach)+' de alcance',245,y+126,23,'#ba87ed')+text(val(post.shares)+' compart. · '+val(post.saves)+' salvos',245,y+158,21,'#bbaace');
-  });
-  body+=heading('Feed, Reels e Stories',1433)+lines('Veja as miniaturas, os links e as métricas de cada formato no painel. Alcance por post não representa pessoas únicas da conta.',72,1490,68,24);
-  body+=text('Novos seguidores: '+val(c.followersGained)+' · Perdidos: '+val(c.followersLost),72,1600,25)+text('Cliques na bio: '+val(c.bioClicks),72,1645,25);
+  body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visitas ao perfil',c.profileVisits,before.profileVisits,560,310)+metric('Seguidores atuais',c.followersTotal,before.followersTotal,64,518)+metric('Saldo de seguidores',c.netFollowers,before.netFollowers,560,518)+metric('Cliques na bio',c.bioClicks,before.bioClicks,64,726)+metric('Visualizações',c.instagramViews,before.instagramViews,560,726);
+  body+=heading('SEGUIDORES NO PERÍODO',994);
+  body+=rect(64,1030,952,140)+t('Ganhos',90,1077,25,'#b7a9c9')+t(val(c.followersGained),90,1138,45,'#6bf2b2',600)+t('Perdidos',420,1077,25,'#b7a9c9')+t(val(c.followersLost),420,1138,45,'#f3a0bf',600)+t('Saldo',740,1077,25,'#b7a9c9')+t(val(c.netFollowers),740,1138,45,'#fff',600);
+  body+=heading('CONTEÚDOS DE MAIOR ALCANCE',1270);
+  const posts=[...(c.media||c.posts||[])].filter(post=>Number.isFinite(post.reach)).sort((a,b)=>b.reach-a.reach).slice(0,3);
+  if(!posts.length)body+=t('Aguardando autorização e métricas do Instagram.',80,1350,26,'#a99eb9');
+  posts.forEach((post,i)=>{const y=1310+i*180;body+=rect(64,y,952,158)+t(String(i+1).padStart(2,'0'),88,y+58,32,'#bb6cff',600)+t(short(post.title||post.caption,39),153,y+56,26,'#fff',600)+t(post.format||post.channel||'Feed',153,y+102,23,'#b7a9c9')+t(val(post.reach),988,y+104,40,'#fff',600,'end')+t('de alcance',988,y+139,20,'#a99eb9',400,'end');});
+  body+=heading('RESULTADO POR FORMATO',1900);
+  const all=c.media||c.posts||[];
+  ['feed','reels','stories'].forEach((channel,i)=>{const items=all.filter(post=>(post.channel||(post.format==='Reel'?'reels':post.format==='Story'?'stories':'feed'))===channel&&Number.isFinite(post.reach)),mean=items.length?Math.round(items.reduce((sum,post)=>sum+post.reach,0)/items.length):null,x=80+i*325;body+=t(['Feed','Reels','Stories'][i],x,1954,26,'#b7a9c9')+t(val(mean),x,2003,37,'#fff',600);});
  }
- body+=heading('Próximos passos',1783);
- const tips=recommendations(c).filter(item=>item.source===type).slice(0,2);
- if(!tips.length)body+=lines('Ainda não há dados suficientes para sugerir uma melhoria específica. Acompanhe os próximos períodos no painel.',72,1843,66,24);
- tips.forEach((tip,i)=>{body+=text(tip.title,72,1843+i*146,26,'#c58bff',600)+lines(tip.body,72,1886+i*146,68,23);});
- const footer=snapshot.demo?'DEMONSTRAÇÃO • Dados ilustrativos • Sem envio real':'Horário de Brasília • Dados disponíveis no período';
- return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2160" viewBox="0 0 1080 2160"><defs><style>@font-face{font-family:Poppins;src:url(data:font/ttf;base64,${fontBase64})}</style><linearGradient id="violet"><stop stop-color="#7227dc"/><stop offset="1" stop-color="#c778ff"/></linearGradient></defs><rect width="1080" height="2160" fill="#080809"/><path d="M0 0H1080V8H0Z" fill="url(#violet)"/><path d="M930 0V185L1080 300" stroke="#7227dc" opacity=".35" fill="none" stroke-width="2"/><g font-family="Poppins, sans-serif">${body}<path d="M72 2085H1008" stroke="#39224d"/>${text(footer,72,2125,21,'#bbaace')}</g></svg>`;
+ const footer=snapshot.demo?'DEMONSTRAÇÃO · Dados ilustrativos':partial?'Período parcial · Sem comparação dos totais':'Dados disponíveis no período · Horário de Brasília';
+ body+=rule(2061)+t(footer,64,2110,22,'#a99eb9');
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2160" viewBox="0 0 1080 2160"><defs><style>@font-face{font-family:Poppins;src:url(data:font/ttf;base64,${fontBase64})}</style></defs><rect width="1080" height="2160" fill="#080809"/><rect width="1080" height="8" fill="#bb6cff"/><g font-family="Poppins, sans-serif">${body}</g></svg>`;
 }

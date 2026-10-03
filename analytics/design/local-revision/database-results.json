@@ -1,0 +1,6 @@
+{
+  "checks": 28,
+  "passed": true,
+  "engine": "Local in-memory PostgreSQL / PGlite",
+  "scope": "Six historical migrations and the new profile/confirmation migration; cron and hosted services excluded. No hosted database changes."
+}

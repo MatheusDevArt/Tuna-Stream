@@ -1,25 +1,20 @@
-import { Monitor, Users, Clock3, Activity, ExternalLink } from 'lucide-react';
-import { business } from '../data.js';
-import { MetricStrip, Panel, RankedBars, PackageTable } from '../components/Metrics.jsx';
-import { Funnel } from '../components/Charts.jsx';
-import { formatDuration, formatPercent, formatNumber } from '../report.js';
-const clickLabels={whatsapp:'WhatsApp',instagram:'Instagram',navigation:'Navegação',service_tab:'Detalhes dos serviços',package_tab:'Categorias de pacote',portfolio:'Portfólio',faq:'Perguntas frequentes',other_button:'Outros botões',other_link:'Outros links'};
-
-export default function Website({ snapshot }) {
-  const { current, previous } = snapshot;
-  return <>
-    <a className="source-link" href={business.website} target="_blank" rel="noopener noreferrer">{business.website.replace('https://', '')}<ExternalLink size={15} /></a>
-    <MetricStrip items={[
-      { label: 'Visitas', value: current.visits, previous: previous.visits, icon: Monitor },
-      { label: 'Visitantes únicos', value: current.uniqueVisitors, previous: previous.uniqueVisitors, icon: Users },
-      { label: 'Tempo médio', value: current.averageDuration, previous: previous.averageDuration, icon: Clock3, format: formatDuration },
-      { label: 'Taxa de engajamento', value: current.engagementRate, previous: previous.engagementRate, icon: Activity, format: formatPercent },
-    ]} />
-    <div className="three-columns"><Panel title="De onde vêm as visitas"><RankedBars items={current.sources} /></Panel><Panel title="Estados em destaque"><RankedBars items={current.regions} /></Panel><Panel title="Dispositivos"><RankedBars items={current.devices} color="mint" /></Panel></div>
-    <div className="two-columns"><Panel title="Seções vistas"><RankedBars items={current.sections} percentage={false} /><p className="panel-note">Uma visita pode aparecer em mais de uma seção.</p></Panel><Funnel data={current} /></div>
-    <div className="three-columns"><Panel title="Tempo de permanência"><RankedBars items={current.durations} /></Panel><Panel title="Profundidade de rolagem"><RankedBars items={current.scroll} percentage={false} /></Panel><Panel title="Saúde do site"><dl className="detail-list">{current.webVitals.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}<div><dt>Erros JavaScript</dt><dd>{current.jsErrors??'Não disponível'}</dd></div></dl><p className="panel-note">{snapshot.demo?'Valores ilustrativos. A coleta será instalada na próxima etapa.':'Métricas disponíveis na última coleta do site.'}</p></Panel></div>
-    <div className="two-columns"><Panel title="Pacotes que despertam interesse"><PackageTable packages={current.packages} /></Panel><Panel title="Público e horários"><dl className="detail-list"><div><dt>Novos visitantes</dt><dd>{formatNumber(current.newVisitors)}</dd></div><div><dt>Visitantes que retornaram</dt><dd>{formatNumber(current.returningVisitors)}</dd></div><div><dt>Taxa de rejeição</dt><dd>{formatPercent(current.bounceRate)}</dd></div><div><dt>Maior movimento</dt><dd>{current.peakDay}</dd></div><div><dt>Horário de pico</dt><dd>{current.peakTime}</dd></div></dl></Panel></div>
-    <div className="three-columns"><Panel title="Navegadores"><RankedBars items={current.browsers||[]} /></Panel><Panel title="Sistemas operacionais"><RankedBars items={current.operatingSystems||[]} /></Panel><Panel title="Cliques por tipo"><RankedBars items={(current.buttonClicks||[]).map(([label,value])=>[clickLabels[label]||'Outros',value])} percentage={false}/></Panel></div>
-    <div className="three-columns"><Panel title="Páginas vistas"><RankedBars items={current.pages||[]} percentage={false}/></Panel><Panel title="Países · Google Analytics"><RankedBars items={current.countries||[]} percentage={false}/></Panel><Panel title="Cidades do Brasil · Google Analytics"><RankedBars items={current.cities||[]} percentage={false}/><p className="panel-note">Localização aproximada. Esta fonte pode ter atraso e ocultar grupos pequenos.</p></Panel></div>
-  </>;
+import {Monitor,Users,Clock3,Activity,ExternalLink} from 'lucide-react';
+import {business} from '../data.js';
+import {MetricStrip,Panel,PackageTable} from '../components/Metrics.jsx';
+import {WeeklyChart,Funnel} from '../components/Charts.jsx';
+import {Distribution,ColumnChart,DataList} from '../components/DataViews.jsx';
+import {formatPercent,formatNumber} from '../report.js';
+const clickLabels={whatsapp:'WhatsApp',instagram:'Instagram',navigation:'Navegação',service_tab:'Serviços',package_tab:'Categorias',portfolio:'Portfólio',faq:'FAQ',other_button:'Outros botões',other_link:'Outros links'};
+export default function Website({snapshot}){
+ const {current:c,previous:p}=snapshot;
+ return <>
+ <a className="source-link" href={business.website} target="_blank" rel="noopener noreferrer">{business.website.replace('https://','')}<ExternalLink size={15}/></a>
+ <MetricStrip items={[{label:'Visitas',value:c.visits,previous:p.visits,icon:Monitor},{label:'Visitantes únicos',value:c.uniqueVisitors,previous:p.uniqueVisitors,icon:Users},{label:'Tempo médio · segundos',value:c.averageDuration,previous:p.averageDuration,icon:Clock3},{label:'Engajamento',value:c.engagementRate,previous:p.engagementRate,icon:Activity,format:formatPercent}]}/>
+ <WeeklyChart current={c.dailyVisits} previous={p.dailyVisits}/>
+ <div className="three-columns view-section"><Panel title="Origem das visitas"><Distribution items={c.sources}/></Panel><Panel title="Dispositivos"><Distribution items={c.devices}/></Panel><Panel title="Estados em destaque"><DataList items={c.regions} percentage ranked/></Panel></div>
+ <div className="two-columns"><Panel title="Seções mais vistas"><ColumnChart items={c.sections}/><p className="panel-note">Uma visita pode aparecer em mais de uma seção.</p></Panel><Funnel data={c}/></div>
+ <div className="three-columns"><Panel title="Tempo de permanência"><ColumnChart items={c.durations} percentage/></Panel><Panel title="Profundidade de rolagem"><ColumnChart items={c.scroll}/></Panel><Panel title="Desempenho do site"><dl className="detail-list">{c.webVitals.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}<div><dt>Erros JavaScript</dt><dd>{formatNumber(c.jsErrors)}</dd></div></dl></Panel></div>
+ <div className="two-columns"><Panel title="Interesse por pacote"><PackageTable packages={c.packages}/></Panel><Panel title="Público e horários"><dl className="detail-list"><div><dt>Novos visitantes</dt><dd>{formatNumber(c.newVisitors)}</dd></div><div><dt>Voltaram ao site</dt><dd>{formatNumber(c.returningVisitors)}</dd></div><div><dt>Rejeição</dt><dd>{formatPercent(c.bounceRate)}</dd></div><div><dt>Dia de maior movimento</dt><dd>{c.peakDay||'Não disponível'}</dd></div><div><dt>Horário de pico</dt><dd>{c.peakTime||'Não disponível'}</dd></div></dl></Panel></div>
+ <details className="advanced-data"><summary>Ver detalhes de navegação e localidades</summary><div className="three-columns view-section"><Panel title="Navegadores"><DataList items={c.browsers} percentage/></Panel><Panel title="Sistemas operacionais"><DataList items={c.operatingSystems} percentage/></Panel><Panel title="Cliques por tipo"><DataList items={(c.buttonClicks||[]).map(([label,value])=>[clickLabels[label]||'Outros',value])} ranked/></Panel></div><div className="three-columns"><Panel title="Páginas vistas"><DataList items={c.pages}/></Panel><Panel title="Países"><DataList items={c.countries}/></Panel><Panel title="Cidades do Brasil"><DataList items={c.cities}/><p className="panel-note">Localização aproximada do Google Analytics, sujeita à disponibilidade da fonte.</p></Panel></div></details>
+ </>;
 }

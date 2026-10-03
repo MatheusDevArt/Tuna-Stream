@@ -1,3 +1,5 @@
+import {launch} from './lib/launch.js';
+import {useProfiles} from './hooks/useProfiles.js';
 import { useMemo,useState } from 'react';
 import Shell from './components/Shell.jsx';
 import ReportDialog from './components/ReportDialog.jsx';
@@ -27,12 +29,13 @@ function livePeriods(){
  return [current,...[latest,previous].map((period,index)=>({...period,id:index?'previous-week':'last-week',label:period.start.split('-').reverse().join('/')+' a '+period.end.split('-').reverse().join('/')}))];
 }
 function Workspace({session,demo}){
- const [page,setPage]=useState('overview'),[periodId,setPeriodId]=useState(demo?'last-week':'current-week'),[reportOpen,setReportOpen]=useState(false),[operationError,setOperationError]=useState('');
+ const [page,setPage]=useState(launch.reference?'whatsapp':launch.code||launch.oauthError?'integrations':'overview'),[periodId,setPeriodId]=useState(demo?'last-week':'current-week'),[reportOpen,setReportOpen]=useState(false),[operationError,setOperationError]=useState('');
  const [leadPeriods,setLeadPeriods]=useState({});
  const options=useMemo(()=>demo?periods:livePeriods(),[demo]);
  const period=options.find(option=>option.id===periodId);
  const remote=useTeamSnapshot(session,period);
  const operations=useTeamOperations(session,period);
+ const account=useProfiles(session,demo);
  const initialLeads=useMemo(()=>demoLeads().map(lead=>({...lead,hasRequestedQuote:isQuoteStage(lead.stage),hasSentQuote:['quote_sent','won'].includes(lead.stage),wasWon:lead.stage==='won'})),[]);
  const leads=leadPeriods[periodId]||initialLeads;
  const count=(items,filter)=>items.filter(filter).length;
@@ -40,23 +43,29 @@ function Workspace({session,demo}){
  const deltaQuote=count(leads,lead=>lead.hasRequestedQuote)-count(initialLeads,lead=>lead.hasRequestedQuote);
  const deltaSent=count(leads,lead=>lead.hasSentQuote)-count(initialLeads,lead=>lead.hasSentQuote);
  const deltaClosed=count(leads,lead=>lead.wasWon)-count(initialLeads,lead=>lead.wasWon);
- const snapshot=demo?{...base,current:{...base.current,quoteRequests:base.current.quoteRequests+deltaQuote,websiteQuoteRequests:base.current.websiteQuoteRequests+deltaQuote,quoteSent:base.current.quoteSent+deltaSent,closed:base.current.closed+deltaClosed}}:remote.snapshot?{...remote.snapshot,current:normalizeMetrics(remote.snapshot.current),previous:normalizeMetrics(remote.snapshot.previous)}:null;
+ const deltaContacts=leads.length-initialLeads.length;
+ const snapshot=demo?{...base,current:{...base.current,websiteReceivedContacts:base.current.websiteReceivedContacts+deltaContacts,quoteRequests:base.current.quoteRequests+deltaQuote,websiteQuoteRequests:base.current.websiteQuoteRequests+deltaQuote,quoteSent:base.current.quoteSent+deltaSent,closed:base.current.closed+deltaClosed}}:remote.snapshot?{...remote.snapshot,current:normalizeMetrics(remote.snapshot.current),previous:normalizeMetrics(remote.snapshot.previous)}:null;
  function navigate(next){setPage(next);window.scrollTo({top:0,behavior:'instant'});}
  async function changeStage(id,stage){
   if(!demo){setOperationError('');try{await operations.changeStage(id,stage);await remote.refresh();}catch(error){setOperationError(error.message);}return;}
   setLeadPeriods(current=>({...current,[periodId]:(current[periodId]||initialLeads).map(lead=>lead.id===id?{...lead,stage,hasRequestedQuote:lead.hasRequestedQuote||isQuoteStage(stage),hasSentQuote:lead.hasSentQuote||['quote_sent','won'].includes(stage),wasWon:lead.wasWon||stage==='won'}:lead)}));
  }
+ async function confirmLink(input){
+  if(!demo){await operations.confirmLink(input);await remote.refresh();return;}
+  setLeadPeriods(current=>({...current,[periodId]:[...(current[periodId]||initialLeads),{id:input.reference,reference:input.reference,package:input.reference.split('-')[1],stage:input.quote?'quote_requested':'new',source:'Site',received:'Agora · exemplo',hasRequestedQuote:input.quote,hasSentQuote:false,wasWon:false}].filter((lead,index,all)=>all.findIndex(other=>other.reference===lead.reference)===index)}));
+ }
+ async function changePackage(id,pack){if(!demo){await operations.changePackage(id,pack);return;}setLeadPeriods(current=>({...current,[periodId]:(current[periodId]||initialLeads).map(lead=>lead.id===id?{...lead,selected_package:pack}:lead)}));}
  const pages={
  overview:snapshot&&<Dashboard snapshot={snapshot} onInsights={()=>navigate('reports')}/>,
  website:snapshot&&<Website snapshot={snapshot}/>,
  instagram:snapshot&&<InstagramPage snapshot={snapshot}/>,
- whatsapp:snapshot&&<WhatsAppPage snapshot={snapshot} leads={demo?leads:operations.leads} onStageChange={changeStage} onConfirm={async input=>{await operations.confirmContact(input);await remote.refresh();}} busy={operations.busy}/>,
+ whatsapp:snapshot&&<WhatsAppPage snapshot={snapshot} leads={demo?leads:operations.leads} onStageChange={changeStage} onConfirm={async input=>{await operations.confirmContact(input);await remote.refresh();}} busy={operations.busy} reference={launch.reference} onConfirmLink={confirmLink} onPackageChange={changePackage}/>,
  reports:snapshot&&<Reports snapshot={snapshot} operations={operations} onReportOpen={()=>setReportOpen(true)}/>,
  integrations:<Integrations operations={operations} demo={demo}/>,
- access:<TeamAccess session={session} demo={demo}/>,
+ access:<TeamAccess session={session} demo={demo} account={account}/>,
  };
  return <>
- <Shell page={page} onPageChange={navigate} periodId={periodId} periods={options} onPeriodChange={setPeriodId} onReportOpen={()=>setReportOpen(true)} reportAvailable={Boolean(snapshot)} demo={demo} updatedAt={remote.updatedAt} sourceUpdatedAt={snapshot&&!demo?(snapshot.current.sourceUpdatedAt||{}):null} onRefresh={remote.refresh}>
+ <Shell profiles={account.profiles} userId={session?.user.id} page={page} onPageChange={navigate} periodId={periodId} periods={options} onPeriodChange={setPeriodId} onReportOpen={()=>setReportOpen(true)} reportAvailable={Boolean(snapshot)} demo={demo} updatedAt={remote.updatedAt} sourceUpdatedAt={snapshot&&!demo?(snapshot.current.sourceUpdatedAt||{}):null} onRefresh={remote.refresh}>
  {pages[page]||<Panel title={remote.loading?'Carregando métricas':'Dados da equipe'}><p className="empty-explanation" role={remote.error?'alert':'status'}>{remote.error||(remote.loading?'Buscando as informações autorizadas para sua conta…':'O acesso foi verificado. Ainda não há coleta publicada para este período.')}</p><div className="button-row overview-packages"><button className="button secondary" onClick={remote.refresh}>Tentar atualizar</button><button className="button secondary" onClick={()=>navigate('access')}>Ver meu acesso</button></div></Panel>}
  {!demo&&snapshot?.current.sourceCoverage?.website==='partial'&&<p className="panel-note">Coleta parcial do site: este período está em andamento ou começou antes da instalação. Os números representam somente as visitas medidas.</p>}
  {operationError&&<p className="auth-error" role="alert">{operationError}</p>}

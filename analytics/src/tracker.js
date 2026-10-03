@@ -48,10 +48,13 @@ import {onCLS,onINP,onLCP} from 'web-vitals';
  async function openWhatsApp(url,pack){
   event('whatsapp',pack);if(pack!=='GENERAL')event('package',pack);flush();
   // Reserve the window during the gesture so mobile browsers do not block it after await.
-  const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;
+  const popup=window.open('about:blank','_blank');if(popup){popup.document.title='Abrindo WhatsApp';popup.document.body.textContent='Preparando sua mensagem…';popup.opener=null;}
   try{
-   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'intent',package:pack,session_id:state.enabled?state.session:null}),signal:AbortSignal.timeout(1800)});
-   const data=await response.json();if(response.ok&&/^TS-(START|LIVE|STREAMER|COMBOS|CUSTOM|GENERAL)-[A-F0-9]{32}$/.test(data.reference))url.searchParams.set('text',(url.searchParams.get('text')||'Olá! Vim pelo site da TunaStream.')+'\n\nReferência do site: '+data.reference);
+   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'intent',package:pack,session_id:state.enabled?state.session:null}),signal:AbortSignal.timeout(8000)});
+   const data=await response.json();if(response.ok&&/^TS-(START|LIVE|STREAMER|COMBOS|CUSTOM|GENERAL)-[A-F0-9]{32}$/.test(data.reference)){
+    const panel=new URL(config.panelUrl||'/painel/',endpoint.origin);panel.searchParams.set('confirm',data.reference);
+    url.searchParams.set('text',(url.searchParams.get('text')||'Olá! Vim pelo site da TunaStream.')+'\n\nID do pedido: '+data.reference+'\nEquipe TunaStream · confirmar recebimento:\n'+panel.href);
+   }
   }catch{/* Keep WhatsApp usable when measurement is unavailable. */}
   if(popup){if(!popup.closed)popup.location.replace(url.href);}else location.assign(url.href);
  }

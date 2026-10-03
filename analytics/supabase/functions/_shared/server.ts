@@ -42,9 +42,9 @@ export function endpoint(handler:(req:Request)=>Promise<Response>){Deno.serve(as
   return json({error:safe},status,headers);
  }
 });}
-export async function graph(path:string,params:Record<string,string>,token:string,instagram=false){
+export async function graph(path:string,params:Record<string,string>,token:string,instagram=false,loginMode=env('INSTAGRAM_LOGIN_MODE',false)){
  const version=env('META_GRAPH_VERSION');if(!/^v\d+\.\d+$/.test(version))throw new Error('configuration_missing');
- const host=instagram&&env('INSTAGRAM_LOGIN_MODE',false)!=='facebook'?'graph.instagram.com':'graph.facebook.com';
+ const host=instagram&&loginMode!=='facebook'?'graph.instagram.com':'graph.facebook.com';
  const url=new URL(`https://${host}/${version}/${path}`);for(const [key,value]of Object.entries(params))url.searchParams.set(key,value);
  const response=await fetch(url,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(18000)});
  const data=await response.json();if(!response.ok||data.error)throw new Error(data.error?.code===190?'token_expired':'provider_error');return data;

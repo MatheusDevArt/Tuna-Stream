@@ -10,3 +10,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.tuna-report]
 verify_jwt = false
+[functions.tuna-account]
+verify_jwt = false
+[functions.tuna-instagram]
+verify_jwt = false

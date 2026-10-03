@@ -16,6 +16,11 @@ export async function publishSnapshots(){
   const result:any=aggregate({sessions,events,opportunities,receipts,integrations,instagram:check(ig)?.metrics,media,period});
   try{const geo=await geoMetrics(period);if(geo)Object.assign(result,geo);}catch{result.geographyError='A coleta de localização está indisponível.';}
   for(const [metric,field]of [['websiteQuoteRequests','requested_at'],['quoteSent','sent_at'],['closed','won_at']])result[metric]=result.websiteReceivedContacts!==null||cohort.length?new Set(cohort.filter(o=>o.attributed&&o[field]).map(o=>o.contact_hash)).size:null;
+  result.referenceOnlyContacts=cohort.filter(o=>o.attributed&&o.identity_method==='reference').length;
+  result.salesByPackage=['START','LIVE','STREAMER','COMBOS','CUSTOM','GENERAL'].map(pack=>{
+   const rows=cohort.filter(o=>o.attributed&&(o.selected_package||o.package)===pack);
+   return {package:pack,won:rows.filter(o=>o.stage==='won').length,lost:rows.filter(o=>o.stage==='lost').length,open:rows.filter(o=>!['won','lost'].includes(o.stage)).length};
+  });
   return result;
  }
  for(const period of windows()){

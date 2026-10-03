@@ -2,7 +2,7 @@ import { Monitor, Instagram, Users } from 'lucide-react';
 import { MetricStrip, Panel, PackageTable } from '../components/Metrics.jsx';
 import { WeeklyChart, Funnel } from '../components/Charts.jsx';
 import { WhatsAppIcon } from '../components/BrandIcons.jsx';
-import { getSuggestions } from '../report.js';
+import {Comparison} from '../components/DataViews.jsx';
 import BrazilMap from '../components/BrazilMap.jsx';
 import TeamHero from '../components/TeamHero.jsx';
 
@@ -20,9 +20,9 @@ export default function Dashboard({ snapshot, onInsights }) {
       <BrazilMap snapshot={snapshot}/>
       <Funnel data={current} />
       <WeeklyChart current={current.dailyVisits} previous={previous.dailyVisits} />
-      <Panel title="Onde melhorar" className="suggestions-panel"><ol className="suggestion-list">{getSuggestions(current).map((item) => <li key={item.title}><div><h3>{item.title}</h3><p>{item.body}</p></div></li>)}</ol></Panel>
+      <Panel title="O que mudou na semana" className="suggestions-panel"><Comparison current={current} previous={previous} items={[['visits','Visitas'],['websiteReceivedContacts','Contatos do site'],['websiteQuoteRequests','Orçamentos'],['closed','Vendas fechadas']]}/></Panel>
     </div>
     <Panel title="Pacotes que despertam interesse" className="packages-panel overview-packages"><PackageTable packages={current.packages} /></Panel>
-    <p className="page-footnote">Clique no WhatsApp indica intenção. Conversas e pedidos reais dependem da conexão com o número que recebe seus clientes.</p>
+    <p className="page-footnote">Clique indica intenção. O link recebido no WhatsApp permite à equipe confirmar a conversa e acompanhar a venda.</p>
   </>;
 }

@@ -2,12 +2,22 @@
 
 Programa em português brasileiro, com identidade gamer da TunaStream, foto original, mapa dos 27 estados e versões para celular e computador.
 
+## Revisão local atual · aguardando aprovação
+
+Prévia em **http://127.0.0.1:4183/**, sem chamadas ao agente Lovable. O site publicado continua na versão anterior. A revisão inclui capa original de ponta a ponta, fotos individuais, gráficos variados, relatórios somente com dados, quadro de vendas, pacote negociado, confirmação por link privado, recuperação por e-mail e OAuth pelo Instagram Login. Veja [estado da revisão](docs/local-revision-handoff.md).
+
+Os e-mails fornecidos ficam somente em `.env.accounts.local`, ignorado pelo Git. Eles serão oferecidos à própria conta para verificação; ainda não foram associados ao banco publicado nem usados para enviar mensagens. O código exige a confirmação do endereço antes de habilitar recuperação.
+
+A nova migração `202610030001_profiles_and_confirmation.sql` **ainda não foi aplicada em produção**. As seis migrações históricas e essa nova migração passaram em PostgreSQL local isolado; o cron existente não foi simulado. Não reaplicar as sete migrações já presentes no banco.
+
+Para hospedar fora do Lovable, `npm run build:server` e `npm run start:server` oferecem os mesmos oito endpoints em Node, em `http://127.0.0.1:4182`. Configurar o ambiente do servidor e compilar o frontend com autenticação obrigatória para produção. O host local não configura provedores por conta própria.
+
 ## Implementado
 
 - Login por usuário e senha: **Matheus P** e **Adriana S**, na mesma equipe.
 - Banco online com regras por equipe, contas individuais e senhas protegidas pelo Supabase Auth.
 - Coletor do site com consentimento, sessões, visitantes, cliques, tempo ativo, seções, rolagem, navegador, sistema e Web Vitals.
-- Referência única nos botões do WhatsApp e confirmação manual de mensagem recebida para continuar usando o WhatsApp comum.
+- Referência única e link privado nos botões do WhatsApp; confirmação explícita pela equipe para continuar usando o aplicativo comum. Sem telefone, deduplicação por referência; com telefone, por identificador protegido.
 - Histórico compartilhado de pedidos, orçamentos enviados, fechamento e perda.
 - Conector oficial do Instagram, com Feed, Reels, Stories, miniaturas e links reais quando a conta estiver autorizada.
 - Duas imagens PNG separadas: site e Instagram. Prévia e download no painel.
@@ -51,7 +61,7 @@ O relatório automático precisa de um remetente oficial habilitado, destinatár
 - [Contagem do WhatsApp](docs/whatsapp-measurement.md)
 - [.env.example](.env.example): somente URL e chave pública usam `VITE_`.
 - [Cron seguro](supabase/schedules/minute-cron.sql.example)
-- Migrações em `supabase/migrations/`, já aplicadas no banco atual: não reaplicar manualmente como instalação nova.
+- As sete migrações `20261002*` já foram aplicadas no banco atual. A migração de perfis `202610030001*` é nova e está somente local.
 
 As senhas fornecidas não são incluídas nos arquivos, no frontend ou nos exemplos de configuração. Novas contas e trocas de senha devem usar a administração do serviço de autenticação.
 

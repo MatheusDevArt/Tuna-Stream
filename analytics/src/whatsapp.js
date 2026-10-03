@@ -1,7 +1,7 @@
 const quoteStages = new Set(['quote_requested','quote_sent','won']);
 export const leadStages = [
  {id:'new',label:'Nova conversa'},{id:'quote_requested',label:'Solicitou orçamento'},
- {id:'quote_sent',label:'Orçamento enviado'},{id:'won',label:'Fechado'},{id:'lost',label:'Não avançou'},
+ {id:'quote_sent',label:'Orçamento enviado'},{id:'won',label:'Fechado'},{id:'lost',label:'Perdido'},
 ];
 export function trackingReference(text) {
  return typeof text==='string' ? (text.match(/\bTS-(START|LIVE|STREAMER|COMBOS)-([A-Z0-9]{8,24})\b/)?.[0]||null) : null;

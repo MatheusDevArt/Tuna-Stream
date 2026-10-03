@@ -4,3 +4,4 @@ dist/
 !.env.example
 *.zip
 .qa/
+server/.generated/

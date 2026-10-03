@@ -1,3 +1,4 @@
+import Avatar from './Avatar.jsx';
 import { BarChart3, House, Monitor, Instagram, FileText, Link2, Clock3, Menu, X, CalendarDays, Info, MessageCircle, Users, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { periods as demoPeriods } from '../data.js';
@@ -12,7 +13,7 @@ const navigation = [
   { id: 'access', label: 'Acesso da equipe', icon: Users },
 ];
 
-export default function Shell({ page, onPageChange, periodId, onPeriodChange, onReportOpen, periods=demoPeriods, reportAvailable=true, demo=true, updatedAt, sourceUpdatedAt, onRefresh, children }) {
+export default function Shell({ profiles=[],userId, page, onPageChange, periodId, onPeriodChange, onReportOpen, periods=demoPeriods, reportAvailable=true, demo=true, updatedAt, sourceUpdatedAt, onRefresh, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const current = navigation.find((item) => item.id === page);
   const subtitles = {
@@ -38,7 +39,7 @@ export default function Shell({ page, onPageChange, periodId, onPeriodChange, on
         <nav aria-label="Navegação principal">
           {navigation.map(({ id, label, icon: Icon }) => <button key={id} className={'nav-item' + (page === id ? ' selected' : '')} aria-current={page === id ? 'page' : undefined} onClick={() => navigate(id)}><Icon size={23} strokeWidth={1.7} /><span>{label}</span></button>)}
         </nav>
-        <div className="sidebar-bottom"><div><Clock3 size={16} />Horário de Brasília</div><p>{demo?'Fontes pendentes':'Acesso da equipe'}</p><small>{demo?'Prévia com dados ilustrativos.':updatedAt?'Atualizado em '+new Date(updatedAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'Aguardando a primeira coleta.'}</small></div>
+        <button className="sidebar-profile" onClick={()=>navigate('access')}><Avatar profile={profiles.find(p=>p.user_id===userId)||profiles[0]} alt="Meu perfil"/><span>{profiles.find(p=>p.user_id===userId)?.display_name||profiles[0]?.display_name||'Meu perfil'}<small>Foto e acesso</small></span></button><div className="sidebar-bottom"><div><Clock3 size={16} />Horário de Brasília</div><p>{demo?'Fontes pendentes':'Acesso da equipe'}</p><small>{demo?'Prévia com dados ilustrativos.':updatedAt?'Atualizado em '+new Date(updatedAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'Aguardando a primeira coleta.'}</small></div>
       </aside>
       <main className="main-content" id="main-content">
         <header className="page-header">

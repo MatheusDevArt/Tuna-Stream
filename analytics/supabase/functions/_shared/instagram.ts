@@ -1,13 +1,16 @@
-import {admin,check,env,graph,team} from './server.ts';
+import {admin,check,env,graph as providerGraph,team} from './server.ts';
+import {loadInstagram} from './instagram-auth.ts';
 import {addDays,bounds,localDay,windows} from './aggregation.js';
 const scalar=(result:any,name:string)=>{const metric=result.data?.find((r:any)=>r.name===name),value=metric?.total_value?.value;return typeof value==='number'?value:null;};
 export async function collectInstagram(){
+ const credential=await loadInstagram();
+ const graph=(path:string,params:Record<string,string>,token:string,instagram=true)=>providerGraph(path,params,token,instagram,credential.mode);
  const deadline=Date.now()+90000;
  async function insight(path:string,metric:string,params:Record<string,string>={}){
   if(Date.now()>deadline)throw new Error('collection_timeout');
-  try{return await graph(path,{metric,...params},env('INSTAGRAM_ACCESS_TOKEN'),true);}catch(error){if(error instanceof Error&&error.message==='token_expired')throw error;return {data:[],unavailable:true};}
+  try{return await graph(path,{metric,...params},credential.token,true);}catch(error){if(error instanceof Error&&error.message==='token_expired')throw error;return {data:[],unavailable:true};}
  }
- const token=env('INSTAGRAM_ACCESS_TOKEN',false),account=env('INSTAGRAM_ACCOUNT_ID',false);if(!token||!account)return;
+ const token=credential.token,account=credential.account;if(!token||!account)return;
  const db=admin(),tenant=team(),profile=await graph(account,{fields:'id,username,followers_count'},token,true);
  // Protect against accidentally connecting another company's account.
  if(profile.username!=='tuna.stream')throw new Error('account_mismatch');

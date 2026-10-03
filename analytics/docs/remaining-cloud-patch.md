@@ -1,5 +1,7 @@
 # Correções prontas e bloqueadas pelos créditos do Lovable
 
+**Estado histórico da publicação anterior.** O usuário agora pediu desenvolvimento local e aprovação antes da próxima etapa Lovable/GitHub. A implementação local já usa o gerador PNG portátil e recebeu perfis, OAuth e confirmação por link. Consulte [a entrega atual](local-revision-handoff.md). Nada desta revisão foi publicado.
+
 Projeto: Tuna Stream Central. Painel publicado em https://tunastream-ofc.lovable.app/painel.
 
 ## PNG do servidor
