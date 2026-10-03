@@ -1,0 +1,27 @@
+{
+  "name": "tunastream-analytics",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4180 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4180 --strictPort",
+    "test": "node --test tests/*.test.js",
+    "build:tracker": "node scripts/build-tracker.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "lucide-react": "^0.468.0",
+    "opentype.js": "^1.3.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "web-vitals": "^5.3.0"
+  },
+  "devDependencies": {
+    "@resvg/resvg-wasm": "^2.6.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "esbuild": "^0.28.2",
+    "vite": "^7.1.0"
+  }
+}

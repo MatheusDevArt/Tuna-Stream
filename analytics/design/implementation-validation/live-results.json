@@ -1,0 +1,6 @@
+{
+  "checks": 14,
+  "status": "passed",
+  "scope": "real nick login for both accounts, protected snapshots, anonymous denial, invalid contact rejection; no fabricated contact saved",
+  "origin": "https://tunastream-ofc.lovable.app"
+}

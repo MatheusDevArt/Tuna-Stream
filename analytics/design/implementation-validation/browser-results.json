@@ -1,0 +1,5 @@
+{
+  "checks": 31,
+  "status": "passed",
+  "scope": "isolated demo and simulated HTTP; live Auth not covered"
+}

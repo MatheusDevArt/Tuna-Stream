@@ -1,0 +1,23 @@
+{
+  "viewport": [
+    1440,
+    768,
+    390
+  ],
+  "results": [
+    "original team photo and local fonts load",
+    "Brazil map has 27 accessible state boundaries and correct selection",
+    "week filters update both map and headline metrics",
+    "Feed includes three clearly illustrative images",
+    "preview opens and closes using Escape",
+    "Reels sorting changes from reach to shares",
+    "Stories use distinct metrics and expired media cannot open",
+    "explicit quote stage updates KPI and keeps event after losing opportunity",
+    "prepared access is explicitly not active in demo",
+    "7 pages without overflow at 1440px",
+    "7 pages without overflow at 768px",
+    "7 pages without overflow at 390px",
+    "No browser runtime errors"
+  ],
+  "errors": []
+}

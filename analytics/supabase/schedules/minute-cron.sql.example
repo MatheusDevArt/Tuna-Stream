@@ -1,0 +1,22 @@
+-- Administrative setup only. Store real values in Vault, never commit secrets.
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+-- Create secrets tuna_cron_url (the tuna-sync HTTPS endpoint) and tuna_cron_secret
+-- through the provider's secure secrets UI before running this schedule.
+select cron.schedule(
+  'tunastream-minute-sync',
+  '* * * * *',
+  $job$
+    select net.http_post(
+      url := (select decrypted_secret from vault.decrypted_secrets where name = 'tuna_cron_url'),
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'tuna_cron_secret')
+      ),
+      body := '{}'::jsonb,
+      timeout_milliseconds := 120000
+    );
+  $job$
+);
+-- Run only once or update the existing named job. Inspect cron.job_run_details
+-- and net._http_response for diagnostics without exposing request headers.

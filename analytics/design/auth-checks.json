@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Configured project requires login; no demo bypass",
+    "Invalid credentials remain on login",
+    "Login form works without horizontal overflow on mobile",
+    "Authenticated non-member sees denial and no metrics",
+    "Authorized response renders provider timestamps and canonical individual permalink",
+    "Empty real metrics remain unavailable, never demo values; no mobile overflow",
+    "Invite flow validates confirmation and saves password via intercepted authenticated endpoint",
+    "Recovery requires email and gives generic confirmation via intercepted endpoint"
+  ],
+  "mode": "Intercepted fixture API only; no emails sent; production Supabase and RLS not verified"
+}

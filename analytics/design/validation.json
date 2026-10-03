@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-02T21:21:05.182Z",
+  "method": "Playwright fallback: IAB failed to initialize",
+  "referenceSize": {
+    "width": 1448,
+    "height": 1086
+  },
+  "mobileSize": {
+    "width": 390,
+    "height": 844
+  },
+  "checks": [
+    "Desktop overview and explicit demo disclosure",
+    "Period filter updates KPIs and report data",
+    "Report copy preserves demo disclosure and selected period",
+    "Downloaded report exactly matches preview",
+    "Report dialog closes with Escape",
+    "Website details, configured source and no horizontal overflow",
+    "Instagram page distinguishes sample posts",
+    "Local schedule persists and real sending remains disabled",
+    "All four connection guides expand and collapse",
+    "Mobile overview at 390 by 844 has no horizontal overflow",
+    "All five mobile pages are reachable and menu closes after navigation",
+    "Mobile report fits viewport and closes",
+    "No uncaught JavaScript errors"
+  ],
+  "pageErrors": []
+}

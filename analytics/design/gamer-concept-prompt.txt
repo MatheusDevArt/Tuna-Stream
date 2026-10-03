@@ -1,0 +1,18 @@
+Use case: ui-mockup.
+Create a complete full-page desktop concept of TunaStream's Brazilian Portuguese analytics dashboard, around 1440px wide and 1500px high, visually faithful to the existing gamer/futuristic TunaStream website. This replaces a generic SaaS dashboard. Strong angular condensed all-uppercase Evil Empire/Impact headings, Poppins readable UI labels. Black #080809, saturated purple #7227dc, lavender highlights #a66aff, fine circuit/grid lines, restrained neon accent strokes, angular corner cuts on panels, sharp rectangular buttons, subtle glow around active states. Professional legibility, meaningful futuristic effects, no fake system logs, no decorative meaningless numbers. Practical HTML/CSS React controls and SVG code-native geographic/analytic charts.
+
+Input photograph: use the referenced original real photograph of Matheus and Adriana together in their purple studio as the exact right-hand hero photo. Preserve recognizable faces and composition; implementers will place the untouched original, not AI-redraw faces. The photo is a brand asset, not a post.
+
+Sidebar 200px: wordmark TUNASTREAM, text PAINEL; nav Visão geral, Site, Instagram, WhatsApp, Relatórios, Integrações, Acesso da equipe. Bottom Horário de Brasília and Fontes pendentes. Main header Visão geral, date filter 21 a 27 set. 2026 and button Ver relatório. Necessary disclosure strip Modo demonstração — dados ilustrativos. No actual live-data claim.
+
+Main brand banner: left heading "SUA OPERAÇÃO NO PRÓXIMO NÍVEL." and small supporting text "Matheus e Adriana, uma visão do seu negócio."; right cropped original photo showing both faces clearly, purple angular frame, small caption Matheus & Adriana. About 200px high. No additional eyebrow heading or invented tagline.
+
+Then 4 compact numeric KPI cells: Visitas no site 1.248 +18,2%; Conversas recebidas 28 +27,3%; Alcance no Instagram 8.420 +14,8%; Pedidos de orçamento 19 +26,7%; all explicitly illustrative through the banner.
+
+Next primary row left 2/3 panel title De onde vem seu público, genuine outline of Brazil with state borders, purple highlighted RJ/SP/MG, neon marker dots, right-of-map ranked states Rio de Janeiro 396, São Paulo 235, Minas Gerais 113, caption Visitantes únicos por estado; interactive-looking selected region Rio de Janeiro 42,0%. Right 1/3 panel Da visita ao orçamento, 6 funnel rows Visitas 1.248 / Viram os pacotes 714 / Escolheram um pacote 215 / Clicaram no WhatsApp 86 / Conversas recebidas 28 / Pediram orçamento 19, footer Visita → orçamento 1,5%. No implication clicks are actual messages.
+
+Next row left 2/3 panel Visitas ao longo da semana, purple line chart versus dashed previous week, Seg–Dom; right 1/3 panel Onde melhorar with 3 concise numbered evidence-based suggestions Revise o CTA do Live, Leve os pacotes para mais perto, Repita os temas dos melhores posts.
+
+Bottom wide table Pacotes que despertam interesse, rows Start/Live/Streamer/Combos and columns Cliques, WhatsApp, Conversão. Bottom footer explains that WhatsApp clicks indicate intent; actual messages require connected API.
+
+Render the complete coherent primary surface, readable text, full dashboard rhythm, tasteful low-to-medium density. No stock photos, no glossy glass overload, no raster fake UI, no unrelated product features. This is a reference for a functional responsive application.

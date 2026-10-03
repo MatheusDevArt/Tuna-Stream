@@ -1,0 +1,12 @@
+[functions.tuna-login]
+verify_jwt = false
+[functions.tuna-collect]
+verify_jwt = false
+[functions.tuna-webhook]
+verify_jwt = false
+[functions.tuna-team]
+verify_jwt = false
+[functions.tuna-sync]
+verify_jwt = false
+[functions.tuna-report]
+verify_jwt = false
