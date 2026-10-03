@@ -56,10 +56,10 @@ h1,.brand,.team-hero h2,.panel-heading h2,.auth-brand{font-family:EvilEmpire,Pop
 
 /* Revisão local: capa integral, leitura dos dados e perfis. */
 :root{--surface-raised:#1c1525;--border-soft:#ffffff16;--negative:#f3a0bf;--text-primary:#f7f0ff}
-.team-hero.team-cover{display:block;aspect-ratio:16/9;min-height:0;width:100%;max-height:560px;clip-path:none;background:#1f0b34;border:1px solid var(--border-soft);border-radius:12px;margin-bottom:24px}
+.team-hero.team-cover{display:block;height:190px;aspect-ratio:auto;min-height:0;width:min(100%,520px);max-height:190px;clip-path:none;background:#1f0b34;border:1px solid var(--border-soft);border-radius:12px;margin-bottom:20px}
 .team-cover::before,.team-cover::after,.team-cover figure::after{display:none}
 .team-hero.team-cover figure{position:relative;inset:auto;width:100%;height:100%}
-.team-hero.team-cover img{object-fit:cover;object-position:center 18%;height:100%;width:100%;display:block}
+.team-hero.team-cover img{object-fit:cover;object-position:center 20%;height:100%;width:100%;display:block}
 .team-cover figcaption{bottom:20px;right:20px;background:#160b23df;backdrop-filter:blur(8px);border-color:#bb6cff90;border-radius:4px;padding:8px 14px;font-size:22px}
 .panel{border-color:var(--border-soft);padding:24px;background:linear-gradient(140deg,#191220,#101016 65%);border-radius:8px}
 .panel-heading h2{font-size:28px}.metric-card{border-color:var(--border-soft);border-radius:8px}.metric-label h2{font-size:13px}.metric-value-row>strong{font-size:38px}.metric-change{font-size:12px}.metric-card>p{font-size:11px}
@@ -77,3 +77,9 @@ h1,.brand,.team-hero h2,.panel-heading h2,.auth-brand{font-family:EvilEmpire,Pop
 .profile-editor .avatar-photo{width:110px;height:110px}
 @media(max-width:900px){.person-profile .avatar-photo{width:72px;height:72px}}
 @media(max-width:600px){.person-profile .avatar-photo{width:88px;height:88px}.profile-editor .avatar-photo{width:80px;height:80px}}
+
+/* Compact photo window: metrics lead the overview. */
+.team-hero.team-cover figcaption{font-size:14px;padding:4px 9px;bottom:10px;right:10px;line-height:1.3;letter-spacing:.3px}
+.sales-geography{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}.service-filter{display:flex;align-items:center;gap:14px;margin-bottom:18px;font-size:13px}.service-filter select{min-height:44px;padding:8px 12px;color:var(--text-primary);background:#17101f;border:1px solid var(--border-soft);border-radius:8px}.deal-category{color:#d4a3ff!important;font-weight:500}.deal-card .button{width:100%;margin-top:12px}.deal-card small{display:block;color:#aaa0b8;font-size:11px;margin-top:8px}.sales-period-note{margin-bottom:20px}.custom-packages-heading{font-size:15px;margin:20px 0 12px}.connection-notice{border:1px solid #80569a;background:#21162c;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;line-height:1.7}.connection-notice a{color:#d5a2ff;text-decoration:underline}.opportunity-editor{background:#110d19;border:1px solid #75498d;border-radius:14px;padding:28px;width:min(720px,calc(100vw - 28px));max-height:calc(100dvh - 32px);overflow:auto;box-shadow:0 20px 90px #000b}.opportunity-editor header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.opportunity-editor h2{font-size:23px}.opportunity-editor code{font-size:12px;overflow-wrap:anywhere;color:#cab3db}.opportunity-editor .account-form{margin-top:20px}.opportunity-editor .two-columns{gap:20px}.opportunity-editor input,.opportunity-editor select{min-width:0;width:100%;color:#f3eff9;background:#1b1426;border:1px solid #4c345f;border-radius:8px;min-height:44px;padding:10px 12px}.dialog-backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#000b;padding:16px;backdrop-filter:blur(5px)}
+@media(max-width:800px){.sales-geography{grid-template-columns:1fr}.opportunity-editor .two-columns{grid-template-columns:1fr}}
+@media(max-width:600px){.team-hero.team-cover{height:140px;aspect-ratio:auto;max-height:140px;margin-bottom:16px}.team-cover figcaption{font-size:14px}.service-filter{align-items:stretch;flex-direction:column;gap:6px}.opportunity-editor{padding:20px}.opportunity-editor h2{font-size:19px}.connection-notice{font-size:12px}}

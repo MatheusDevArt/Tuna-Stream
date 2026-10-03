@@ -2,7 +2,7 @@ import {useCallback,useEffect,useState} from 'react';
 import {invokeEndpoint} from '../lib/endpoints.js';
 import {initialProfiles} from '../lib/profiles.js';
 export function useProfiles(session,demo){
- const [state,setState]=useState({profiles:demo?initialProfiles:[],self:null,error:'',busy:false});
+ const [state,setState]=useState({profiles:initialProfiles,self:null,error:'',busy:false});
  const refresh=useCallback(async()=>{
   if(demo)return;
   const result=await invokeEndpoint('tuna-account',{body:{action:'profile'}});

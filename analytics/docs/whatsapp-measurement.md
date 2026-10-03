@@ -17,7 +17,11 @@ O site não observa o botão “Enviar” dentro do WhatsApp. Sem API oficial de
 4. O servidor verifica a equipe e a referência; a mensagem precisa estar dentro da validade do código. O registro pode ser feito até 30 dias depois do recebimento.
 5. O telefone gera um HMAC com segredo do servidor. Só o identificador protegido fica no banco; não se guarda telefone nem mensagem completa.
 6. Repetir a mesma referência e contato não duplica o registro. Uma referência usada por pessoas diferentes se torna ambígua e sai da atribuição.
-7. As duas contas compartilham o histórico. Avançar, voltar ou perder uma oportunidade não apaga os marcos de orçamento enviado e fechamento.
+7. As duas contas compartilham o histórico. Avançar, voltar ou perder uma oportunidade preserva os marcos históricos; vendas atuais contam somente etapa fechada e data de fechamento no período.
+
+O link privado permite confirmação rápida sem telefone. Isso cria uma oportunidade ainda sem identidade de cliente. Em “Dados do cliente”, informar telefone associa pedidos ao mesmo cliente por HMAC, sem guardar o número. Registrar nome de atendimento, serviço (configuração, personalização ou ambos), pacote negociado, nome do personalizado e estado/cidade alimenta o cadastro e o mapa de compras.
+
+Oportunidades, clientes identificados, vendas e compradores únicos são medidas separadas. Duas compras de uma pessoa são duas vendas e um comprador. A região é informada no atendimento; não é inferida do telefone nem do mapa de visitas.
 
 Contatos são pessoas distintas com recebimento confirmado no período. Orçamentos são contatos das oportunidades recebidas naquele período que possuem um pedido confirmado no histórico. Uma pessoa pode aparecer em semanas diferentes; a métrica não significa “cliente novo”.
 

@@ -14,7 +14,7 @@ export default function Dashboard({ snapshot, onInsights }) {
       { label: 'Visitas no site', value: current.visits, previous: previous.visits, icon: Monitor },
       { label: 'Contatos vindos do site', value: current.websiteReceivedContacts, previous: previous.websiteReceivedContacts, icon: WhatsAppIcon, color: 'mint' },
       { label: 'Alcance no Instagram', value: current.instagramReach, previous: previous.instagramReach, icon: Instagram, color: 'pink' },
-      { label: 'Orçamentos pelo site', value: current.websiteQuoteRequests, previous: previous.websiteQuoteRequests, icon: Users },
+      { label: 'Vendas fechadas', value: current.closed, previous: previous.closed, icon: Users },
     ]} />
     <div className="dashboard-grid">
       <BrazilMap snapshot={snapshot}/>

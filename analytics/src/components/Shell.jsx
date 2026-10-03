@@ -13,9 +13,10 @@ const navigation = [
   { id: 'access', label: 'Acesso da equipe', icon: Users },
 ];
 
-export default function Shell({ profiles=[],userId, page, onPageChange, periodId, onPeriodChange, onReportOpen, periods=demoPeriods, reportAvailable=true, demo=true, updatedAt, sourceUpdatedAt, onRefresh, children }) {
+export default function Shell({ profiles=[],userId, page, onPageChange, periodId, onPeriodChange, onReportOpen, periods=demoPeriods, reportAvailable=true, demo=true,readOnly=false, updatedAt, sourceUpdatedAt, onRefresh, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const current = navigation.find((item) => item.id === page);
+  const localHistory=!demo&&!readOnly&&import.meta.env.VITE_LOCAL_HISTORY_LINK==='true'&&['localhost','127.0.0.1'].includes(location.hostname)&&!sourceUpdatedAt?.website;
   const subtitles = {
     overview: 'Entenda o caminho entre a visita e o contato.',
     website: 'Veja como as pessoas chegam e navegam pelo seu site.',
@@ -52,6 +53,8 @@ export default function Shell({ profiles=[],userId, page, onPageChange, periodId
         </header>
         {!demo&&sourceUpdatedAt&&<div className="source-freshness" aria-label="Última coleta por fonte">{[['website','Site'],['instagram','Instagram'],['whatsapp','WhatsApp']].map(([id,label])=>{const date=sourceUpdatedAt[id]?new Date(sourceUpdatedAt[id]):new Date(NaN);return <span key={id}><Clock3 size={13}/><strong>{label}:</strong>{Number.isFinite(date.getTime())?date.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}):'Aguardando coleta'}</span>;})}</div>}
         {demo&&<div className="demo-banner"><Info size={24} className="demo-info" /><p><strong>Modo demonstração</strong><span className="banner-dot"> · </span>Os números abaixo são exemplos. <button onClick={() => navigate('integrations')}>Conecte suas contas</button> para ver dados reais.</p></div>}
+        {readOnly&&<div className="connection-notice" role="status"><strong>Histórico do site publicado · consulta protegida</strong><p>Os números vêm do banco do site publicado. <a href="/">Abrir o novo painel para cadastros e vendas</a></p></div>}
+        {localHistory&&page==='overview'&&<p className="connection-notice">Seu novo banco está conectado. A coleta do site público ainda será vinculada a ele. <a href="/historico/">Consultar os dados reais do site publicado</a></p>}
         {children}
       </main>
     </div>

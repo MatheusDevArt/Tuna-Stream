@@ -1,9 +1,19 @@
 import {body,check,cors,digest,endpoint,json,member,uuid} from '../_shared/server.ts';
 import {extractReference} from '../_shared/whatsapp.js';
 import {publishSnapshots} from '../_shared/snapshots.ts';
+import {packageLabels,serviceLabels,stateLabels} from '../../../src/sales.js';
 endpoint(async req=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
- const {db,user,teamId}=await member(req),input=await body(req,2000);
+ const {db,user,teamId}=await member(req),input=await body(req,4000);
+ if(input.action==='client'){
+  const details=input.details;
+  if(!uuid(input.id)||!details||!Object.hasOwn(packageLabels,details.package)||!Object.hasOwn(serviceLabels,details.service)||typeof details.state!=='string'||details.state!==''&&!Object.hasOwn(stateLabels,details.state)||!['clientLabel','customPackageName','city'].every(key=>typeof details[key]==='string'&&details[key].length<=80)||details.package==='CUSTOM'&&!details.customPackageName.trim())throw new Error('invalid_input');
+  let contact=null;
+  if(details.phone){const digits=String(details.phone).replace(/\D/g,''),phone=!String(details.phone).trim().startsWith('+')&&[10,11].includes(digits.length)?'55'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(phone))throw new Error('invalid_input');contact=await digest(teamId+':contact:'+phone);}
+  const {phone:discarded,...safe}=details;
+  check(await db.rpc('analytics_save_client',{opportunity:input.id,tenant:teamId,actor:user.id,details:safe,contact_digest:contact}));
+  await publishSnapshots();return json({saved:true},200,headers);
+ }
  if(input.action==='confirm-link'){
   const reference=extractReference(input.reference);if(!reference||typeof input.quote!=='boolean')throw new Error('invalid_input');
   const id=check(await db.rpc('analytics_confirm_link',{reference_code:reference,tenant:teamId,actor:user.id,reference_digest:await digest(teamId+':reference:'+reference),requested:input.quote}));
@@ -15,6 +25,7 @@ endpoint(async req=>{
   const opportunity=check(await db.from('site_opportunities').select('id').eq('id',input.id).eq('team_id',teamId).eq('attributed',true).maybeSingle());
   if(!opportunity)throw new Error('access_denied');
   check(await db.from('site_opportunities').update({selected_package:input.package}).eq('id',input.id).eq('team_id',teamId));
+  await publishSnapshots();
   return json({saved:true},200,headers);
  }
  if(input.action==='confirm'){

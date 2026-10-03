@@ -65,7 +65,7 @@ test('Brazil week bounds and future days respect missing values',()=>{
 test('expired Stories stay unavailable and report outputs are distinct and XML safe',()=>{
  const result=aggregate({period,media:[{published_at:'2026-09-21T12:00:00Z',metrics:{channel:'stories',reach:5}}]});
  assert.equal(result.media[0].expired,true);
- const snapshot={demo:true,period,current:{...result,packages:[{name:'<script>&test',clicks:1,whatsapp:0}]},previous:{}};
+ const snapshot={demo:true,period,current:{...result,sales:{salesByPackage:[],customPackages:[['<script>&test',1]]}},previous:{}};
  const site=renderReportSvg(snapshot,'website'),instagram=renderReportSvg(snapshot,'instagram');
  assert.match(site,/height="2160"/);assert.match(site,/DEMONSTRAÇÃO/);assert.match(site,/&lt;script&gt;&amp;test/);
  assert.match(instagram,/INSTAGRAM/);assert.notEqual(site,instagram);

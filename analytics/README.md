@@ -4,13 +4,15 @@ Programa em português brasileiro, com identidade gamer da TunaStream, foto orig
 
 ## Revisão local atual · aguardando aprovação
 
-Prévia em **http://127.0.0.1:4183/**, sem chamadas ao agente Lovable. O site publicado continua na versão anterior. A revisão inclui capa original de ponta a ponta, fotos individuais, gráficos variados, relatórios somente com dados, quadro de vendas, pacote negociado, confirmação por link privado, recuperação por e-mail e OAuth pelo Instagram Login. Veja [estado da revisão](docs/local-revision-handoff.md).
+Painel em **http://127.0.0.1:4183/** conectado ao novo Supabase **TunaStream Analytics**, com dois acessos reais. O banco começa vazio; o site publicado continua na versão anterior e grava no banco antigo. Consulte esse histórico real, sem alterações, em **http://127.0.0.1:4183/historico/**. Demonstração separada somente em `/?modo=demonstracao`. Sem chamadas ao Lovable ou push. Veja [estado da revisão](docs/local-revision-handoff.md).
+
+Foto compacta no topo, fotos individuais, gráficos variados, dois relatórios em PNG, quadro de vendas, cadastro de clientes deduplicado, serviços, pacotes personalizados e mapa de compras. Recuperação por e-mail, OAuth e envio automático têm código preparado, mas ainda dependem dos provedores; não estão ativados.
 
 Os e-mails fornecidos ficam somente em `.env.accounts.local`, ignorado pelo Git. Eles serão oferecidos à própria conta para verificação; ainda não foram associados ao banco publicado nem usados para enviar mensagens. O código exige a confirmação do endereço antes de habilitar recuperação.
 
-A nova migração `202610030001_profiles_and_confirmation.sql` **ainda não foi aplicada em produção**. As seis migrações históricas e essa nova migração passaram em PostgreSQL local isolado; o cron existente não foi simulado. Não reaplicar as sete migrações já presentes no banco.
+As migrações de perfis e clientes (`202610030001*` e `202610030002*`) foram instaladas no **novo** Supabase, junto das seis migrações históricas de dados. O banco antigo não recebeu esta atualização. O novo banco não tem cron externo: o host local consolida dados a cada 60 segundos enquanto está aberto. Não reaplicar migrações nem substituir o banco de destino implicitamente.
 
-Para hospedar fora do Lovable, `npm run build:server` e `npm run start:server` oferecem os mesmos oito endpoints em Node, em `http://127.0.0.1:4182`. Configurar o ambiente do servidor e compilar o frontend com autenticação obrigatória para produção. O host local não configura provedores por conta própria.
+`npm run build:server`, `npm run build` e `npm run start:server` oferecem os oito endpoints em Node. A configuração privada atual usa a porta 4183; o padrão sem configuração é 4182. O host escuta apenas em loopback e não disponibiliza o painel em outros dispositivos. Para acesso remoto, hospedar frontend/servidor em HTTPS e configurar origens/URLs reais.
 
 ## Implementado
 
@@ -25,7 +27,7 @@ Para hospedar fora do Lovable, `npm run build:server` e `npm run start:server` o
 - Mapa e localidades por Google Analytics quando configurado; ausência de dados não vira localização inventada.
 - Semana em andamento e duas semanas completas, sem comparação de totais parciais com semana completa.
 
-## Estado da ativação
+## Estado da publicação anterior
 
 O painel está publicado em **https://tunastream-ofc.lovable.app/painel**. Os dois usuários foram validados por login real em desktop e celular. As sete migrações foram aplicadas no banco do projeto **Tuna Stream Central**. O agendador de minuto está ativo e seus pedidos retornaram HTTP200 em produção. A coleta do site já gravou visitas reais.
 
@@ -61,7 +63,7 @@ O relatório automático precisa de um remetente oficial habilitado, destinatár
 - [Contagem do WhatsApp](docs/whatsapp-measurement.md)
 - [.env.example](.env.example): somente URL e chave pública usam `VITE_`.
 - [Cron seguro](supabase/schedules/minute-cron.sql.example)
-- As sete migrações `20261002*` já foram aplicadas no banco atual. A migração de perfis `202610030001*` é nova e está somente local.
+- O banco anterior tem as sete migrações `20261002*`. O novo banco contém as oito migrações de dados, incluindo perfis/clientes e excluindo o script de agendamento.
 
 As senhas fornecidas não são incluídas nos arquivos, no frontend ou nos exemplos de configuração. Novas contas e trocas de senha devem usar a administração do serviço de autenticação.
 

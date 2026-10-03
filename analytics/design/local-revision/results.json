@@ -1,5 +1,5 @@
 {
-  "checks": 38,
+  "checks": 48,
   "passed": true,
   "scope": "Local demonstration only; no production changes, email delivery or provider authorization."
 }

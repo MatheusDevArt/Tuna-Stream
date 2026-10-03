@@ -5,6 +5,7 @@ import {invokeEndpoint} from '../lib/endpoints.js';
 import {launch} from '../lib/launch.js';
 import AccountConfirmation from './AccountConfirmation.jsx';
 export default function AuthGate({children}){
+ const localDemo=import.meta.env.VITE_ALLOW_LOCAL_DEMO==='true'&&['127.0.0.1','localhost'].includes(window.location.hostname)&&new URLSearchParams(location.search).get('modo')==='demonstracao';
  const [session,setSession]=useState(null),[loading,setLoading]=useState(Boolean(supabase)),[error,setError]=useState('');
  const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[forgot,setForgot]=useState(false),[confirmation,setConfirmation]=useState(Boolean(launch.accountToken));
  useEffect(()=>{
@@ -24,6 +25,7 @@ export default function AuthGate({children}){
   }catch{setError(forgot?'O serviço de recuperação ainda não está disponível.':'Não foi possível entrar. Confira o usuário e a senha. Se tentou várias vezes, aguarde 15 minutos.');}
   finally{setPassword('');setBusy(false);}
  }
+ if(localDemo)return children({session:null,demo:true});
  if(loading)return <div className="auth-screen"><p role="status">Verificando seu acesso…</p></div>;
  if(confirmation)return <AccountConfirmation token={launch.accountToken} onRequireLogin={()=>{setConfirmation(false);setError('Entre na conta que solicitou esta alteração para confirmar o e-mail ou usuário.');}} onDone={()=>{launch.accountToken='';setConfirmation(false);}}/>;
  if(!supabase){

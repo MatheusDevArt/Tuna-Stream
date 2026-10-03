@@ -1,5 +1,6 @@
 // The same controlled SVG is used by browser download and the server PNG renderer.
 import {fontBase64} from './font-data.js';
+import {packageLabels} from '../../../src/sales.js';
 const fmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1});
 const val=n=>Number.isFinite(n)?fmt.format(n):'—';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
@@ -25,9 +26,10 @@ function daily(values,y){
  return out;
 }
 function tableRows(rows,labels,y){
- let out=t(labels[0],80,y,22,'#a99eb9')+t(labels[1],720,y,22,'#a99eb9',400,'end')+t(labels[2],992,y,22,'#a99eb9',400,'end')+rule(y+20);
+ const third=Boolean(labels[2]),countX=third?720:992;
+ let out=t(labels[0],80,y,22,'#a99eb9')+t(labels[1],countX,y,22,'#a99eb9',400,'end')+(third?t(labels[2],992,y,22,'#a99eb9',400,'end'):'')+rule(y+20);
  if(!rows.length)return out+t('Aguardando dados desta fonte.',80,y+75,27,'#a99eb9');
- rows.slice(0,4).forEach((row,i)=>{const ry=y+77+i*77;out+=t(short(row[0],35),80,ry,26)+t(val(row[1]),720,ry,31,'#fff',600,'end')+t(val(row[2]),992,ry,31,'#bb6cff',600,'end')+rule(ry+25);});return out;
+ rows.slice(0,4).forEach((row,i)=>{const ry=y+77+i*77;out+=t(short(row[0],35),80,ry,26)+t(val(row[1]),countX,ry,31,'#fff',600,'end')+(third?t(val(row[2]),992,ry,31,'#bb6cff',600,'end'):'')+rule(ry+25);});return out;
 }
 export function renderReportSvg(snapshot,type='website'){
  if(!['website','instagram'].includes(type))throw new Error('Invalid report type');
@@ -36,13 +38,14 @@ export function renderReportSvg(snapshot,type='website'){
  const before=partial?{}:p;
  let body=t('TUNA',64,90,46,'#fff',600)+t('STREAM',215,90,46,'#bb6cff',600)+t('DESEMPENHO DA SEMANA',64,142,22,'#b7a9c9')+t(type==='website'?'SITE & VENDAS':'INSTAGRAM',64,215,54,'#fff',600)+t(period.label||`${period.start} a ${period.end}`,64,263,26,'#c3b7d3');
  if(type==='website'){
-  body+=metric('Visitas',c.visits,before.visits,64,310)+metric('Visitantes únicos',c.uniqueVisitors,before.uniqueVisitors,560,310)+metric('Recebimentos do site',c.websiteReceivedContacts,before.websiteReceivedContacts,64,518)+metric('Pediram orçamento',c.websiteQuoteRequests,before.websiteQuoteRequests,560,518)+metric('Orçamentos enviados',c.quoteSent,before.quoteSent,64,726)+metric('Vendas fechadas',c.closed,before.closed,560,726);
+  body+=metric('Visitas',c.visits,before.visits,64,310)+metric('Visitantes únicos',c.uniqueVisitors,before.uniqueVisitors,560,310)+metric('Recebimentos do site',c.websiteReceivedContacts,before.websiteReceivedContacts,64,518)+metric('Clientes identificados',c.uniqueClients,before.uniqueClients,560,518)+metric('Vendas fechadas',c.closed,before.closed,64,726)+metric('Clientes que compraram',c.buyingClients,before.buyingClients,560,726);
   body+=heading('MOVIMENTO POR DIA',990)+daily(c.dailyVisits,1025);
-  body+=heading('INTERESSE POR PACOTE',1380,'Pacote de origem dos cliques no site');
-  body+=tableRows((c.packages||[]).map(row=>[row.name,row.clicks,row.whatsapp]),['Pacote','Cliques','WhatsApp'],1470);
-  body+=heading('QUALIDADE DAS VISITAS',1900);
-  const d=delta(c.averageDuration,before.averageDuration),e=delta(c.engagementRate,before.engagementRate);
-  body+=t('Tempo médio ativo',80,1963,25,'#b7a9c9')+t(val(c.averageDuration)+' s',440,1963,32,'#fff',600,'end')+t(d.label,440,2006,22,d.color,400,'end')+t('Engajamento',585,1963,25,'#b7a9c9')+t(val(c.engagementRate)+'%',990,1963,32,'#fff',600,'end')+t(e.label,990,2006,22,e.color,400,'end');
+  body+=heading('PACOTES MAIS VENDIDOS',1380,'Vendas por data de fechamento · inclui personalizados');
+  const sold=[...(c.sales?.salesByPackage||[]).filter(row=>row.won>0&&row.package!=='CUSTOM').map(row=>[packageLabels[row.package]||row.package,row.won,'—']),...(c.sales?.customPackages||[]).map(([name,n])=>[name,n,'—'])].sort((a,b)=>b[1]-a[1]);
+  body+=tableRows(sold,['Pacote','Vendas',''],1470);
+  body+=heading('SERVIÇOS & REGIÕES',1900);
+  const service=c.sales?.salesByService?.[0],region=c.sales?.salesByRegion?.[0];
+  body+=t('Serviço mais vendido',80,1950,22,'#b7a9c9')+t(short(service?.[0]||'Não disponível',48),80,1984,25,'#fff',600)+t(service?val(service[1])+' venda(s)':'',990,1984,23,'#6bf2b2',400,'end')+t('Região com mais compras',80,2017,22,'#b7a9c9')+t(region?region[0]+' · '+val(region[1])+' venda(s)':'Não disponível',990,2017,24,'#fff',600,'end');
  }else{
   body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visitas ao perfil',c.profileVisits,before.profileVisits,560,310)+metric('Seguidores atuais',c.followersTotal,before.followersTotal,64,518)+metric('Saldo de seguidores',c.netFollowers,before.netFollowers,560,518)+metric('Cliques na bio',c.bioClicks,before.bioClicks,64,726)+metric('Visualizações',c.instagramViews,before.instagramViews,560,726);
   body+=heading('SEGUIDORES NO PERÍODO',994);

@@ -2,13 +2,16 @@
 
 ## Escopo e estado
 
-Trabalho realizado localmente na branch `codex/tunastream-analytics`. Nenhuma mensagem enviada ao agente Lovable nesta revisão, nenhum projeto criado, nenhum push e nenhuma mudança no banco ou site de produção. O usuário pediu aprovação da prévia antes da etapa Lovable/GitHub.
+Trabalho local na branch `codex/tunastream-analytics`. Sem uso do Lovable, push ou nova publicação do site. O usuário criou um projeto Supabase independente, **TunaStream Analytics**, e informou as credenciais pela página privada local. O site publicado e seu banco anterior foram preservados.
 
-- Prévia navegável: http://127.0.0.1:4183/ · contém dados demonstrativos identificados.
-- UI: foto original da dupla como capa em 16:9, apenas a tag; recorte CSS, sem alteração de rostos ou fundo. As duas fotos individuais são os arquivos originais.
+- Painel conectado: http://127.0.0.1:4183/ · login obrigatório, novo banco real inicialmente vazio.
+- Histórico real: http://127.0.0.1:4183/historico/ · login no banco anterior, somente consulta. Não migra nem mistura cadastros.
+- Demonstração: http://127.0.0.1:4183/?modo=demonstracao · somente em loopback e quando explicitamente habilitada; exemplos não são gravados no banco real.
+- UI: foto original da dupla em uma janela de até 520×190 px (140 px de altura no celular), apenas a tag; recorte CSS, sem alteração de rostos ou fundo. As duas fotos individuais são os arquivos originais.
 - Gráficos: evolução diária, distribuição em anel, colunas verticais, lista de posições, comparação numérica e mapa.
 - Relatórios: duas PNGs de 1080×2160, somente desempenho, comparação e conteúdos/pacotes em destaque; sem recomendações. Navegador e servidor usam o mesmo SVG.
-- Oportunidades: quadro/lista, confirmação privada, histórico de etapas e pacote negociado, incluindo personalizado. Pacote de origem permanece preservado.
+- Oportunidades: quadro/lista de todo o histórico, confirmação privada, cliente identificado, serviço (configuração, personalização ou ambos), pacote negociado, personalizado com nome, estado e cidade. Pacote de origem permanece preservado.
+- Vendas: negócios fechados, compradores únicos, pacotes, serviços e mapa de compras. Estado é informado no atendimento; o mapa de compradores é separado do mapa de visitantes.
 - Perfil: fotos iniciais, troca de foto, e-mail verificado, confirmação de usuário por e-mail, recuperação/troca de senha.
 - Instagram: OAuth pelo próprio Instagram, mínimo de permissões para métricas, estado de uso único vinculado à conta, tokens cifrados no servidor e renovação.
 
@@ -18,9 +21,19 @@ A mensagem contém um ID de 128 bits e um link `/painel/?confirm=ID`. Abrir o li
 
 A reserva do ID espera até oito segundos e mantém a abertura do WhatsApp em caso de falha. Nessa falha, a mensagem não terá referência: não prometer cobertura integral. O consumidor pode apagar o código ou o link.
 
-Confirmação rápida sem telefone identifica **uma referência**, não uma pessoa distinta. A mesma pessoa com dois códigos pode contar duas vezes. O formulário detalhado usa o telefone somente no servidor para obter um HMAC e deduplicar; acrescentá-lo posteriormente mantém a oportunidade e seu histórico. Códigos compartilhados entre pessoas distintas continuam exigindo revisão.
+Confirmação rápida sem telefone registra **uma oportunidade**, não um cliente identificado. “Dados do cliente” usa o telefone somente no servidor para obter um HMAC e deduplicar o cadastro. Pedidos com o mesmo telefone compartilham `client_id`; acrescentá-lo posteriormente mantém a oportunidade e seu histórico. Códigos compartilhados entre pessoas distintas continuam exigindo revisão.
 
-Vendas por pacote são oportunidades recebidas no período, por etapa atual e pacote negociado. Os indicadores históricos de solicitação, envio de orçamento e fechamento preservam eventos registrados, mesmo após mudança de etapa. Nenhuma etapa comprova pagamento bancário.
+Recebimentos e clientes identificados usam a data de chegada. Vendas e compradores usam `won_at` no período e etapa atual `won`; um negócio posteriormente perdido deixa de contar como venda atual. Indicadores de orçamento usam a coorte de chegada e os marcos históricos. Quadro e cadastro de clientes mostram todo o histórico. Nenhuma etapa comprova pagamento bancário.
+
+## Banco independente conectado em 03/10/2026
+
+Projeto `fundfokaxkmgvdrpwyot`, URL pública `https://fundfokaxkmgvdrpwyot.supabase.co`. Instaladas as seis migrações de dados históricas, perfis/confirmacão e clientes/vendas; o script de agendamento seguro foi excluído. Criados dois usuários Auth e seus vínculos à mesma equipe, sem guardar senhas. Os dois logins e a consulta de perfis retornaram HTTP 200. Cadastro público e acesso anônimo Auth desativados; consulta anônima das tabelas protegidas é negada.
+
+O servidor Node local consolida snapshots a cada 60 segundos e após alterações de oportunidades. A chave privada e os identificadores/segredos de servidor ficam somente em `.env.server.local`, ignorado pelo Git. O frontend recebe somente valores públicos em `.env.local`. A configuração inicial impede uma segunda execução sobre o banco já conectado.
+
+O coletor do site público continua apontando para o banco anterior. A consulta ao histórico retornou quatro visitas/quatro visitantes na semana de 28/09 a 04/10, parcial, no momento da verificação. Não existem oportunidades, clientes ou visitas importados no novo banco. Nenhum cliente fictício foi criado nele.
+
+Esta hospedagem escuta apenas `127.0.0.1`: o novo painel não é acessível de outro computador/celular até hospedar o servidor e frontend em HTTPS. O banco já é compartilhado; acessibilidade móvel e publicação são etapas distintas.
 
 ## Contas e e-mails
 
@@ -42,14 +55,15 @@ Tokens são cifrados em AES-GCM com associação à equipe e conta; clientes nã
 
 O Lovable documenta que a conexão de um projeto cria um novo repositório GitHub. Não prometer importar diretamente o repositório atual. Após aprovação: criar o projeto mínimo, conectar o GitHub e transferir o código preparado para o repositório criado pela conexão, mantendo histórico/backups e separando o site público. Verificar o runtime: Vite é o frontend; o servidor tem Request/Response originais Deno e um host Node. Para TanStack, adaptar o registro das rotas sem pedir ao agente para refazer o produto.
 
-Preservar banco, contas, segredos estáveis, cron e dados atuais. Aplicar somente a nova migração de perfis/confirmacão, configurar os serviços e validar acesso de ambos antes de publicar. Incluir o bundle atualizado de `assets/tuna-analytics.js` no site público e configurar `panelUrl` com a rota real. Publicar frontend com `VITE_REQUIRE_AUTH=true`; não publicar a demonstração aberta como painel real.
+Escolher explicitamente o banco de destino antes da publicação; não substituir o banco antigo nem migrar seus contatos com um novo segredo HMAC sem uma estratégia de migração. No novo banco, as migrações de dados já estão instaladas; falta hospedar os oito endpoints, configurar provedores e agendamento. No banco antigo, perfis e clientes ainda não foram aplicados. Incluir o bundle atualizado de `assets/tuna-analytics.js` no site público com o endpoint HTTPS de destino e `panelUrl` real. Publicar com `VITE_REQUIRE_AUTH=true` e `VITE_ALLOW_LOCAL_DEMO=false`.
 
 ## Evidências e limites
 
 - 21 testes unitários existentes aprovados.
-- 38 verificações de interface local em 1440 e 390 px: capa, fotos, gráficos, formatos do Instagram, etapas, personalizado, download PNG e link de recebimento.
-- 28 verificações PostgreSQL local: migrações, confirmação idempotente, bloqueio de referência inválida/expirada, isolamento, HMAC posterior sem duplicação, histórico e tokens de uso único.
+- 48 verificações de interface local em 1440 e 390 px: foto compacta, fotos individuais, gráficos, formatos, edição de cliente/serviço/pacote/região, cadastro, download PNG e link de recebimento.
+- 40 verificações PostgreSQL local: migrações, confirmação idempotente, referência inválida/expirada, isolamento, HMAC posterior, dois pedidos para o mesmo cliente, pacote personalizado, estado válido e tokens de uso único.
 - Compilação do frontend e dos oito endpoints Node aprovada; host local respondeu HTTP 200 e negou o arquivo privado com HTTP 404.
-- Os testes locais não comprovam entrega de e-mail, autorização OAuth, funcionamento do storage hospedado ou implantação em produção. O cron e a configuração Auth reais não foram modificados.
+- Verificações reais: dois logins, dois perfis na mesma equipe, três snapshots iniciais, tabelas de clientes e oportunidades vazias, anonimato negado e histórico consultado sem alteração.
+- As verificações não comprovam entrega de e-mail, autorização OAuth, upload hospedado ou publicação desta revisão. O cron do banco antigo foi preservado; o novo banco não tem cron externo instalado. O conector Windsor ainda aguarda autorização e seleção do perfil.
 
 Fontes: [Instagram Login — Meta](https://www.postman.com/meta/instagram/folder/6raa77c/instagram-api-with-instagram-login), [GitHub — Lovable](https://docs.lovable.dev/integrations/github), [PGlite](https://pglite.dev/docs/api).

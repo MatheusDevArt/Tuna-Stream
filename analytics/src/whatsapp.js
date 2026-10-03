@@ -22,9 +22,9 @@ export function countQuoteRequests(events) {
 export function isQuoteStage(stage){return quoteStages.has(stage);}
 export function demoLeads(){
  return [
- {id:'demo-contact-1',reference:'TS-LIVE-A7K9P2Z4',package:'Live',stage:'new',source:'Site · Instagram',received:'Quinta, 19:24'},
- {id:'demo-contact-2',reference:'TS-STREAMER-B4N8Q1R5',package:'Streamer',stage:'quote_requested',source:'Site · direto',received:'Quinta, 18:42'},
- {id:'demo-contact-3',reference:'TS-START-C9D2V6H3',package:'Start',stage:'quote_sent',source:'Site · Instagram',received:'Quarta, 20:16'},
- {id:'demo-contact-4',reference:'TS-COMBOS-D5J3K7L1',package:'Combos',stage:'won',source:'Site · WhatsApp',received:'Quarta, 17:10'},
+ {id:'demo-contact-1',reference:'TS-LIVE-A7K9P2Z4',package:'Live',stage:'new',source:'Site · Instagram',received:'Quinta, 19:24',client_id:'demo-person-1',client_label:'Cliente exemplo 1',service_category:'configuration',customer_state:'RJ',customer_city:'Rio de Janeiro'},
+ {id:'demo-contact-2',reference:'TS-STREAMER-B4N8Q1R5',package:'Streamer',stage:'quote_requested',source:'Site · direto',received:'Quinta, 18:42',client_id:'demo-person-2',client_label:'Cliente exemplo 2',service_category:'personalization',customer_state:'SP',customer_city:'São Paulo'},
+ {id:'demo-contact-3',reference:'TS-START-C9D2V6H3',package:'Start',stage:'quote_sent',source:'Site · Instagram',received:'Quarta, 20:16',client_id:'demo-person-1',client_label:'Cliente exemplo 1',service_category:'configuration',customer_state:'RJ',customer_city:'Rio de Janeiro'},
+ {id:'demo-contact-4',reference:'TS-COMBOS-D5J3K7L1',package:'Combos',stage:'won',source:'Site · WhatsApp',received:'Quarta, 17:10',client_id:'demo-person-3',client_label:'Cliente exemplo 3',service_category:'both',customer_state:'MG',customer_city:'Belo Horizonte'},
  ];
 }
