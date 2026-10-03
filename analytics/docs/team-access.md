@@ -43,7 +43,7 @@ Para o mapa, autorizar uma conta de serviço com leitura da propriedade GA4 e fo
 
 ## Agendamento
 
-Site: consolidação aproximadamente a cada minuto, no servidor local desta revisão; a coleta pública ainda precisa ser vinculada ao novo banco na publicação aprovada. Instagram oficial: coleta aproximadamente a cada hora pelo servidor Supabase, após autorização e primeira coleta válida. Relatórios: segunda-feira 09:00, Brasília, configurável. A agenda fica salva na equipe, mas o envio permanece desativado enquanto o remetente não estiver pronto.
+Site: consolidação aproximadamente a cada minuto, no servidor local desta revisão; a coleta pública ainda precisa ser vinculada ao novo banco na publicação aprovada. Instagram oficial: coleta aproximadamente a cada 30 minutos pelo servidor Supabase, após autorização e primeira coleta válida. Relatórios: segunda-feira 09:00, Brasília, configurável. A agenda fica salva na equipe, mas o envio permanece desativado enquanto o remetente não estiver pronto.
 
 Retenção por cron: eventos e sessões 90 dias; oportunidades e recibos 365 dias; referências 372 dias para preservar relações; visitantes 120 dias no servidor e identificador local 30 dias. Referências valem sete dias para novas mensagens. Jobs abandonados são tratados sem reenviar mensagens de resultado incerto.
 

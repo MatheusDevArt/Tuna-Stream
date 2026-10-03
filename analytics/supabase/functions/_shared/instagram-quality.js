@@ -14,7 +14,7 @@ export function followerChanges(response){
 }
 export function providerFailure(status,error={}){
  if(error.code===190)return 'token_expired';
- if(status===429||[4,17,32,613].includes(error.code))return 'provider_rate_limited';
+ if(status===429||[4,17,32,613,80002].includes(error.code))return 'provider_rate_limited';
  if(error.code===10&&/Not enough viewers for the media to show insights/i.test(error.message||''))return 'provider_data_threshold';
  if(status===403||[10,200].includes(error.code))return 'provider_permission_denied';
  if(status>=500)return 'provider_unavailable';
