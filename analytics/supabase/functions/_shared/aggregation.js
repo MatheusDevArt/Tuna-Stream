@@ -42,8 +42,9 @@ export function aggregate({sessions=[],events=[],opportunities=[],receipts=[],in
  }:{};
  const quotes=field=>ready('whatsapp')||eligible.length?unique(eligible.filter(o=>o[field]).map(o=>o.contact_hash)):null;
  return {...website,...(instagram||{}),websiteReceivedContacts:contacts,websiteQuoteRequests:quotes('requested_at'),quoteSent:quotes('sent_at'),closed:quotes('won_at'),
-  media:media.map(r=>({...r.metrics,expired:r.metrics.channel==='stories'&&new Date(r.published_at).getTime()+86400000<Date.now()})),posts:media.map(r=>r.metrics),
+  media:media.map(r=>({...r.metrics,collectedAt:r.metrics.collectedAt||r.collected_at,expired:r.metrics.channel==='stories'&&new Date(r.published_at).getTime()+86400000<Date.now()})),posts:media.map(r=>r.metrics),
   sourceUpdatedAt:Object.fromEntries(integrations.map(i=>[i.source,i.last_success_at])),
+  sourceHealth:Object.fromEntries(integrations.map(i=>[i.source,{status:i.status,mode:i.mode,lastAttemptAt:i.last_attempt_at,lastErrorAt:i.last_error_at,errorCode:i.error_code}])),
   sourceCoverage:Object.fromEntries(integrations.map(i=>[i.source,i.source==='whatsapp'&&i.mode==='manual'?'manual':i.source==='instagram'&&instagram?instagram.instagramSource?.coverage||'api':!i.first_success_at?'unavailable':localDay(i.first_success_at)>period.end?'unavailable':new Date(i.first_success_at)>new Date(bounds(period).start)||period.end>=localDay(new Date())?'partial':'complete'])),
   measurementNotes:{contacts:'Recebimentos confirmados. Com telefone, deduplicação por identificador protegido; sem telefone, deduplicação por referência. A mesma pessoa pode ter várias referências.',quotes:'Contatos atribuídos recebidos no período, com solicitação confirmada no histórico.',geography:'Localização aproximada; visitantes sem estado identificado não são distribuídos no mapa.'}
  };

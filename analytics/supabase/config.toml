@@ -14,3 +14,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.tuna-instagram]
 verify_jwt = false
+[functions.tuna-instagram-sync]
+# Custom authentication: dedicated cron secret checked inside the handler.
+verify_jwt = false
+[functions.tuna-instagram-callback]
+# Custom authentication: short-lived, single-account OAuth state checked against the DB.
+verify_jwt = false

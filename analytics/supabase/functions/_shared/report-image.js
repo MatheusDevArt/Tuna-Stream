@@ -1,6 +1,7 @@
 // The same controlled SVG is used by browser download and the server PNG renderer.
 import {fontBase64} from './font-data.js';
 import {packageLabels} from '../../../src/sales.js';
+import {comparableInstagram} from './instagram-quality.js';
 const fmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1});
 const val=n=>Number.isFinite(n)?fmt.format(n):'—';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
@@ -35,12 +36,12 @@ export function renderReportSvg(snapshot,type='website'){
  if(!['website','instagram'].includes(type))throw new Error('Invalid report type');
  const c=snapshot.current||{},p=snapshot.previous||{},period=snapshot.period||{};
  const metricool=type==='instagram'&&c.instagramSource?.provider==='metricool';
- const dated=(label,day)=>day?label+' · '+day.slice(5).split('-').reverse().join('/'):label;
+ const dated=(label,day)=>day?label+' · '+day.split('T')[0].slice(5).split('-').reverse().join('/'):label;
  const imported=(c.media||[]).filter(post=>post.provider==='metricool');
  const sum=key=>imported.length&&imported.every(post=>Number.isFinite(post[key]))?imported.reduce((total,post)=>total+post[key],0):null;
  const sums=['likes','comments','saves','shares'].map(sum),interactions=sums.every(Number.isFinite)?sums.reduce((total,n)=>total+n,0):null;
  const partial=type==='website'&&c.sourceCoverage?.website==='partial'||type==='instagram'&&c.sourceCoverage?.instagram==='partial';
- const before=partial?{}:p;
+ const before=partial||type==='instagram'&&!snapshot.demo&&!comparableInstagram(c,p)?{}:p;
  let body=t('TUNA',64,90,46,'#fff',600)+t('STREAM',215,90,46,'#bb6cff',600)+t('DESEMPENHO DA SEMANA',64,142,22,'#b7a9c9')+t(type==='website'?'SITE & VENDAS':'INSTAGRAM',64,215,54,'#fff',600)+t(period.label||`${period.start} a ${period.end}`,64,263,26,'#c3b7d3');
  if(type==='website'){
   body+=metric('Visitas',c.visits,before.visits,64,310)+metric('Visitantes únicos',c.uniqueVisitors,before.uniqueVisitors,560,310)+metric('Recebimentos do site',c.websiteReceivedContacts,before.websiteReceivedContacts,64,518)+metric('Clientes identificados',c.uniqueClients,before.uniqueClients,560,518)+metric('Vendas fechadas',c.closed,before.closed,64,726)+metric('Clientes que compraram',c.buyingClients,before.buyingClients,560,726);
@@ -53,21 +54,22 @@ export function renderReportSvg(snapshot,type='website'){
   body+=t('Serviço mais vendido',80,1950,22,'#b7a9c9')+t(short(service?.[0]||'Não disponível',48),80,1984,25,'#fff',600)+t(service?val(service[1])+' venda(s)':'',990,1984,23,'#6bf2b2',400,'end')+t('Região com mais compras',80,2017,22,'#b7a9c9')+t(region?region[0]+' · '+val(region[1])+' venda(s)':'Não disponível',990,2017,24,'#fff',600,'end');
  }else{
   if(metricool){
-   body+=metric(dated('Alcance diário',c.instagramReachAsOf),c.instagramLastDailyReach,null,64,310)+metric('Visualizações informadas',c.instagramViewsObserved,null,560,310)+metric(dated('Seguidores',c.followersAsOf),c.followersTotal,null,64,518)+metric('Posts importados',imported.length||null,null,560,518)+metric('Interações nos posts',interactions,null,64,726)+metric('Visualizações dos posts',sum('views'),null,560,726);
+   body+=metric(dated('Alcance diário',c.instagramReachAsOf),c.instagramLastDailyReach,null,64,310)+metric(c.instagramViewsDays?.length===1?dated('Visualizações',c.instagramViewsDays[0]):'Visualizações informadas',c.instagramViewsObserved,null,560,310)+metric(dated('Seguidores',c.followersAsOf),c.followersTotal,null,64,518)+metric('Posts importados',imported.length||null,null,560,518)+metric('Interações nos posts',interactions,null,64,726)+metric('Visualizações dos posts',sum('views'),null,560,726);
    body+=heading('DETALHES DOS POSTS',994)+rect(64,1030,952,140)+t('Curtidas',90,1077,25,'#b7a9c9')+t(val(sum('likes')),90,1138,45,'#6bf2b2',600)+t('Comentários',420,1077,25,'#b7a9c9')+t(val(sum('comments')),420,1138,45,'#f3a0bf',600)+t('Salvos',740,1077,25,'#b7a9c9')+t(val(sum('saves')),740,1138,45,'#fff',600);
   }else{
-   body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visitas ao perfil',c.profileVisits,before.profileVisits,560,310)+metric('Seguidores atuais',c.followersTotal,before.followersTotal,64,518)+metric('Saldo de seguidores',c.netFollowers,before.netFollowers,560,518)+metric('Cliques na bio',c.bioClicks,before.bioClicks,64,726)+metric('Visualizações',c.instagramViews,before.instagramViews,560,726);
+   body+=metric('Alcance',c.instagramReach,before.instagramReach,64,310)+metric('Visitas ao perfil',c.profileVisits,before.profileVisits,560,310)+metric(dated('Seguidores informados',c.followersAsOf),c.followersTotal,null,64,518)+metric('Saldo de seguidores',c.netFollowers,before.netFollowers,560,518)+metric(c.instagramSource?.provider==='meta'?'Toques nos contatos':'Cliques na bio',c.instagramSource?.provider==='meta'?c.profileContactTaps:c.bioClicks,c.instagramSource?.provider==='meta'?before.profileContactTaps:before.bioClicks,64,726)+metric('Visualizações',c.instagramViews,before.instagramViews,560,726);
    body+=heading('SEGUIDORES NO PERÍODO',994)+rect(64,1030,952,140)+t('Ganhos',90,1077,25,'#b7a9c9')+t(val(c.followersGained),90,1138,45,'#6bf2b2',600)+t('Perdidos',420,1077,25,'#b7a9c9')+t(val(c.followersLost),420,1138,45,'#f3a0bf',600)+t('Saldo',740,1077,25,'#b7a9c9')+t(val(c.netFollowers),740,1138,45,'#fff',600);
   }
-  body+=heading('CONTEÚDOS DE MAIOR ALCANCE',1270,metricool?'Posts do período · métricas acumuladas até a consulta':'');
+  body+=heading('CONTEÚDOS DE MAIOR ALCANCE',1270,'Posts do período · métricas acumuladas até a consulta');
   const posts=[...(c.media||c.posts||[])].filter(post=>Number.isFinite(post.reach)).sort((a,b)=>b.reach-a.reach).slice(0,3);
   if(!posts.length)body+=t('Aguardando autorização e métricas do Instagram.',80,1350,26,'#a99eb9');
-  posts.forEach((post,i)=>{const y=(metricool?1330:1310)+i*180;body+=rect(64,y,952,158)+t(String(i+1).padStart(2,'0'),88,y+58,32,'#bb6cff',600)+t(short(post.title||post.caption,39),153,y+56,26,'#fff',600)+t(post.format||post.channel||'Feed',153,y+102,23,'#b7a9c9')+t(val(post.reach),988,y+104,40,'#fff',600,'end')+t('de alcance',988,y+139,20,'#a99eb9',400,'end');});
-  body+=heading('RESULTADO POR FORMATO',1900);
+  posts.forEach((post,i)=>{const y=(metricool?1330:1310)+i*180;const consulted=post.collectedAt?' · consulta '+new Date(post.collectedAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}):'';body+=rect(64,y,952,158)+t(String(i+1).padStart(2,'0'),88,y+58,32,'#bb6cff',600)+t(short(post.title||post.caption,39),153,y+56,26,'#fff',600)+t((post.format||post.channel||'Feed')+consulted,153,y+102,22,'#b7a9c9')+t(val(post.reach),988,y+104,40,'#fff',600,'end')+t('de alcance',988,y+139,20,'#a99eb9',400,'end');});
+  body+=heading('ALCANCE MÉDIO POR FORMATO',1900);
   const all=c.media||c.posts||[];
   ['feed','reels','stories'].forEach((channel,i)=>{const items=all.filter(post=>(post.channel||(post.format==='Reel'?'reels':post.format==='Story'?'stories':'feed'))===channel&&Number.isFinite(post.reach)),mean=items.length?Math.round(items.reduce((sum,post)=>sum+post.reach,0)/items.length):null,x=80+i*325;body+=t(['Feed','Reels','Stories'][i],x,1954,26,'#b7a9c9')+t(val(mean),x,2003,37,'#fff',600);});
  }
- const footer=snapshot.demo?'DEMONSTRAÇÃO · Dados ilustrativos':metricool?`Metricool · Consulta ${new Date(c.instagramSource.collectedAt).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})} · Histórico parcial`:partial?'Período parcial · Sem comparação dos totais':'Dados disponíveis no período · Horário de Brasília';
+ const source=c.instagramSource;
+ const footer=snapshot.demo?'DEMONSTRAÇÃO · Dados ilustrativos':type==='instagram'&&source?`${source.provider==='metricool'?'Metricool':'Meta'} · Consulta ${new Date(source.collectedAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'})} · ${c.sourceHealth?.instagram?.status==='error'?'Falha na atualização':source.coverage==='complete'?'Período completo':'Histórico parcial'}`:partial?'Período parcial · Sem comparação dos totais':'Dados disponíveis no período · Horário de Brasília';
  body+=rule(2061)+t(footer,64,2110,22,'#a99eb9');
  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2160" viewBox="0 0 1080 2160"><defs><style>@font-face{font-family:Poppins;src:url(data:font/ttf;base64,${fontBase64})}</style></defs><rect width="1080" height="2160" fill="#080809"/><rect width="1080" height="8" fill="#bb6cff"/><g font-family="Poppins, sans-serif">${body}</g></svg>`;
 }

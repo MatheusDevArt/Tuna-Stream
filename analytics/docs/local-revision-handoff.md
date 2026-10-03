@@ -13,7 +13,7 @@ Trabalho local na branch `codex/tunastream-analytics`. Sem uso do Lovable, push 
 - Oportunidades: quadro/lista de todo o histórico, confirmação privada, cliente identificado, serviço (configuração, personalização ou ambos), pacote negociado, personalizado com nome, estado e cidade. Pacote de origem permanece preservado.
 - Vendas: negócios fechados, compradores únicos, pacotes, serviços e mapa de compras. Estado é informado no atendimento; o mapa de compradores é separado do mapa de visitantes.
 - Perfil: fotos iniciais, troca de foto, e-mail verificado, confirmação de usuário por e-mail, recuperação/troca de senha.
-- Instagram: dados reais da conta `tuna.stream` importados via plugin Metricool no novo banco. Três posts de 01 e 02/10/2026, miniaturas/links e métricas acumuladas; consulta em 03/10/2026 às 00:57 (Brasília). Histórico diário parcial, com fonte e datas visíveis. Reels/Stories/regiões sem registros nesta consulta, sem zeros inventados. Atualizar o painel relê o banco; atualização automática do Metricool ainda pendente. O conector direto da Meta permanece preparado, sem credenciais configuradas.
+- Instagram: três posts reais importados manualmente do Metricool em 03/10/2026 às 00:57 (Brasília), com histórico parcial. Coletor oficial da Meta implantado no novo Supabase, configuração privada salva e convite de testador aceito pelo usuário. Autorização OAuth e primeira coleta válida ainda pendentes; veja [estado e limites da coleta](../README.md). Atualizar o painel relê o banco. Métricas acumuladas, fonte e datas ficam visíveis.
 
 ## WhatsApp e contagem
 
@@ -64,6 +64,7 @@ Escolher explicitamente o banco de destino antes da publicação; não substitui
 - 40 verificações PostgreSQL local: migrações, confirmação idempotente, referência inválida/expirada, isolamento, HMAC posterior, dois pedidos para o mesmo cliente, pacote personalizado, estado válido e tokens de uso único.
 - Compilação do frontend e dos oito endpoints Node aprovada; host local respondeu HTTP 200 e negou o arquivo privado com HTTP 404.
 - Verificações reais: dois logins, dois perfis na mesma equipe, três snapshots iniciais, tabelas de clientes e oportunidades vazias, anonimato negado e histórico consultado sem alteração.
-- As verificações não comprovam entrega de e-mail, autorização OAuth, upload hospedado ou publicação desta revisão. O cron do banco antigo foi preservado; o novo banco não tem cron externo instalado. O conector Windsor ainda aguarda autorização e seleção do perfil.
+- A atualização da coleta oficial passou em 27 testes de regras/renderização e 38 verificações isoladas de banco/controles do agendamento. O novo Supabase contém as funções, o Vault e os controles do cron; ativação exige autorização e primeira coleta válida. O cron do banco antigo foi preservado. Windsor não é usado nesta integração.
+- Essas verificações não comprovam entrega de e-mail, autorização OAuth, upload hospedado ou publicação desta revisão.
 
 Fontes: [Instagram Login — Meta](https://www.postman.com/meta/instagram/folder/6raa77c/instagram-api-with-instagram-login), [GitHub — Lovable](https://docs.lovable.dev/integrations/github), [PGlite](https://pglite.dev/docs/api).

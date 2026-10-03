@@ -6,7 +6,7 @@ export const formatPercent = (value) => value == null ? 'Sem base anterior' : pe
 export const rate = (numerator, denominator) => numerator==null||denominator==null?null:denominator > 0 ? (numerator / denominator) * 100 : 0;
 
 export function variation(current, previous) {
-  if (current == null || previous == null) return null;
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
   if (previous === 0) return current === 0 ? 0 : null;
   return ((current - previous) / Math.abs(previous)) * 100;
 }

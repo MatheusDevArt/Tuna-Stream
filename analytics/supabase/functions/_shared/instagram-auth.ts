@@ -14,7 +14,8 @@ export async function loadInstagram(){
  if(Date.now()-new Date(row.refreshed_at).getTime()>50*86400000){
   const url=new URL('https://graph.instagram.com/refresh_access_token');url.searchParams.set('grant_type','ig_refresh_token');url.searchParams.set('access_token',token);
   const response=await fetch(url,{signal:AbortSignal.timeout(15000)}),result=await response.json();if(!response.ok||!result.access_token)throw new Error('token_expired');
-  token=result.access_token;check(await db.from('provider_credentials').update({encrypted_token:await seal(token,row.account_id,tenant),refreshed_at:new Date().toISOString(),expires_at:new Date(Date.now()+Number(result.expires_in||5184000)*1000).toISOString()}).eq('team_id',tenant).eq('provider','instagram'));
+  if(!Number.isFinite(result.expires_in)||result.expires_in<=0)throw new Error('provider_invalid_response');
+  token=result.access_token;check(await db.from('provider_credentials').update({encrypted_token:await seal(token,row.account_id,tenant),refreshed_at:new Date().toISOString(),expires_at:new Date(Date.now()+result.expires_in*1000).toISOString()}).eq('team_id',tenant).eq('provider','instagram'));
  }
  return {token,account:row.account_id,mode:'instagram'};
 }

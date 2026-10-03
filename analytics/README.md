@@ -53,7 +53,21 @@ A conta `tuna.stream` (marca `7209286`) foi reconhecida pelo plugin. A consulta 
 
 O arquivo de exportação privado fica em `.qa/metricool-instagram.json`, ignorado pelo Git. `node server/import-metricool.mjs` valida a marca/conta e o novo banco antes de importar e consolidar. O painel mostra a fonte, a data da consulta, os dias informados e o caráter acumulado das métricas dos posts. **Importação manual pelo plugin nesta conversa; atualizar o painel apenas relê o banco.** Nenhuma coleta automática do Metricool foi ativada e nenhuma configuração da publicação anterior foi alterada.
 
-Ambos acessam o mesmo banco por celular ou computador. O servidor consolida o site aproximadamente a cada minuto; o navegador acompanha por Realtime e consulta a cada 60 segundos como complemento. O conector direto da Meta prevê consulta a cada quatro horas quando configurado; a importação atual do Metricool é manual. A confirmação manual depende do registro feito por vocês.
+Os dois perfis usam o mesmo banco. O painel local ainda precisa de hospedagem aprovada para acesso remoto da parceira. O servidor consolida os registros aproximadamente a cada minuto; o navegador acompanha por Realtime e consulta a cada 60 segundos como complemento. A importação atual do Metricool é manual. A confirmação de contatos depende do registro feito por vocês.
+
+### Coleta oficial do Instagram — 03/10/2026
+
+O aplicativo Meta `TunaStream Analytics` (`1870500717264659`) e o aplicativo Instagram `TunaStream Analytics-IG` (`1098888089403799`) estão preparados com apenas `instagram_business_basic` e `instagram_business_manage_insights`. A autorização usa Instagram Login, sem página do Facebook. O perfil precisa ser profissional e aceitar o convite de testador durante o desenvolvimento. A versão consultada na documentação é **v26.0**.
+
+No projeto independente `fundfokaxkmgvdrpwyot`, as funções `tuna-instagram-callback` e `tuna-instagram-sync` estão implantadas. A configuração privada foi salva pelo usuário, com chaves do coletor no Vault; o segredo do aplicativo permanece somente no servidor local ignorado pelo Git. O retorno HTTPS aprovado é `https://fundfokaxkmgvdrpwyot.supabase.co/functions/v1/tuna-instagram-callback`. O código OAuth retorna ao painel local, é consumido uma vez e o token fica cifrado no banco.
+
+**A autorização do perfil e a primeira coleta válida ainda precisam ser concluídas.** A autenticação abre uma coleta no servidor Supabase; após receber dados válidos, o próprio servidor ativa o cron. O cron verifica a cada 15 minutos e o coletor consulta a Meta quando a última coleta válida tem pelo menos 55 minutos: aproximadamente uma vez por hora, com novas tentativas após falha. O computador não precisa ficar ligado para essa coleta. O endpoint usa segredo próprio, valida o perfil e registra cada tentativa. O painel mostra a data real da medição, atraso e falhas; atualizar a página apenas relê os dados salvos.
+
+Os lotes são gravados em uma transação: falha não altera a última coleta válida. Comparações exigem dois períodos completos da mesma fonte. Alcance diário não é somado como pessoas únicas. Seguidores são uma contagem na data da consulta. `profile_links_taps` mede contatos do perfil, não o link da bio; visitas ao perfil e cliques da bio ficam indisponíveis quando não retornados. Dados ausentes não viram zero. A Meta limita algumas métricas abaixo de 100 seguidores e Stories com poucos espectadores; métricas dos Stories têm disponibilidade limitada, e registros antigos mantêm a data de sua consulta. Polling pode perder Stories removidos entre consultas.
+
+Documentação: [Instagram Login](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login), [Insights da conta](https://developers.facebook.com/documentation/instagram-platform/api-reference/instagram-user/insights), [Insights de mídias](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights), [agendamento Supabase](https://supabase.com/docs/guides/functions/schedule-functions).
+
+Verificações locais: 27 testes de regras/renderização e 38 verificações isoladas de transação, RLS, configuração privada e controles de agendamento aprovadas. Os testes do agendamento emulam somente suas interfaces; não fazem chamadas de rede nem comprovam autorização ou coleta real da Meta. `pg_cron`/`pg_net` e os privilégios das funções privadas são verificados no projeto hospedado. Nenhum frontend foi publicado e nenhum código foi enviado ao GitHub nesta etapa.
 
 A coleta não recupera visitas anteriores à instalação. Recusas de consentimento e bloqueadores reduzem os dados medidos. Métricas indisponíveis permanecem nulas e dias futuros não aparecem como zero.
 
@@ -69,7 +83,7 @@ O relatório automático precisa de um remetente oficial habilitado, destinatár
 - [Contagem do WhatsApp](docs/whatsapp-measurement.md)
 - [.env.example](.env.example): somente URL e chave pública usam `VITE_`.
 - [Cron seguro](supabase/schedules/minute-cron.sql.example)
-- O banco anterior tem as sete migrações `20261002*`. O novo banco contém as oito migrações de dados, incluindo perfis/clientes e excluindo o script de agendamento.
+- O banco anterior preserva suas migrações. O novo banco inclui perfis/clientes, integridade da coleta, configuração privada e agendamento do Instagram; o agendamento só é ativado após coleta válida.
 
 As senhas fornecidas não são incluídas nos arquivos, no frontend ou nos exemplos de configuração. Novas contas e trocas de senha devem usar a administração do serviço de autenticação.
 

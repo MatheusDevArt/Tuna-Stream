@@ -1,5 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
-export const env=(name:string,required=true)=>{const value=Deno.env.get(name)||'';if(required&&!value)throw new Error('configuration_missing');return value;};
+import {providerFailure} from './instagram-quality.js';
+const privateRuntime:Record<string,string>={};
+export const configureRuntime=(values:Record<string,string>)=>Object.assign(privateRuntime,values);
+export const env=(name:string,required=true)=>{const value=privateRuntime[name]||Deno.env.get(name)||'';if(required&&!value)throw new Error('configuration_missing');return value;};
 export const admin=()=>createClient(env('SUPABASE_URL'),env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
 export const team=()=>env('TUNA_TEAM_ID');
 export const uuid=(value:unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -46,6 +49,8 @@ export async function graph(path:string,params:Record<string,string>,token:strin
  const version=env('META_GRAPH_VERSION');if(!/^v\d+\.\d+$/.test(version))throw new Error('configuration_missing');
  const host=instagram&&loginMode!=='facebook'?'graph.instagram.com':'graph.facebook.com';
  const url=new URL(`https://${host}/${version}/${path}`);for(const [key,value]of Object.entries(params))url.searchParams.set(key,value);
- const response=await fetch(url,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(18000)});
- const data=await response.json();if(!response.ok||data.error)throw new Error(data.error?.code===190?'token_expired':'provider_error');return data;
+ let response:Response;
+ try{response=await fetch(url,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(18000)});}catch(error){throw new Error(error instanceof Error&&['TimeoutError','AbortError'].includes(error.name)?'provider_timeout':'provider_unavailable');}
+ let data:any;try{data=await response.json();}catch{throw new Error(response.status>=500?'provider_unavailable':'provider_invalid_response');}
+ if(!response.ok||data.error)throw new Error(providerFailure(response.status,data.error));return data;
 }

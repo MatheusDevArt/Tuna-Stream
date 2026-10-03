@@ -8,8 +8,8 @@ import {setupRoute} from './setup.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 for(const file of ['.env.server.local','.env.accounts.local'])try{loadEnvFile(resolve(root,file));}catch(error){if(error.code!=='ENOENT')throw error;}
 const handlers=new Map();let current;
-globalThis.Deno={env:{get:name=>process.env[name]},serve:handler=>handlers.set(current,handler)};
-for(const name of ['tuna-login','tuna-collect','tuna-team','tuna-report','tuna-sync','tuna-webhook','tuna-account','tuna-instagram']){current=name;await import(new URL('./.generated/'+name+'.js',import.meta.url));}
+globalThis.Deno={env:{get:name=>process.env[name],set:(name,value)=>{process.env[name]=value;}},serve:handler=>handlers.set(current,handler)};
+for(const name of ['tuna-login','tuna-collect','tuna-team','tuna-report','tuna-sync','tuna-webhook','tuna-account','tuna-instagram','tuna-instagram-sync']){current=name;await import(new URL('./.generated/'+name+'.js',import.meta.url));}
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.json':'application/json','.png':'image/png','.jpeg':'image/jpeg','.jpg':'image/jpeg','.webp':'image/webp','.ttf':'font/ttf','.woff':'font/woff'};
 const port=Number(process.env.TUNA_LOCAL_PORT||4182),base='http://127.0.0.1:'+port;
 async function bridge(req,name){

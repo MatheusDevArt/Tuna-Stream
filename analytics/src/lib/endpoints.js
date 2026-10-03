@@ -8,7 +8,8 @@ export async function invokeEndpoint(name,{body}={}){
   const {data:{session}}=await (supabase?.auth.getSession()||Promise.resolve({data:{session:null}}));
   const base=import.meta.env.VITE_API_BASE_URL||window.location.origin;
   const path=window.location.pathname.startsWith('/historico/')?'/api/old/'+name:'/api/public/'+name;
-  const response=await fetch(new URL(path,base),{method:'POST',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.access_token}:{})},body:JSON.stringify(body||{}),signal:AbortSignal.timeout(90000)});
+  const timeout=name==='tuna-instagram'&&body?.action==='complete'?150000:90000;
+  const response=await fetch(new URL(path,base),{method:'POST',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.access_token}:{})},body:JSON.stringify(body||{}),signal:AbortSignal.timeout(timeout)});
   const data=await response.json();
   return response.ok?{data,error:null}:{data,error:new Error('Request failed')};
  }catch{return {data:null,error:new Error('Service unavailable')};}

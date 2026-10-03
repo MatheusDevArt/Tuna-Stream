@@ -5,6 +5,7 @@ import {resolve} from 'node:path';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {createClient} from '@supabase/supabase-js';
+import {instagramSetup} from './instagram-setup.mjs';
 const execute=promisify(execFile),nonce=randomBytes(32).toString('hex');let saving=false;
 const expected='https://fundfokaxkmgvdrpwyot.supabase.co';
 export async function schemaBundle(root){
@@ -14,6 +15,7 @@ export async function schemaBundle(root){
 }
 function response(data,status=200,type='application/json'){return new Response(typeof data==='string'?data:JSON.stringify(data),{status,headers:{'Content-Type':type+'; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});}
 export async function setupRoute(req,root,base){
+ const instagram=await instagramSetup(req,root,base);if(instagram)return instagram;
  const url=new URL(req.url);
  if(req.method==='GET'&&url.pathname==='/_integracao/esquema')return response('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Esquema TunaStream</title><pre>'+(await schemaBundle(root)).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')+'</pre></html>',200,'text/html');
  if(req.method==='GET'&&url.pathname==='/_integracao/schema.sql')return response(await schemaBundle(root),200,'text/plain');

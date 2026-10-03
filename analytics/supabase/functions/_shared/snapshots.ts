@@ -2,9 +2,10 @@ import {admin,check,team} from './server.ts';
 import {aggregate,bounds,windows,addDays} from './aggregation.js';
 import {geoMetrics} from './ga4.ts';
 import {summarizeSalesPeriod} from '../../../src/sales.js';
+import {protectInstagramComparison} from './instagram-quality.js';
 async function all(query:any){let rows:any[]=[];for(let offset=0;offset<100000;offset+=750){const page=check<any[]>(await query.range(offset,offset+749));rows.push(...page);if(page.length<750)return rows;}throw new Error('data_window_exceeded');}
 export async function publishSnapshots(){
- const db=admin(),tenant=team(),integrations=check(await db.from('analytics_integrations').select('source,status,mode,last_success_at,first_success_at').eq('team_id',tenant))||[];
+ const db=admin(),tenant=team(),integrations=check(await db.from('analytics_integrations').select('source,status,mode,last_success_at,first_success_at,last_attempt_at,last_error_at,error_code').eq('team_id',tenant))||[];
  async function metrics(period:any){
   const window=bounds(period);
   const range=(table:string,field:string)=>db.from(table).select('*').eq('team_id',tenant).gte(field,window.start).lt(field,window.end).order(field).order(table==='whatsapp_receipts'?'message_hash':'id');
@@ -30,6 +31,7 @@ export async function publishSnapshots(){
  for(const period of windows()){
   const previous={start:addDays(period.start,-7),end:addDays(period.end,-7)},[current,prior]=await Promise.all([metrics(period),metrics(previous)]);
   if(period.end>=new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'}))for(const key of Object.keys(prior))if(typeof prior[key]==='number')prior[key]=null;
+  protectInstagramComparison(current,prior);
   check(await db.from('analytics_snapshots').upsert({team_id:tenant,period_start:period.start,period_end:period.end,current_metrics:current,previous_metrics:prior,updated_at:new Date().toISOString()}));
  }
 }
