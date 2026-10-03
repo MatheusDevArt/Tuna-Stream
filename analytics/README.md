@@ -47,7 +47,13 @@ Para publicar em `/painel/`, use `VITE_BASE_PATH=/painel/`. O projeto Lovable us
 
 ## Atualização online
 
-Ambos acessam o mesmo banco por celular ou computador. O servidor consolida o site aproximadamente a cada minuto; o navegador acompanha por Realtime e consulta a cada 60 segundos como complemento. O Instagram é consultado a cada quatro horas e também depende do processamento da Meta. A confirmação manual depende do registro feito por vocês.
+### Instagram via Metricool no novo banco
+
+A conta `tuna.stream` (marca `7209286`) foi reconhecida pelo plugin. A consulta de 03/10/2026 trouxe três posts reais de 01 e 02/10, com miniaturas, links e métricas acumuladas. O histórico diário é parcial: o registro de 01/10 informou 15 seguidores, 417 visualizações e 108 de alcance diário. Reels, Stories e países vieram sem registros; isso não comprova ausência de publicação ou audiência. O painel mantém os totais semanais e comparações sem base como indisponíveis.
+
+O arquivo de exportação privado fica em `.qa/metricool-instagram.json`, ignorado pelo Git. `node server/import-metricool.mjs` valida a marca/conta e o novo banco antes de importar e consolidar. O painel mostra a fonte, a data da consulta, os dias informados e o caráter acumulado das métricas dos posts. **Importação manual pelo plugin nesta conversa; atualizar o painel apenas relê o banco.** Nenhuma coleta automática do Metricool foi ativada e nenhuma configuração da publicação anterior foi alterada.
+
+Ambos acessam o mesmo banco por celular ou computador. O servidor consolida o site aproximadamente a cada minuto; o navegador acompanha por Realtime e consulta a cada 60 segundos como complemento. O conector direto da Meta prevê consulta a cada quatro horas quando configurado; a importação atual do Metricool é manual. A confirmação manual depende do registro feito por vocês.
 
 A coleta não recupera visitas anteriores à instalação. Recusas de consentimento e bloqueadores reduzem os dados medidos. Métricas indisponíveis permanecem nulas e dias futuros não aparecem como zero.
 

@@ -13,9 +13,10 @@ export default function Dashboard({ snapshot, onInsights }) {
     <MetricStrip items={[
       { label: 'Visitas no site', value: current.visits, previous: previous.visits, icon: Monitor },
       { label: 'Contatos vindos do site', value: current.websiteReceivedContacts, previous: previous.websiteReceivedContacts, icon: WhatsAppIcon, color: 'mint' },
-      { label: 'Alcance no Instagram', value: current.instagramReach, previous: previous.instagramReach, icon: Instagram, color: 'pink' },
+      { label: current.instagramSource?.provider==='metricool'?'Visualizações informadas':'Alcance no Instagram', value: current.instagramSource?.provider==='metricool'?current.instagramViewsObserved:current.instagramReach, previous: current.instagramSource?.provider==='metricool'?null:previous.instagramReach, icon: Instagram, color: 'pink' },
       { label: 'Vendas fechadas', value: current.closed, previous: previous.closed, icon: Users },
     ]} />
+    {current.instagramSource?.provider==='metricool'&&<p className="panel-note">Instagram via Metricool · histórico parcial. Visualizações apenas dos dias disponíveis; abra Instagram para conferir as datas e os posts.</p>}
     <div className="dashboard-grid">
       <BrazilMap snapshot={snapshot}/>
       <Funnel data={current} />

@@ -14,7 +14,7 @@ export default function ContentCards({ items, channel }) {
   const availableLink=!item.demo&&!item.expired&&isInstagramContentUrl(item.permalink);
   const thumbnail=item.thumbnail || item.thumbnail_url || (item.media_type!=='VIDEO'?item.media_url:null);
   const Icon=item.channel==='reels'?Clapperboard:item.channel==='stories'?MessageCircle:item.format==='Carrossel'?Layers:ImageIcon;
-  const statistics=item.channel==='stories'?[['Alcance',item.reach,Eye],['Respostas',item.replies,MessageCircle],['Cliques no link',item.linkTaps,ExternalLink]]:[['Alcance',item.reach,Eye],['Curtidas',item.likes,Heart],['Comentários',item.comments,MessageCircle],['Salvos',item.saves,Bookmark],['Compartilhados',item.shares,Send],['Interações / alcance',engagement(item),Eye]];
+  const statistics=item.channel==='stories'?[['Alcance',item.reach,Eye],['Respostas',item.replies,MessageCircle],['Cliques no link',item.linkTaps,ExternalLink]]:[['Alcance',item.reach,Eye],['Visualizações',item.views,Eye],['Curtidas',item.likes,Heart],['Comentários',item.comments,MessageCircle],['Salvos',item.saves,Bookmark],['Compartilhados',item.shares,Send],['Interações / alcance',engagement(item),Eye]];
   return <article className="content-card" key={item.id}>
     <div className="content-image">{thumbnail&&!broken[item.id]&&!item.expired?<img src={thumbnail} alt={'Miniatura: '+item.title} loading="lazy" onError={()=>setBroken({...broken,[item.id]:true})}/>:<div className="unavailable-media"><ImageOff size={30}/><span>{item.expired?'Story expirado':'Prévia indisponível'}</span></div>}
     {item.demo&&<span className="sample-label">Exemplo visual</span>}{item.expired&&<span className="expiry-label">Expirado</span>}</div>

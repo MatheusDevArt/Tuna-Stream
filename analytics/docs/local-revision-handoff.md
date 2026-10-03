@@ -13,7 +13,7 @@ Trabalho local na branch `codex/tunastream-analytics`. Sem uso do Lovable, push 
 - Oportunidades: quadro/lista de todo o histórico, confirmação privada, cliente identificado, serviço (configuração, personalização ou ambos), pacote negociado, personalizado com nome, estado e cidade. Pacote de origem permanece preservado.
 - Vendas: negócios fechados, compradores únicos, pacotes, serviços e mapa de compras. Estado é informado no atendimento; o mapa de compradores é separado do mapa de visitantes.
 - Perfil: fotos iniciais, troca de foto, e-mail verificado, confirmação de usuário por e-mail, recuperação/troca de senha.
-- Instagram: OAuth pelo próprio Instagram, mínimo de permissões para métricas, estado de uso único vinculado à conta, tokens cifrados no servidor e renovação.
+- Instagram: dados reais da conta `tuna.stream` importados via plugin Metricool no novo banco. Três posts de 01 e 02/10/2026, miniaturas/links e métricas acumuladas; consulta em 03/10/2026 às 00:57 (Brasília). Histórico diário parcial, com fonte e datas visíveis. Reels/Stories/regiões sem registros nesta consulta, sem zeros inventados. Atualizar o painel relê o banco; atualização automática do Metricool ainda pendente. O conector direto da Meta permanece preparado, sem credenciais configuradas.
 
 ## WhatsApp e contagem
 

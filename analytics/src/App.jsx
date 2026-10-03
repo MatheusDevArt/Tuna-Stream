@@ -65,7 +65,7 @@ function Workspace({session,demo}){
  instagram:snapshot&&<InstagramPage snapshot={snapshot}/>,
  whatsapp:snapshot&&<WhatsAppPage snapshot={snapshot} leads={demo?leads:operations.leads} onStageChange={changeStage} onConfirm={async input=>{await operations.confirmContact(input);await remote.refresh();}} busy={operations.busy} reference={launch.reference} onConfirmLink={confirmLink} onPackageChange={changePackage} onClientSave={saveClient} readOnly={readOnly} crmAvailable={demo||operations.crmAvailable}/>,
  reports:snapshot&&<Reports snapshot={snapshot} operations={operations} onReportOpen={()=>setReportOpen(true)}/>,
- integrations:<Integrations operations={operations} demo={demo}/>,
+ integrations:<Integrations operations={operations} demo={demo} instagramSource={snapshot?.current.instagramSource}/>,
  access:<TeamAccess session={session} demo={demo} account={account}/>,
  };
  return <>
