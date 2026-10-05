@@ -1,4 +1,4 @@
-# Publicar a versão pronta · 05/10/2026
+# Projetos separados · 05/10/2026
 
 Fonte: `https://github.com/MatheusDevArt/Tuna-Stream`, branch `main`.
 
@@ -6,7 +6,21 @@ Fonte: `https://github.com/MatheusDevArt/Tuna-Stream`, branch `main`.
 
 O aplicativo em `analytics/` já está publicado em https://tunastream-painel.matheusdevart.chatgpt.site/ e usa o Supabase independente **TunaStream Analytics** (`fundfokaxkmgvdrpwyot`). Os registros reais, logins, coleta oficial do Instagram, clientes e cron estão instalados nesse banco. Não reinstalar nem migrar para o banco antigo do Lovable. Não copiar segredos, dados de clientes ou senhas para o chat ou o código público.
 
-Para a integração mínima, copiar `lovable/TunaAnalyticsPage.tsx` sem alterações e montá-lo na rota `/painel`. O componente abre o painel existente, repassa parâmetros de ticket/OAuth e mantém o login individual dentro dele. Não recriar componentes, métricas, gráficos ou APIs. A antiga cópia do painel deve ser substituída nessa rota para não mostrar outro banco. A infraestrutura e os dados continuam no backend já publicado; esta é uma integração de acesso, não uma transferência de hospedagem.
+O painel deve ficar em um projeto Lovable próprio, separado de **Tuna Stream Central**. Projeto criado: `5551fcbe-b85a-4660-96e3-5449e6850f72`, editor https://lovable.dev/projects/5551fcbe-b85a-4660-96e3-5449e6850f72. A importação foi solicitada a partir do commit `6afc4adba11e24c6db8b07b08ab38b9ef6df22a2`, diretório `analytics/`.
+
+Importar a fonte completa e compilar o frontend existente para `public/app/`, usando autenticação obrigatória e somente a chave pública do banco. A página inicial pode montar esse aplicativo local em `/app/index.html`, repassando query e hash; não deve incorporar o frontend remoto. Não recriar componentes, métricas, gráficos ou usuários.
+
+Os endpoints locais do projeto dedicado encaminham apenas as cinco APIs privadas de aplicação ao backend existente, preservando a autorização do usuário. O encaminhamento usa destino fixo, valida a origem, limita o corpo, recusa redirecionamentos e não utiliza chave de serviço. Banco, coleta oficial, programação e segredos continuam na infraestrutura atual. O site principal pode manter um redirecionamento de compatibilidade em `/painel`, mas não deve hospedar o aplicativo do painel.
+
+## Publicação confirmada
+
+- Nome no Lovable: **TunaStream Dashboard**.
+- Endereço do painel separado: https://tunastream-painel.lovable.app/.
+- Commit importado no projeto Lovable: `cfb53b3a40626bacf76c5c0e27666770e269e1c1`.
+- Publicação: `165fb6fb-49e1-418c-a7e2-4efdabeb3d5e`. Tela de login individual conferida no endereço publicado.
+- Importação consumiu 1,2 créditos, conforme resposta do Lovable.
+- Limitação: os créditos acabaram antes de alterar o projeto do site principal. O redirecionamento em `lovable/TunaAnalyticsPage.tsx` e o novo `panelUrl` estão preparados neste repositório, mas ainda precisam ser sincronizados/publicados naquele projeto. O endereço antigo `/painel` continua com o acesso anterior até essa sincronização.
+- O login real pelo novo encaminhamento não foi exercitado nesta publicação; a autenticação e os dados continuam no backend existente.
 
 ## Site principal
 

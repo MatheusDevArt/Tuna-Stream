@@ -1,7 +1,14 @@
-/** Existing dashboard: authentication and data remain in its deployed backend. */
+import { useEffect, useState } from 'react';
+
+/** Compatibility route; the dashboard has its own Lovable project. */
 export default function TunaAnalyticsPage() {
-  const query = typeof window === 'undefined' ? '' : window.location.search;
-  return <iframe src={'https://tunastream-painel.matheusdevart.chatgpt.site/' + query}
-    title="TunaStream — painel privado da equipe"
-    style={{position:'fixed',inset:0,width:'100%',height:'100dvh',border:0,background:'#0c0812'}} />;
+  const [target, setTarget] = useState('https://tunastream-painel.lovable.app/');
+  useEffect(() => {
+    const url = 'https://tunastream-painel.lovable.app/' + window.location.search + window.location.hash;
+    setTarget(url);
+    window.location.replace(url);
+  }, []);
+  return <main style={{padding:32,background:'#0c0812',minHeight:'100dvh',color:'#fff'}}>
+    <a href={target} style={{color:'#c084fc'}}>Abrir painel</a>
+  </main>;
 }
