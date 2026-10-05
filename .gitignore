@@ -16,3 +16,4 @@ design/recovery-*/
 Thumbs.db
 .vscode/
 dist/
+*.tar.gz

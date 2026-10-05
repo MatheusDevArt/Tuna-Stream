@@ -1,5 +1,17 @@
 # TunaStream — painel de métricas
 
+## Atualização · 05/10/2026
+
+Painel atual: https://tunastream-painel.matheusdevart.chatgpt.site/. A página apresenta o login individual da ferramenta; os dados continuam protegidos pela associação à equipe no Supabase. Para a integração mínima no Lovable, seguir `../lovable/painel-handoff.md`, sem recriar o aplicativo nem usar o banco antigo.
+
+O retrato **Conta hoje** usa a última coleta do perfil independentemente da janela escolhida: seguidores, total de publicações, Feed/Reels dos últimos 30 dias, frequência semanal média e última publicação. O desempenho abre em **Últimos 30 dias**, com as semanas ainda disponíveis. A janela diária acompanha a virada da data em Brasília. Alcance do período é consultado diretamente na Meta, nunca obtido somando alcances diários.
+
+Na coleta de 05/10 às 05:49 (Brasília), a API informou 22 seguidores, 3 publicações, 1.340 visualizações e alcance de 191 contas na janela de 30 dias. O banco registrou 6 visitas medidas ao site. A semana recém iniciada retornou zero de desempenho; esse zero não altera os dados atuais da conta. Esses números são um registro desta consulta, não valores fixos do programa.
+
+O mapa mostra o Brasil inteiro e as 27 siglas, sem seletor de estado nem elementos de seleção que geravam bordas quadradas. Dias do site anteriores à coleta ficam sem pontos. A migração `instagram_account_and_30day_windows` amplia o lote transacional para cinco períodos, mantendo permissões exclusivas de servidor.
+
+As seções abaixo registram etapas anteriores. A integração no Lovable deve usar as instruções acima e o handoff atual.
+
 ## Produção · 03/10/2026
 
 Painel: https://tunastream-painel.matheusdevart.chatgpt.site. Hospedagem restrita aos e-mails autorizados de Matheus e Adriana; o aplicativo também exige login individual e associação à equipe no Supabase. Nenhum segredo de servidor é incluído no navegador.

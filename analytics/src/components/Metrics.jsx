@@ -4,7 +4,7 @@ import { formatNumber, formatPercent, variation } from '../report.js';
 export function MetricCard({ label, value, previous, icon: Icon, color = 'purple', prefix = '', format = formatNumber }) {
   const change = variation(value, previous);
   const Direction = change < 0 ? ArrowDownRight : ArrowUpRight;
-  return <article className="metric-card"><div className="metric-label"><Icon size={23} className={'icon-' + color} strokeWidth={1.7} /><h2>{label}</h2></div><div className="metric-value-row"><strong className={value==null?'unavailable-value':undefined}>{value==null?'':prefix}{format(value)}</strong>{change!=null&&<span className={'metric-change' + (change < 0 ? ' negative' : '')}><Direction size={17}/>{(change >= 0 ? '+' : '−') + formatPercent(Math.abs(change))}</span>}</div>{change!=null&&<p>vs. semana anterior</p>}</article>;
+  return <article className="metric-card"><div className="metric-label"><Icon size={23} className={'icon-' + color} strokeWidth={1.7} /><h2>{label}</h2></div><div className="metric-value-row"><strong className={value==null?'unavailable-value':undefined}>{value==null?'':prefix}{format(value)}</strong>{change!=null&&<span className={'metric-change' + (change < 0 ? ' negative' : '')}><Direction size={17}/>{(change >= 0 ? '+' : '−') + formatPercent(Math.abs(change))}</span>}</div>{change!=null&&<p>vs. período anterior</p>}</article>;
 }
 
 export function MetricStrip({ items }) {

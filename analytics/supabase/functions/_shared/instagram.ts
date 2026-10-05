@@ -1,6 +1,6 @@
 import {admin,check,graph as providerGraph,team} from './server.ts';
 import {loadInstagram} from './instagram-auth.ts';
-import {addDays,bounds,localDay,windows} from './aggregation.js';
+import {addDays,bounds,localDay,analysisWindows,previousWindow} from './aggregation.js';
 import {count,metricValue,totalMetricValue,followerChanges,metricBreakdown} from './instagram-quality.js';
 
 export async function collectInstagram(runId:string){
@@ -17,7 +17,7 @@ export async function collectInstagram(runId:string){
   try{const result=await graph(path,{metric,...params});if(!Array.isArray(result.data))throw new Error('provider_invalid_response');return result;}
   catch(error){if(error instanceof Error&&(error.message==='provider_unsupported_metric'||allowStoryThreshold&&error.message==='provider_data_threshold'))return {data:[],unavailable:true,reason:error.message};throw error;}
  }
- const db=admin(),tenant=team(),profile=await graph(account,{fields:'id,username,followers_count'});
+ const db=admin(),tenant=team(),profile=await graph(account,{fields:'id,username,followers_count,media_count'});
  if(profile.username!=='tuna.stream')throw new Error('account_mismatch');
  const today=localDay(started),followers=count(profile.followers_count),periods:any[]=[];
  const audience:Record<string,any>={};
@@ -26,7 +26,8 @@ export async function collectInstagram(runId:string){
   audience[breakdown]=(result.data?.[0]?.total_value?.breakdowns||[]).flatMap((item:any)=>item.results||[])
    .filter((item:any)=>count(item.value)!==null).map((item:any)=>[item.dimension_values?.join(' · ')||'Não informado',item.value]).sort((a:any,b:any)=>b[1]-a[1]).slice(0,10);
  }
- for(const period of windows(started)){
+ const selectedPeriods=analysisWindows(started);
+ for(const period of [...selectedPeriods,previousWindow(selectedPeriods[0])]){
   const window=bounds(period),complete=new Date(window.end).getTime()<=started.getTime();
   // Meta documents an inclusive until; exclude the first second of the next week.
   const until=Math.floor(Math.min(new Date(window.end).getTime(),started.getTime())/1000)-(complete?1:0);
@@ -60,7 +61,7 @@ export async function collectInstagram(runId:string){
   const page=await graph(account+'/media',{fields,limit:'25',...(cursor?{after:cursor}:{})});
   if(!Array.isArray(page.data))throw new Error('provider_invalid_response');
   posts.push(...page.data);pages++;cursor=page.paging?.next?page.paging.cursors?.after||'':'';
-  if(page.data.some((post:any)=>new Date(post.timestamp)<new Date(addDays(today,-28)))){cursor='';break;}
+  if(page.data.some((post:any)=>new Date(post.timestamp)<new Date(addDays(today,-29)+'T00:00:00-03:00'))){cursor='';break;}
  }while(cursor&&pages<8);
  if(cursor)throw new Error('data_window_exceeded');
  const stories=await graph(account+'/stories',{fields:'id,media_type,media_url,thumbnail_url,permalink,timestamp',limit:'100'});
@@ -69,7 +70,7 @@ export async function collectInstagram(runId:string){
  const media:any[]=[],seen=new Set<string>();
  for(const post of [...posts,...stories.data.map((item:any)=>({...item,media_product_type:'STORY'}))]){
   if(typeof post.id!=='string'||!/^\d+$/.test(post.id)||!Number.isFinite(new Date(post.timestamp).getTime()))throw new Error('provider_invalid_response');
-  if(seen.has(post.id)||new Date(post.timestamp)<new Date(addDays(today,-28)))continue;seen.add(post.id);
+  if(seen.has(post.id)||new Date(post.timestamp)<new Date(addDays(today,-29)+'T00:00:00-03:00'))continue;seen.add(post.id);
   const channel=post.media_product_type==='REELS'?'reels':post.media_product_type==='STORY'?'stories':'feed';
   const requested=channel==='stories'?'reach,views,replies,shares,link_clicks':'reach,views,saved,shares';
   let response=await insight(post.id+'/insights',requested,{},channel==='stories'),unavailableReason=response.reason||null;
@@ -79,7 +80,8 @@ export async function collectInstagram(runId:string){
   media.push({id:post.id,published_at:post.timestamp,metrics});
  }
  if(Date.now()>deadline)throw new Error('collection_timeout');
- const batch={handle:'tuna.stream',day:today,daily:{followersTotal:followers,followersAsOf:collectedAt,followersProvider:'meta'},collectedAt,periods,media,requests,coverage:periods.every(period=>period.metrics.instagramSource.coverage==='complete')?'complete':'partial'};
+ const recentPosts=posts.filter(post=>new Date(post.timestamp)>=new Date(addDays(today,-29)+'T00:00:00-03:00'));
+ const batch={handle:'tuna.stream',day:today,daily:{followersTotal:followers,followersAsOf:collectedAt,followersProvider:'meta',publicationsTotal:count(profile.media_count),lastPublicationAt:posts.map(post=>post.timestamp).sort().at(-1)||null,publicationsLast30Days:recentPosts.length,publicationsPerWeek:recentPosts.length/30*7,publishingWindow:selectedPeriods[0],publishingCoverage:'complete'},collectedAt,periods,media,requests,coverage:periods.every(period=>period.metrics.instagramSource.coverage==='complete')?'complete':'partial'};
  if(!check(await db.rpc('analytics_commit_instagram',{tenant,run_id:runId,batch})))throw new Error('collection_superseded');
  return {status:batch.coverage,media:media.length,periods:periods.length};
 }

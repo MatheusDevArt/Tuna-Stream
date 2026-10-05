@@ -3,6 +3,6 @@ export function normalizeMetrics(value){
  const source=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
  const result={...source};
  for(const field of fields)result[field]=Array.isArray(source[field])?source[field]:[];
- result.dailyVisits=Array.isArray(source.dailyVisits)&&source.dailyVisits.length===7&&source.dailyVisits.every(value=>value===null||Number.isFinite(value))?source.dailyVisits:null;
+ result.dailyVisits=Array.isArray(source.dailyVisits)&&source.dailyVisits.length>0&&source.dailyVisits.length<=31&&source.dailyVisits.every(value=>value===null||Number.isFinite(value))?source.dailyVisits:null;
  return result;
 }

@@ -11,8 +11,10 @@ export async function syncInstagram(){
  if(!credential&&!env('INSTAGRAM_ACCESS_TOKEN',false))return {status:'pending',reason:'authorization_required'};
  const integration=check(await db.from('analytics_integrations').select('mode,last_success_at,last_error_at,error_code').eq('team_id',tenant).eq('source','instagram').maybeSingle());
  const lastSuccess=new Date(integration?.last_success_at||0).getTime(),lastError=new Date(integration?.last_error_at||0).getTime();
+ const profile=check(await db.from('instagram_daily').select('metrics').eq('team_id',tenant).order('collected_at',{ascending:false}).limit(1).maybeSingle());
+ const accountReady=profile?.metrics&&Object.hasOwn(profile.metrics,'publicationsTotal');
  // The 15-minute scheduler checks a 25-minute gate: successful runs settle around 30 minutes apart.
- if(integration?.mode==='api'&&integration.last_success_at&&now-lastSuccess<25*60000)return {status:'skipped',reason:'not_due'};
+ if(accountReady&&integration?.mode==='api'&&integration.last_success_at&&now-lastSuccess<25*60000)return {status:'skipped',reason:'not_due'};
  // Avoid retrying every scheduler tick after Meta explicitly limits the account.
  if(integration?.error_code==='provider_rate_limited'&&lastError>lastSuccess&&now-lastError<60*60000)return {status:'skipped',reason:'provider_cooldown'};
  if(!check(await db.rpc('analytics_take_rate',{bucket_key:'instagram-sync:'+tenant,max_hits:1,lifetime:300})))return {status:'skipped',reason:'already_running_or_recent_attempt'};

@@ -1,6 +1,6 @@
 import {launch} from './lib/launch.js';
 import {useProfiles} from './hooks/useProfiles.js';
-import { useMemo,useState } from 'react';
+import { useEffect,useMemo,useState } from 'react';
 import Shell from './components/Shell.jsx';
 import ReportDialog from './components/ReportDialog.jsx';
 import AuthGate from './components/AuthGate.jsx';
@@ -17,24 +17,18 @@ import { getDemoSnapshot,periods } from './data.js';
 import { demoLeads,isQuoteStage } from './whatsapp.js';
 import { useTeamSnapshot } from './hooks/useTeamSnapshot.js';
 import { normalizeMetrics } from './metrics.js';
-import { getPreviousCompleteWeek } from './report.js';
+import {analysisOptions,localDay} from './periods.js';
 import {useTeamOperations} from './hooks/useTeamOperations.js';
 import {summarizeSales} from './sales.js';
 
-function livePeriods(){
- const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
- const date=type=>parts.find(part=>part.type===type).value;
- const latest=getPreviousCompleteWeek(date('year')+'-'+date('month')+'-'+date('day'));
- const previous=getPreviousCompleteWeek(latest.start);
- const start=new Date(latest.start+'T12:00:00Z');start.setUTCDate(start.getUTCDate()+7);const end=new Date(start);end.setUTCDate(end.getUTCDate()+6);
- const current={start:start.toISOString().slice(0,10),end:end.toISOString().slice(0,10),id:'current-week',label:'Esta semana · em andamento'};
- return [current,...[latest,previous].map((period,index)=>({...period,id:index?'previous-week':'last-week',label:period.start.split('-').reverse().join('/')+' a '+period.end.split('-').reverse().join('/')}))];
-}
+const livePeriods=()=>analysisOptions();
 function Workspace({session,demo}){
  const readOnly=!demo&&import.meta.env.VITE_LIVE_READ_ONLY==='true';
- const [page,setPage]=useState(launch.reference?'whatsapp':launch.code||launch.oauthError?'integrations':'overview'),[periodId,setPeriodId]=useState(demo?'last-week':'current-week'),[reportOpen,setReportOpen]=useState(false),[operationError,setOperationError]=useState('');
+ const [page,setPage]=useState(launch.reference?'whatsapp':launch.code||launch.oauthError?'integrations':'overview'),[periodId,setPeriodId]=useState(demo?'last-week':'last-30-days'),[reportOpen,setReportOpen]=useState(false),[operationError,setOperationError]=useState('');
  const [leadPeriods,setLeadPeriods]=useState({});
- const options=useMemo(()=>demo?periods:livePeriods(),[demo]);
+ const [today,setToday]=useState(()=>localDay(new Date()));
+ useEffect(()=>{const timer=setInterval(()=>setToday(localDay(new Date())),60000);return()=>clearInterval(timer);},[]);
+ const options=useMemo(()=>demo?periods:livePeriods(),[demo,today]);
  const period=options.find(option=>option.id===periodId);
  const remote=useTeamSnapshot(session,period);
  const operations=useTeamOperations(session,period);
@@ -79,7 +73,7 @@ function Workspace({session,demo}){
  return <>
  <Shell profiles={account.profiles} userId={session?.user.id} page={page} onPageChange={navigate} periodId={periodId} periods={options} onPeriodChange={setPeriodId} onReportOpen={()=>setReportOpen(true)} reportAvailable={Boolean(snapshot)} demo={demo} readOnly={readOnly} updatedAt={remote.updatedAt} sourceUpdatedAt={snapshot&&!demo?(snapshot.current.sourceUpdatedAt||{}):null} sourceHealth={snapshot?.current.sourceHealth} instagramSource={snapshot?.current.instagramSource} onRefresh={remote.refresh}>
  {pages[page]||<Panel title={remote.loading?'Carregando métricas':'Dados da equipe'}><p className="empty-explanation" role={remote.error?'alert':'status'}>{remote.error||(remote.loading?'Buscando as informações autorizadas para sua conta…':'O acesso foi verificado. Ainda não há coleta publicada para este período.')}</p><div className="button-row overview-packages"><button className="button secondary" onClick={remote.refresh}>Tentar atualizar</button><button className="button secondary" onClick={()=>navigate('access')}>Ver meu acesso</button></div></Panel>}
- {!demo&&snapshot&&<p className="panel-note comparison-note">{periodId==='current-week'?'Comparações semanais aparecem após o fechamento do período. Os números acima são os dados atuais disponíveis.':'A variação percentual aparece somente com dados comparáveis nas duas semanas. Quando a semana anterior tem zero, uma variação percentual de crescimento não pode ser calculada.'}</p>}
+ {!demo&&snapshot&&<p className="panel-note comparison-note">{periodId==='current-week'?'A semana em andamento começa na segunda-feira. Os dados atuais da conta não são reiniciados.':'A comparação aparece somente com cobertura suficiente nos dois períodos. O retrato atual da conta é independente do período selecionado.'}</p>}
  {!demo&&snapshot?.current.sourceCoverage?.website==='partial'&&<p className="panel-note">Coleta parcial do site: este período está em andamento ou começou antes da instalação. Os números representam somente as visitas medidas.</p>}
  {operationError&&<p className="auth-error" role="alert">{operationError}</p>}
  {!demo&&operations.deliveries.some(r=>['failed','uncertain'].includes(r.status))&&<div className="demo-banner" role="alert"><p>Há um envio de relatório que precisa de atenção. <button onClick={()=>navigate('reports')}>Ver histórico de entrega</button></p></div>}
